@@ -12,6 +12,7 @@ create table if not exists public.bookings (
   email text not null,
   phone text not null,
   notes text,
+  package_name text,
   created_at timestamptz not null default now(),
   constraint bookings_unique_slot unique (service_slug, session_date, session_time)
 );

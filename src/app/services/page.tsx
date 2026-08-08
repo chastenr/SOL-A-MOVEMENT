@@ -13,37 +13,20 @@ export const metadata: Metadata = {
   alternates: { canonical: "/services" },
 };
 
-const studioRentalPackages = [
-  {
-    name: "Studio Rental",
-    price: "₱6,500",
-    detail: "2-hour exclusive studio use · up to 10 guests · no instructor · +₱300 per additional guest",
-  },
-  {
-    name: "Studio + Classics Experience",
-    price: "₱10,000",
-    detail:
-      "2-hour exclusive use + one private 50–60 min class (Mat Pilates, Yoga, Barre or Strength) · up to 10 guests · +₱450 per additional guest",
-  },
-  {
-    name: "Studio + Restore Experience",
-    price: "₱13,500",
-    detail:
-      "2-hour exclusive use + one private 50–60 min heated or infrared class · up to 10 guests · +₱650 per additional guest",
-  },
-];
-
 export default function ServicesPage() {
   return (
     <>
       <ServiceSchema />
       <section className="mx-auto max-w-7xl px-6 pt-40 pb-16 sm:px-8 lg:px-12">
-        <AnimatedSection>
+        <AnimatedSection className="flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-end">
           <SectionHeading
             eyebrow="Our Classes"
             heading="Find the movement that moves you."
             body="Every Veora class is designed with intention. Explore our offerings below, then request your booking — no memberships or online payment required."
           />
+          <Button href="/pricing" variant="secondary" className="shrink-0">
+            View Pricing
+          </Button>
         </AnimatedSection>
       </section>
 
@@ -58,34 +41,24 @@ export default function ServicesPage() {
       </section>
 
       <section className="bg-cream/40 py-24 sm:py-32">
-        <div className="mx-auto max-w-4xl px-6 sm:px-8">
+        <div className="mx-auto max-w-3xl px-6 text-center sm:px-8">
           <AnimatedSection>
             <SectionHeading
               align="center"
               eyebrow="Studio Rentals"
               heading="Host your next event at Veora."
-              body="Our studio is available for private rentals — perfect for wellness events, dance rehearsals, fitness classes and intimate gatherings. Pricing below is informational; contact us to check availability and confirm details."
+              body="Our studio is also available for private rentals — perfect for wellness events, workshops and intimate gatherings, with or without an instructor."
               className="mx-auto"
             />
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <Button href="/pricing#studio-rentals" size="lg">
+                See Rental Pricing
+              </Button>
+              <Button href="/contact" size="lg" variant="secondary">
+                Inquire Directly
+              </Button>
+            </div>
           </AnimatedSection>
-
-          <div className="mt-12 divide-y divide-charcoal/10 rounded-2xl border border-charcoal/10 bg-ivory">
-            {studioRentalPackages.map((pkg) => (
-              <div key={pkg.name} className="flex flex-col gap-1 px-6 py-5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
-                <div>
-                  <p className="font-display text-xl text-charcoal">{pkg.name}</p>
-                  <p className="mt-1 text-sm text-charcoal/60">{pkg.detail}</p>
-                </div>
-                <p className="shrink-0 text-lg text-charcoal">{pkg.price}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 flex justify-center">
-            <Button href="/contact" size="lg">
-              Inquire About Studio Rental
-            </Button>
-          </div>
         </div>
       </section>
     </>

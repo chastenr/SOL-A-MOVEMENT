@@ -16,11 +16,17 @@ type BookingFlowProps = {
   initialService?: string;
   initialDate?: string;
   initialTime?: string;
+  initialPackageName?: string;
 };
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-export function BookingFlow({ initialService, initialDate, initialTime }: BookingFlowProps) {
+export function BookingFlow({
+  initialService,
+  initialDate,
+  initialTime,
+  initialPackageName,
+}: BookingFlowProps) {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -32,6 +38,7 @@ export function BookingFlow({ initialService, initialDate, initialTime }: Bookin
       service: initialService ?? "",
       date: initialDate ?? "",
       time: initialTime ?? "",
+      packageName: initialPackageName ?? "",
       firstName: "",
       lastName: "",
       email: "",
@@ -40,6 +47,8 @@ export function BookingFlow({ initialService, initialDate, initialTime }: Bookin
       consent: false,
     },
   });
+
+  const packageName = form.watch("packageName");
 
   const serviceValue = form.watch("service");
   const dateValue = form.watch("date");
@@ -78,6 +87,7 @@ export function BookingFlow({ initialService, initialDate, initialTime }: Bookin
       service: "",
       date: "",
       time: "",
+      packageName: "",
       firstName: "",
       lastName: "",
       email: "",
@@ -110,6 +120,7 @@ export function BookingFlow({ initialService, initialDate, initialTime }: Bookin
             {step === 1 && (
               <ServiceSelector
                 value={serviceValue}
+                packageName={packageName}
                 onSelect={(slug) => form.setValue("service", slug, { shouldValidate: true })}
                 onContinue={() => setStep(2)}
               />

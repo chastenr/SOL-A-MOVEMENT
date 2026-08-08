@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getServiceBySlug } from "@/data/services";
+import { getPricingOptionBySlug } from "@/data/pricing";
 import { siteConfig } from "@/data/site";
 import { BookingFlow } from "@/components/booking/BookingFlow";
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 type BookPageProps = {
-  searchParams: Promise<{ service?: string; date?: string; time?: string }>;
+  searchParams: Promise<{ service?: string; date?: string; time?: string; package?: string }>;
 };
 
 function isValidDate(value?: string) {
@@ -21,13 +22,19 @@ function isValidDate(value?: string) {
 
 export default async function BookPage({ searchParams }: BookPageProps) {
   const params = await searchParams;
-  const service = getServiceBySlug(params.service ?? "")?.slug;
+  const pricingOption = getPricingOptionBySlug(params.package ?? "");
+  const service = getServiceBySlug(params.service ?? pricingOption?.serviceSlug ?? "")?.slug;
   const date = isValidDate(params.date) ? params.date : undefined;
   const time = date && params.time ? params.time : undefined;
 
   return (
     <section className="mx-auto max-w-5xl px-6 pt-36 pb-24 sm:px-8 sm:pb-32 lg:px-12">
-      <BookingFlow initialService={service} initialDate={date} initialTime={time} />
+      <BookingFlow
+        initialService={service}
+        initialDate={date}
+        initialTime={time}
+        initialPackageName={pricingOption?.name}
+      />
     </section>
   );
 }

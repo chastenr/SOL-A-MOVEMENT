@@ -69,6 +69,7 @@ export async function POST(request: Request) {
       email: booking.email,
       phone: booking.phone,
       notes: booking.notes || null,
+      package_name: booking.packageName || null,
     });
 
     if (insertError) {
@@ -95,6 +96,7 @@ export async function POST(request: Request) {
     email: booking.email,
     phone: booking.phone,
     serviceName: service.name,
+    packageName: booking.packageName,
     formattedDate,
     time: booking.time,
     notes: booking.notes,

@@ -8,15 +8,22 @@ import { cn } from "@/lib/utils";
 
 type ServiceSelectorProps = {
   value?: string;
+  packageName?: string;
   onSelect: (slug: string) => void;
   onContinue: () => void;
 };
 
-export function ServiceSelector({ value, onSelect, onContinue }: ServiceSelectorProps) {
+export function ServiceSelector({ value, packageName, onSelect, onContinue }: ServiceSelectorProps) {
   return (
     <div>
       <h2 className="font-display text-3xl text-charcoal sm:text-4xl">Select a service</h2>
       <p className="mt-2 text-charcoal/60">Choose the session you would like to book.</p>
+
+      {packageName && (
+        <p className="mt-4 inline-flex items-center rounded-full bg-cream/60 px-4 py-2 text-sm text-charcoal/70">
+          Booking with: <span className="ml-1.5 font-medium text-charcoal">{packageName}</span>
+        </p>
+      )}
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {services.map((service) => {

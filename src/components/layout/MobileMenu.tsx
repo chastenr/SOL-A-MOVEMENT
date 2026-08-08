@@ -16,7 +16,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-40 flex flex-col bg-ivory lg:hidden"
+          className="fixed inset-0 z-40 flex flex-col bg-ivory xl:hidden"
         >
           <div className="flex-1 overflow-y-auto px-8 pt-28 pb-10">
             <nav className="flex flex-col gap-2">

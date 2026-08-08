@@ -41,6 +41,7 @@ export function BookingConfirmation({
 
       <dl className="mt-10 w-full max-w-sm divide-y divide-charcoal/10 rounded-2xl border border-charcoal/10 text-left">
         <Row label="Service" value={service?.name ?? booking.service} />
+        {booking.packageName && <Row label="Package" value={booking.packageName} />}
         <Row label="Date" value={format(parseISO(booking.date), "EEEE, MMMM d, yyyy")} />
         <Row label="Time" value={booking.time} />
       </dl>

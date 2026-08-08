@@ -25,6 +25,7 @@ export function BookingReview({ values, onBack, onConfirm, submitting, error }: 
 
       <dl className="mt-8 divide-y divide-charcoal/10 rounded-2xl border border-charcoal/10">
         <Row label="Service" value={service?.name ?? values.service} />
+        {values.packageName && <Row label="Package" value={values.packageName} />}
         <Row label="Date" value={format(parseISO(values.date), "EEEE, MMMM d, yyyy")} />
         <Row label="Time" value={values.time} />
         <Row label="Name" value={`${values.firstName} ${values.lastName}`} />

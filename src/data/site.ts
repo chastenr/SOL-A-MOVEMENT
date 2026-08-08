@@ -1,3 +1,7 @@
+import { getPrimaryLocation } from "@/data/locations";
+
+const primaryLocation = getPrimaryLocation();
+
 export const siteConfig = {
   name: "Veora Wellness",
   shortName: "Veora",
@@ -10,29 +14,19 @@ export const siteConfig = {
   // years of history, an established client base, or existing reviews.
   isPreLaunch: true,
 
+  // Primary studio contact — sourced from locations.ts (the single source of
+  // truth once Veora adds more branches).
   contact: {
-    email: "hello@veorawellness.com",
-    phone: "+63 917 319 4772",
-    address: {
-      line1: "2nd Floor, EMRADEE Building, Daang Hari Road",
-      line2: "Molino IV, Bacoor, Cavite, 4102, Philippines",
-      full: "2nd Floor, EMRADEE Building, Daang Hari Road, Molino IV, Bacoor, Cavite, 4102, Philippines",
-      streetAddress: "2nd Floor, EMRADEE Building, Daang Hari Road, Molino IV",
-      addressLocality: "Bacoor",
-      addressRegion: "Cavite",
-      postalCode: "4102",
-      addressCountry: "PH",
-    },
-    geo: {
-      lat: 14.4108087,
-      lng: 120.9503414,
-    },
-    instagram: "https://www.instagram.com/spacioblnc/",
+    email: primaryLocation.email,
+    phone: primaryLocation.phone,
+    address: primaryLocation.address,
+    geo: primaryLocation.geo,
+    mapUrl: primaryLocation.mapUrl,
   },
 
   // Business hours have not been published yet — do not display fabricated hours.
-  hours: [] as { day: string; hours: string }[],
-  hoursNote: "Studio hours will be announced closer to opening. Contact us for current availability.",
+  hours: primaryLocation.hours,
+  hoursNote: primaryLocation.hoursNote ?? "",
 
   // Weekday indices (0 = Sunday ... 6 = Saturday) the studio is closed for booking.
   closedWeekdays: [0] as number[],
@@ -57,7 +51,9 @@ export const siteConfig = {
     { label: "Home", href: "/" },
     { label: "About", href: "/about" },
     { label: "Services", href: "/services" },
+    { label: "Pricing", href: "/pricing" },
     { label: "Schedule", href: "/schedule" },
+    { label: "Locations", href: "/locations" },
     { label: "Contact", href: "/contact" },
   ],
 
@@ -65,7 +61,9 @@ export const siteConfig = {
     { label: "Home", href: "/" },
     { label: "About", href: "/about" },
     { label: "Services", href: "/services" },
+    { label: "Pricing", href: "/pricing" },
     { label: "Schedule", href: "/schedule" },
+    { label: "Locations", href: "/locations" },
     { label: "Book", href: "/book" },
     { label: "Contact", href: "/contact" },
     { label: "FAQ", href: "/faq" },

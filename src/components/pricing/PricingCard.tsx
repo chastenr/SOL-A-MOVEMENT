@@ -1,0 +1,61 @@
+import { Check } from "lucide-react";
+import { TiltCard } from "@/components/ui/TiltCard";
+import { Button } from "@/components/ui/Button";
+import type { PricingOption } from "@/data/pricing";
+import { cn } from "@/lib/utils";
+
+type PricingCardProps = {
+  option: PricingOption;
+  ctaType: "book" | "inquire";
+  className?: string;
+};
+
+export function PricingCard({ option, ctaType, className }: PricingCardProps) {
+  const bookingHref =
+    ctaType === "book"
+      ? `/book?package=${option.slug}${option.serviceSlug ? `&service=${option.serviceSlug}` : ""}`
+      : `/contact?topic=Studio+Rental`;
+
+  return (
+    <TiltCard maxTilt={3} className={cn("h-full rounded-2xl border border-charcoal/10 bg-ivory p-8", className)}>
+      <div className="flex h-full flex-col">
+        <p className="font-display text-xl text-charcoal">{option.name}</p>
+
+        <div className="mt-4 flex items-baseline gap-2">
+          <span className="font-display text-4xl text-charcoal">{option.price}</span>
+          {option.originalPrice && (
+            <span className="text-sm text-charcoal/40 line-through">{option.originalPrice}</span>
+          )}
+        </div>
+        <p className="mt-1 text-xs uppercase tracking-[0.1em] text-charcoal/45">{option.validity}</p>
+
+        <p className="mt-5 text-sm leading-relaxed text-charcoal/70">{option.description}</p>
+
+        <ul className="mt-5 space-y-2">
+          {option.includedServices.map((item) => (
+            <li key={item} className="flex items-start gap-2 text-sm text-charcoal/65">
+              <Check size={15} className="mt-0.5 shrink-0 text-clay" aria-hidden />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+
+        {option.conditions && option.conditions.length > 0 && (
+          <ul className="mt-4 space-y-1 border-t border-charcoal/10 pt-4">
+            {option.conditions.map((condition) => (
+              <li key={condition} className="text-xs leading-relaxed text-charcoal/45">
+                {condition}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="mt-6 flex-1" />
+
+        <Button href={bookingHref} className="mt-6 w-full">
+          {ctaType === "book" ? "Book a Session" : "Inquire About This Package"}
+        </Button>
+      </div>
+    </TiltCard>
+  );
+}

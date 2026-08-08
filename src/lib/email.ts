@@ -41,6 +41,7 @@ export type BookingEmailPayload = {
   email: string;
   phone: string;
   serviceName: string;
+  packageName?: string;
   formattedDate: string;
   time: string;
   notes?: string;
@@ -58,6 +59,7 @@ export async function sendOwnerBookingEmail(booking: BookingEmailPayload) {
       ${row("Email", booking.email)}
       ${row("Phone", booking.phone)}
       ${row("Service", booking.serviceName)}
+      ${booking.packageName ? row("Package", booking.packageName) : ""}
       ${row("Date", booking.formattedDate)}
       ${row("Time", booking.time)}
       ${row("Notes", booking.notes ? booking.notes : "—")}
@@ -88,6 +90,7 @@ export async function sendCustomerBookingEmail(booking: BookingEmailPayload) {
      <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Thank you for booking with Veora Wellness. ${statusLine}</p>
      <table style="width:100%;border-collapse:collapse;margin:16px 0;">
        ${row("Service", booking.serviceName)}
+       ${booking.packageName ? row("Package", booking.packageName) : ""}
        ${row("Date", booking.formattedDate)}
        ${row("Time", booking.time)}
      </table>

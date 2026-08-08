@@ -10,7 +10,7 @@ export function ServiceSchema() {
     description: service.description,
     category: service.category,
     provider: {
-      "@type": "HealthAndBeautyBusiness",
+      "@type": "ExerciseGym",
       name: siteConfig.name,
       url: siteConfig.url,
     },

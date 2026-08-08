@@ -20,10 +20,12 @@ const TOPICS = [
 const inputClasses =
   "w-full rounded-xl border border-charcoal/15 bg-ivory px-4 py-3 text-sm text-charcoal placeholder:text-charcoal/35 transition-colors focus:border-charcoal focus:outline-none";
 
-export function ContactForm() {
+export function ContactForm({ initialTopic }: { initialTopic?: string }) {
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const validInitialTopic = TOPICS.find((topic) => topic === initialTopic) ?? "";
 
   const {
     register,
@@ -37,7 +39,7 @@ export function ContactForm() {
       lastName: "",
       email: "",
       phone: "",
-      topic: "",
+      topic: validInitialTopic,
       message: "",
     },
   });
@@ -106,7 +108,7 @@ export function ContactForm() {
             <input type="tel" {...register("phone")} className={inputClasses} autoComplete="tel" />
           </Field>
           <Field label="Topic" required error={errors.topic?.message} className="sm:col-span-2">
-            <select {...register("topic")} className={cn(inputClasses, "appearance-none")} defaultValue="">
+            <select {...register("topic")} className={cn(inputClasses, "appearance-none")} defaultValue={validInitialTopic}>
               <option value="" disabled>
                 Select a topic
               </option>

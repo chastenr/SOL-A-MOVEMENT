@@ -4,6 +4,8 @@ export const bookingSchema = z.object({
   service: z.string().min(1, "Please select a service."),
   date: z.string().min(1, "Please select a date."),
   time: z.string().min(1, "Please select a time."),
+  /** Optional pricing/package option name carried through from /pricing — informational only, no payment is processed. */
+  packageName: z.string().trim().max(120).optional().or(z.literal("")),
   firstName: z.string().trim().min(1, "First name is required.").max(80),
   lastName: z.string().trim().min(1, "Last name is required.").max(80),
   email: z.string().trim().min(1, "Email is required.").email("Enter a valid email address."),

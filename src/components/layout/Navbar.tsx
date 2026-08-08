@@ -48,7 +48,7 @@ export function Navbar() {
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-10 lg:flex">
+          <nav className="hidden items-center gap-6 xl:flex">
             {siteConfig.nav.map((item) => {
               const isActive = pathname === item.href;
               return (
@@ -56,18 +56,25 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "text-sm uppercase tracking-[0.12em] transition-colors duration-300",
+                    "relative py-1 text-sm uppercase tracking-[0.12em] transition-colors duration-300",
                     isActive ? "text-charcoal" : "text-charcoal/60 hover:text-charcoal"
                   )}
                 >
                   {item.label}
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-active-indicator"
+                      className="absolute -bottom-1 left-0 right-0 h-px bg-clay"
+                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                    />
+                  )}
                 </Link>
               );
             })}
           </nav>
 
-          <div className="hidden lg:block">
-            <Button href="/book" size="md">
+          <div className="hidden xl:block">
+            <Button href="/book" size="md" magnetic>
               {siteConfig.bookingCtaLabel}
             </Button>
           </div>
@@ -77,7 +84,7 @@ export function Navbar() {
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((open) => !open)}
-            className="relative z-50 flex h-10 w-10 flex-col items-center justify-center gap-[6px] lg:hidden"
+            className="relative z-50 flex h-10 w-10 flex-col items-center justify-center gap-[6px] xl:hidden"
           >
             <motion.span
               animate={{ rotate: mobileOpen ? 45 : 0, y: mobileOpen ? 6 : 0 }}

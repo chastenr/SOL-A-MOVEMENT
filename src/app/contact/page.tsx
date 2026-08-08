@@ -12,7 +12,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/contact" },
 };
 
-export default function ContactPage() {
+type ContactPageProps = {
+  searchParams: Promise<{ topic?: string }>;
+};
+
+export default async function ContactPage({ searchParams }: ContactPageProps) {
+  const params = await searchParams;
+
   return (
     <section className="mx-auto max-w-7xl px-6 pt-40 pb-24 sm:px-8 sm:pb-32 lg:px-12">
       <AnimatedSection>
@@ -60,7 +66,7 @@ export default function ContactPage() {
         </AnimatedSection>
 
         <AnimatedSection delay={0.1}>
-          <ContactForm />
+          <ContactForm initialTopic={params.topic} />
         </AnimatedSection>
       </div>
     </section>

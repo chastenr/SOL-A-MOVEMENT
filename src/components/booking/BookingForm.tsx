@@ -26,6 +26,7 @@ export function BookingForm({ form, onContinue, onBack }: BookingFormProps) {
   const service = getServiceBySlug(watch("service"));
   const date = watch("date");
   const time = watch("time");
+  const packageName = watch("packageName");
 
   return (
     <div>
@@ -38,6 +39,12 @@ export function BookingForm({ form, onContinue, onBack }: BookingFormProps) {
         <span>{date ? format(parseISO(date), "EEEE, MMMM d") : ""}</span>
         <span aria-hidden>·</span>
         <span>{time}</span>
+        {packageName && (
+          <>
+            <span aria-hidden>·</span>
+            <span>{packageName}</span>
+          </>
+        )}
       </div>
 
       <form
