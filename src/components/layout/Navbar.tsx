@@ -44,7 +44,7 @@ export function Navbar() {
           <Link href="/" className="font-display text-xl tracking-[0.08em] text-charcoal">
             {siteConfig.shortName}
             <span className="ml-2 hidden text-xs font-sans font-normal uppercase tracking-[0.2em] text-charcoal/60 sm:inline">
-              Movement &amp; Wellness
+              Wellness Studio
             </span>
           </Link>
 

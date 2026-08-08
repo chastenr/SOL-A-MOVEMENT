@@ -1,86 +1,192 @@
-import { addDays, parse, startOfWeek } from "date-fns";
-import { getServiceBySlug, type ServiceCategory } from "@/data/services";
+import type { ServiceCategory } from "@/data/services";
 
-export type ScheduleTemplate = {
+export type ClassDirectoryEntry = {
   id: string;
+  name: string;
+  category: ServiceCategory;
+  /** Slug of the umbrella service this class books under in the /book flow. */
   serviceSlug: string;
-  instructor: string;
-  /** 0 = Sunday ... 6 = Saturday */
-  dayOfWeek: number;
-  time: string;
   duration: string;
-  spots: number;
+  level: string;
+  description: string;
 };
 
-// Recurring weekly session templates. Edit freely — dates are generated
-// relative to the current week, so this list never goes stale.
-export const scheduleTemplates: ScheduleTemplate[] = [
-  { id: "mon-reformer-9", serviceSlug: "reformer-pilates", instructor: "TODO — Instructor name", dayOfWeek: 1, time: "9:00 AM", duration: "50 min", spots: 8 },
-  { id: "mon-yoga-1030", serviceSlug: "yoga-flow", instructor: "TODO — Instructor name", dayOfWeek: 1, time: "10:30 AM", duration: "55 min", spots: 10 },
-  { id: "mon-mobility-530", serviceSlug: "mobility-stretch", instructor: "TODO — Instructor name", dayOfWeek: 1, time: "5:30 PM", duration: "45 min", spots: 8 },
-  { id: "tue-mat-9", serviceSlug: "mat-pilates", instructor: "TODO — Instructor name", dayOfWeek: 2, time: "9:00 AM", duration: "45 min", spots: 10 },
-  { id: "tue-private-11", serviceSlug: "private-sessions", instructor: "TODO — Instructor name", dayOfWeek: 2, time: "11:00 AM", duration: "50 min", spots: 1 },
-  { id: "tue-reformer-430", serviceSlug: "reformer-pilates", instructor: "TODO — Instructor name", dayOfWeek: 2, time: "4:30 PM", duration: "50 min", spots: 8 },
-  { id: "wed-yoga-9", serviceSlug: "yoga-flow", instructor: "TODO — Instructor name", dayOfWeek: 3, time: "9:00 AM", duration: "55 min", spots: 10 },
-  { id: "wed-wellness-1230", serviceSlug: "wellness-sessions", instructor: "TODO — Instructor name", dayOfWeek: 3, time: "12:30 PM", duration: "45 min", spots: 6 },
-  { id: "wed-reformer-6", serviceSlug: "reformer-pilates", instructor: "TODO — Instructor name", dayOfWeek: 3, time: "6:00 PM", duration: "50 min", spots: 8 },
-  { id: "thu-mat-930", serviceSlug: "mat-pilates", instructor: "TODO — Instructor name", dayOfWeek: 4, time: "9:30 AM", duration: "45 min", spots: 10 },
-  { id: "thu-mobility-1", serviceSlug: "mobility-stretch", instructor: "TODO — Instructor name", dayOfWeek: 4, time: "1:00 PM", duration: "45 min", spots: 8 },
-  { id: "thu-private-5", serviceSlug: "private-sessions", instructor: "TODO — Instructor name", dayOfWeek: 4, time: "5:00 PM", duration: "50 min", spots: 1 },
-  { id: "fri-reformer-9", serviceSlug: "reformer-pilates", instructor: "TODO — Instructor name", dayOfWeek: 5, time: "9:00 AM", duration: "50 min", spots: 8 },
-  { id: "fri-yoga-1030", serviceSlug: "yoga-flow", instructor: "TODO — Instructor name", dayOfWeek: 5, time: "10:30 AM", duration: "55 min", spots: 10 },
-  { id: "sat-mat-9", serviceSlug: "mat-pilates", instructor: "TODO — Instructor name", dayOfWeek: 6, time: "9:00 AM", duration: "45 min", spots: 12 },
-  { id: "sat-wellness-1030", serviceSlug: "wellness-sessions", instructor: "TODO — Instructor name", dayOfWeek: 6, time: "10:30 AM", duration: "45 min", spots: 6 },
+// Veora does not yet have a published weekly class timetable (no specific
+// dates, times or instructors have been confirmed). Rather than invent a
+// fake recurring schedule, this is the real class directory — every class
+// type currently offered — so clients can browse and request a booking.
+// Update this list once a live timetable and instructor roster exist.
+export const classDirectory: ClassDirectoryEntry[] = [
+  {
+    id: "mat-pilates",
+    name: "Mat Pilates",
+    category: "Mat Pilates",
+    serviceSlug: "mat-pilates",
+    duration: "50 min",
+    level: "Open to all",
+    description:
+      "Strengthen your core, improve balance and enhance flexibility with confidence and precision.",
+  },
+  {
+    id: "hatha",
+    name: "Hatha",
+    category: "Yoga",
+    serviceSlug: "yoga",
+    duration: "50 min",
+    level: "Open to all",
+    description: "Improve flexibility, balance and relaxation with traditional yoga poses and mindful breathing.",
+  },
+  {
+    id: "vinyasa-yoga",
+    name: "Vinyasa Yoga",
+    category: "Yoga",
+    serviceSlug: "yoga",
+    duration: "50 min",
+    level: "Open to all",
+    description: "Improve strength, flexibility and mindfulness with breath-led movement that flows between poses.",
+  },
+  {
+    id: "power-yoga",
+    name: "Power Yoga",
+    category: "Yoga",
+    serviceSlug: "yoga",
+    duration: "50 min",
+    level: "Open to all",
+    description: "Build strength, stamina and confidence through energetic, full-body yoga.",
+  },
+  {
+    id: "ashtanga",
+    name: "Ashtanga",
+    category: "Yoga",
+    serviceSlug: "yoga",
+    duration: "50 min",
+    level: "Open to all",
+    description: "Build strength, endurance and discipline through a dynamic, structured sequence of postures.",
+  },
+  {
+    id: "restorative-yoga",
+    name: "Restorative Yoga",
+    category: "Yoga",
+    serviceSlug: "yoga",
+    duration: "50 min",
+    level: "Open to all",
+    description: "Reduce stress, improve flexibility and promote deep relaxation through gentle, supported poses.",
+  },
+  {
+    id: "gentle-flow-yoga",
+    name: "Gentle Flow Yoga",
+    category: "Yoga",
+    serviceSlug: "yoga",
+    duration: "50 min",
+    level: "Open to all",
+    description: "Improve mobility, balance and relaxation through slow, mindful movement suitable for all levels.",
+  },
+  {
+    id: "stretch-yoga",
+    name: "Stretch Yoga",
+    category: "Yoga",
+    serviceSlug: "yoga",
+    duration: "50 min",
+    level: "Open to all",
+    description: "Improve flexibility, mobility and recovery with guided stretches that reduce muscle tension.",
+  },
+  {
+    id: "yogalates",
+    name: "Yogalates",
+    category: "Yoga",
+    serviceSlug: "yoga",
+    duration: "50 min",
+    level: "Open to all",
+    description: "Improve strength, flexibility and core stability by combining yoga and Pilates.",
+  },
+  {
+    id: "barre",
+    name: "Barre",
+    category: "Barre",
+    serviceSlug: "barre",
+    duration: "50 min",
+    level: "Open to all",
+    description: "Improve posture, balance and muscle endurance through low-impact, ballet-inspired movement.",
+  },
+  {
+    id: "mat-strength",
+    name: "Mat Strength",
+    category: "Strength & HIIT",
+    serviceSlug: "strength-hiit",
+    duration: "50 min",
+    level: "Open to all",
+    description: "Develop functional strength, stability and balance with guided full-body resistance exercises.",
+  },
+  {
+    id: "mat-sculpt",
+    name: "Mat Sculpt",
+    category: "Strength & HIIT",
+    serviceSlug: "strength-hiit",
+    duration: "50 min",
+    level: "Open to all",
+    description: "Build lean muscle, improve endurance and tone your body through targeted, strength-focused movement.",
+  },
+  {
+    id: "functional-group-exercise",
+    name: "Functional Group Exercise",
+    category: "Strength & HIIT",
+    serviceSlug: "strength-hiit",
+    duration: "50 min",
+    level: "Open to all",
+    description: "Improve strength, mobility and overall fitness in a supportive group setting.",
+  },
+  {
+    id: "hiit",
+    name: "HIIT",
+    category: "Strength & HIIT",
+    serviceSlug: "strength-hiit",
+    duration: "50 min",
+    level: "Open to all",
+    description: "Improve cardiovascular fitness, build strength and burn calories through high-intensity intervals.",
+  },
+  {
+    id: "little-swans-ballet",
+    name: "Little Swans Ballet (3–5 yrs)",
+    category: "Ballet",
+    serviceSlug: "ballet",
+    duration: "60 min",
+    level: "Beginner",
+    description: "Play-based ballet that introduces coordination, balance, rhythm and imaginative storytelling.",
+  },
+  {
+    id: "tiny-stars-ballet",
+    name: "Tiny Stars Ballet (6–8 yrs)",
+    category: "Ballet",
+    serviceSlug: "ballet",
+    duration: "60 min",
+    level: "Beginner",
+    description: "The basic foundations of classical ballet — posture, balance, coordination and flexibility.",
+  },
+  {
+    id: "rising-stars-ballet",
+    name: "Rising Stars Ballet (9–12 yrs)",
+    category: "Ballet",
+    serviceSlug: "ballet",
+    duration: "90 min",
+    level: "Beginner to Intermediate",
+    description: "Classical technique and alignment, with proper turns, jumps and movement quality.",
+  },
+  {
+    id: "prima-ballet",
+    name: "Prima Ballet (13–17 yrs)",
+    category: "Ballet",
+    serviceSlug: "ballet",
+    duration: "90 min",
+    level: "Beginner to Intermediate",
+    description: "Refined technique, artistry and performance skills, with a focus on alignment and injury prevention.",
+  },
+  {
+    id: "adult-ballet",
+    name: "Adult Ballet (18+)",
+    category: "Ballet",
+    serviceSlug: "ballet",
+    duration: "60 min",
+    level: "Beginner",
+    description: "Ballet fundamentals in a welcoming, supportive environment — perfect for complete beginners.",
+  },
 ];
-
-export type ScheduleSession = {
-  id: string;
-  date: Date;
-  time: string;
-  duration: string;
-  instructor: string;
-  spots: number;
-  service: {
-    slug: string;
-    name: string;
-    category: ServiceCategory;
-  };
-};
-
-/** Expands the recurring templates into dated sessions for the week containing `reference`. */
-export function getWeekSchedule(reference: Date, weeksAhead = 0): ScheduleSession[] {
-  const weekStart = addDays(startOfWeek(reference, { weekStartsOn: 1 }), weeksAhead * 7);
-
-  return scheduleTemplates
-    .map((template) => {
-      const service = getServiceBySlug(template.serviceSlug);
-      if (!service) return null;
-
-      const date = addDays(weekStart, template.dayOfWeek === 0 ? 6 : template.dayOfWeek - 1);
-
-      return {
-        id: `${template.id}-${date.toISOString().slice(0, 10)}`,
-        date,
-        time: template.time,
-        duration: template.duration,
-        instructor: template.instructor,
-        spots: template.spots,
-        service: {
-          slug: service.slug,
-          name: service.name,
-          category: service.category,
-        },
-      } satisfies ScheduleSession;
-    })
-    .filter((session): session is ScheduleSession => session !== null)
-    .sort((a, b) => a.date.getTime() - b.date.getTime());
-}
-
-/** Combines a session's calendar date with its "9:00 AM"-style time string. */
-export function combineDateAndTime(date: Date, time: string): Date {
-  return parse(time, "h:mm a", date);
-}
-
-export function isSessionUpcoming(session: Pick<ScheduleSession, "date" | "time">, reference: Date): boolean {
-  return combineDateAndTime(session.date, session.time).getTime() >= reference.getTime();
-}

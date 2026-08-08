@@ -1,4 +1,4 @@
--- SOLÉA Movement & Wellness — booking storage
+-- Veora Wellness — booking storage
 -- Run this in the Supabase SQL editor. Optional: the site works via email
 -- alone if this table is never created and Supabase env vars are left unset.
 

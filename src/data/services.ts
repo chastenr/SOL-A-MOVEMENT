@@ -1,6 +1,6 @@
 import { images } from "@/data/images";
 
-export type ServiceCategory = "Pilates" | "Yoga" | "Wellness" | "Private";
+export type ServiceCategory = "Mat Pilates" | "Yoga" | "Barre" | "Strength & HIIT" | "Recovery & Restore" | "Ballet";
 
 export type Service = {
   slug: string;
@@ -11,86 +11,104 @@ export type Service = {
   duration: string;
   level: string;
   instructor?: string;
+  /** Real, informational pricing published by the studio — no online payment is collected. */
+  startingPrice?: string;
+  classVariants?: string[];
   image: { src: string; alt: string; credit?: string };
 };
 
 export const services: Service[] = [
   {
-    slug: "reformer-pilates",
-    name: "Reformer Pilates",
-    category: "Pilates",
-    shortDescription:
-      "Build strength, control and stability through intentional reformer movement.",
-    description:
-      "Using the resistance and support of the reformer, this session builds long, lean strength while improving alignment, control and body awareness. Each class is guided to meet you where you are, whether you're new to the reformer or refining an established practice.",
-    duration: "50 min",
-    level: "All levels",
-    instructor: "TODO — Instructor name",
-    image: images.services["reformer-pilates"],
-  },
-  {
     slug: "mat-pilates",
     name: "Mat Pilates",
-    category: "Pilates",
+    category: "Mat Pilates",
     shortDescription:
-      "Foundational Pilates focused on core strength, mobility and alignment.",
+      "Strengthen your core, improve balance and enhance flexibility on the mat.",
     description:
-      "A grounded, floor-based practice that builds core strength from the inside out. Mat Pilates emphasizes breath, control and precision, creating a foundation of strength and mobility that carries into everyday movement.",
-    duration: "45 min",
-    level: "Beginner friendly",
-    instructor: "TODO — Instructor name",
+      "Move with intention in our Mat Pilates classes, where you'll strengthen your core, improve balance and enhance flexibility. Every session is led by experienced instructors and designed to help you build strength with confidence, precision and personalized guidance.",
+    duration: "50 min",
+    level: "Open to all",
+    startingPrice: "₱850 for a single class",
     image: images.services["mat-pilates"],
   },
   {
-    slug: "yoga-flow",
-    name: "Yoga Flow",
+    slug: "yoga",
+    name: "Yoga",
     category: "Yoga",
     shortDescription:
-      "Breath-led movement designed to improve flexibility, balance and body awareness.",
+      "Breath-led movement, from energizing flows to gentle, restorative practice.",
     description:
-      "A dynamic, breath-led sequence that moves through strength, balance and flexibility. Yoga Flow is designed to quiet the mind while building an intuitive, embodied sense of movement.",
-    duration: "55 min",
-    level: "All levels",
-    instructor: "TODO — Instructor name",
-    image: images.services["yoga-flow"],
-  },
-  {
-    slug: "mobility-stretch",
-    name: "Mobility & Stretch",
-    category: "Wellness",
-    shortDescription:
-      "Intentional sessions designed to improve movement, release tension and restore mobility.",
-    description:
-      "A slower, deeply intentional session focused on releasing tension, restoring range of motion and improving how your body moves and feels. A restorative complement to a strength-focused practice.",
-    duration: "45 min",
-    level: "All levels",
-    instructor: "TODO — Instructor name",
-    image: images.services["mobility-stretch"],
-  },
-  {
-    slug: "private-sessions",
-    name: "Private Sessions",
-    category: "Private",
-    shortDescription: "Personalized one-on-one movement designed around your goals.",
-    description:
-      "A fully personalized session designed around your body, your goals and your pace. Private sessions offer individualized attention and a program that evolves with you over time.",
+      "From energizing Vinyasa and Power Yoga to gentle Hatha, Restorative, Gentle Flow, Stretch Yoga and Yogalates, our yoga classes build flexibility, balance and mindful breath at whatever pace suits you.",
     duration: "50 min",
-    level: "Personalized",
-    instructor: "TODO — Instructor name",
-    image: images.services["private-sessions"],
+    level: "Open to all",
+    startingPrice: "₱850 for a single class",
+    classVariants: [
+      "Hatha",
+      "Vinyasa Yoga",
+      "Power Yoga",
+      "Ashtanga",
+      "Restorative Yoga",
+      "Gentle Flow Yoga",
+      "Stretch Yoga",
+      "Yogalates",
+    ],
+    image: images.services.yoga,
   },
   {
-    slug: "wellness-sessions",
-    name: "Wellness Sessions",
-    category: "Wellness",
-    shortDescription:
-      "An editable placeholder for any additional wellness services SOLÉA offers.",
+    slug: "barre",
+    name: "Barre",
+    category: "Barre",
+    shortDescription: "Low-impact, ballet-inspired movement for posture and endurance.",
     description:
-      "TODO — Placeholder for additional wellness offerings such as recovery, breathwork or bodywork sessions. Update this description once SOLÉA finalizes the details of this offering.",
-    duration: "TODO",
-    level: "All levels",
-    instructor: undefined,
-    image: images.services["wellness-sessions"],
+      "Improve posture, balance and muscle endurance through low-impact movements inspired by ballet — a full-body sculpting class suited to every level.",
+    duration: "50 min",
+    level: "Open to all",
+    startingPrice: "₱850 for a single class",
+    image: images.services.barre,
+  },
+  {
+    slug: "strength-hiit",
+    name: "Strength & HIIT",
+    category: "Strength & HIIT",
+    shortDescription: "Functional strength, sculpt and cardio conditioning classes.",
+    description:
+      "Build functional strength, tone and cardiovascular fitness through Mat Strength, Mat Sculpt, Functional Group Exercise and HIIT — guided, full-body sessions for every fitness level.",
+    duration: "50 min",
+    level: "Open to all",
+    startingPrice: "₱850 for a single class",
+    classVariants: ["Mat Strength", "Mat Sculpt", "Functional Group Exercise", "HIIT"],
+    image: images.services["strength-hiit"],
+  },
+  {
+    slug: "recovery-restore",
+    name: "Recovery & Restore",
+    category: "Recovery & Restore",
+    shortDescription: "Infrared-heated and red light therapy recovery classes.",
+    description:
+      "Our Restore classes bring the heat. Choose from infrared-heated versions of our signature Pilates, yoga, barre and strength classes, or red light therapy sessions designed to support circulation, recovery and deep relaxation.",
+    duration: "50 min",
+    level: "Open to all",
+    startingPrice: "₱1,500 for a single class",
+    image: images.services["recovery-restore"],
+  },
+  {
+    slug: "ballet",
+    name: "Ballet",
+    category: "Ballet",
+    shortDescription: "Classical ballet training for every age, from 3 through adult.",
+    description:
+      "Structured ballet training for every age — from playful, play-based first steps at 3–5 years old through disciplined technique for teens and adults — building posture, coordination, artistry and confidence.",
+    duration: "60–90 min, varies by age group",
+    level: "Beginner-friendly, all ages",
+    startingPrice: "₱1,000 trial class",
+    classVariants: [
+      "Little Swans Ballet (3–5 yrs)",
+      "Tiny Stars Ballet (6–8 yrs)",
+      "Rising Stars Ballet (9–12 yrs)",
+      "Prima Ballet (13–17 yrs)",
+      "Adult Ballet (18+)",
+    ],
+    image: images.services.ballet,
   },
 ];
 

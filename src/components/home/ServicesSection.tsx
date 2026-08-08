@@ -10,8 +10,9 @@ export function ServicesSection() {
       <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
         <AnimatedSection className="flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-end">
           <SectionHeading
-            eyebrow="Our Offerings"
-            heading="Movement for every season of you."
+            eyebrow="Our Classes"
+            heading="Find the movement that moves you."
+            body="Whether you're trying your first class or building a consistent routine, we have flexible options designed around your goals."
           />
           <Button href="/services" variant="secondary" className="shrink-0">
             View All Services

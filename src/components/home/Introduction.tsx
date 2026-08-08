@@ -10,13 +10,13 @@ export function Introduction() {
       <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
         <AnimatedSection>
           <SectionHeading
-            eyebrow="Welcome to SOLÉA"
-            heading="Movement designed around you."
-            body="SOLÉA is more than a place to work out. It's a space to reconnect with your body, build strength, improve mobility and create a movement practice that supports how you want to feel every day."
+            eyebrow="Why Veora?"
+            heading="More than just a workout. This is a space to feel your best."
+            body="At Veora, wellness is about moving with purpose. Our thoughtfully designed studio offers a welcoming environment where you can explore different movement practices, challenge yourself and reconnect with your body — all under one roof. Whether you're just beginning your wellness journey or looking to elevate your routine, our experienced instructors are here to guide you every step of the way."
           />
           <div className="mt-10">
             <Button href="/about" variant="secondary">
-              Discover SOLÉA
+              Discover Veora
             </Button>
           </div>
         </AnimatedSection>

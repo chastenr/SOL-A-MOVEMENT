@@ -1,36 +1,45 @@
 export const siteConfig = {
-  name: "SOLÉA Movement & Wellness",
-  shortName: "SOLÉA",
+  name: "Veora Wellness",
+  shortName: "Veora",
   tagline: "Move intentionally. Live fully.",
   description:
-    "Discover intentional movement, Pilates, yoga and wellness sessions at SOLÉA Movement & Wellness. Explore our services and book your session online.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://solea-movement.example.com",
+    "A premium boutique movement and wellness studio in Bacoor, Cavite offering Pilates, yoga, barre, ballet and specialty heated and infrared recovery classes. Explore our services and book your session online.",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://veora-wellness.example.com",
+
+  // Veora is a new studio preparing to open — avoid language that implies
+  // years of history, an established client base, or existing reviews.
+  isPreLaunch: true,
 
   contact: {
-    email: "TODO@soleamovement.com",
-    phone: "TODO (555) 000-0000",
+    email: "hello@veorawellness.com",
+    phone: "+63 917 319 4772",
     address: {
-      line1: "TODO Studio Address",
-      line2: "TODO City, State ZIP",
-      full: "TODO Studio Address, TODO City, State ZIP",
+      line1: "2nd Floor, EMRADEE Building, Daang Hari Road",
+      line2: "Molino IV, Bacoor, Cavite, 4102, Philippines",
+      full: "2nd Floor, EMRADEE Building, Daang Hari Road, Molino IV, Bacoor, Cavite, 4102, Philippines",
+      streetAddress: "2nd Floor, EMRADEE Building, Daang Hari Road, Molino IV",
+      addressLocality: "Bacoor",
+      addressRegion: "Cavite",
+      postalCode: "4102",
+      addressCountry: "PH",
     },
-    instagram: "https://instagram.com/soleamovement",
+    geo: {
+      lat: 14.4108087,
+      lng: 120.9503414,
+    },
+    instagram: "https://www.instagram.com/spacioblnc/",
   },
 
-  hours: [
-    { day: "Monday", hours: "7:00 AM – 7:00 PM" },
-    { day: "Tuesday", hours: "7:00 AM – 7:00 PM" },
-    { day: "Wednesday", hours: "7:00 AM – 7:00 PM" },
-    { day: "Thursday", hours: "7:00 AM – 7:00 PM" },
-    { day: "Friday", hours: "7:00 AM – 6:00 PM" },
-    { day: "Saturday", hours: "8:00 AM – 2:00 PM" },
-    { day: "Sunday", hours: "Closed" },
-  ],
+  // Business hours have not been published yet — do not display fabricated hours.
+  hours: [] as { day: string; hours: string }[],
+  hoursNote: "Studio hours will be announced closer to opening. Contact us for current availability.",
 
   // Weekday indices (0 = Sunday ... 6 = Saturday) the studio is closed for booking.
   closedWeekdays: [0] as number[],
 
   // Generic appointment time slots offered on open days for the booking flow.
+  // No live class timetable is published yet, so booking requests are
+  // reviewed and confirmed by the studio rather than instantly guaranteed.
   timeSlots: [
     "9:00 AM",
     "10:00 AM",
@@ -41,12 +50,26 @@ export const siteConfig = {
     "5:30 PM",
   ],
 
+  // Classes are cancelled free of charge up to this many hours before start.
+  cancellationWindowHours: 12,
+
   nav: [
     { label: "Home", href: "/" },
     { label: "About", href: "/about" },
     { label: "Services", href: "/services" },
     { label: "Schedule", href: "/schedule" },
     { label: "Contact", href: "/contact" },
+  ],
+
+  footerNav: [
+    { label: "Home", href: "/" },
+    { label: "About", href: "/about" },
+    { label: "Services", href: "/services" },
+    { label: "Schedule", href: "/schedule" },
+    { label: "Book", href: "/book" },
+    { label: "Contact", href: "/contact" },
+    { label: "FAQ", href: "/faq" },
+    { label: "Policies", href: "/policies" },
   ],
 
   bookingCtaLabel: "Book a Session",
@@ -56,7 +79,8 @@ export const siteConfig = {
   bookingStatusWording: "received" as "received" | "confirmed",
 
   social: {
-    instagram: "https://instagram.com/soleamovement",
+    instagram: "https://www.instagram.com/spacioblnc/",
+    facebook: "https://www.facebook.com/spacioblnc/",
   },
 } as const;
 

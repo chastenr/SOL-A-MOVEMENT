@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { ImageReveal } from "@/components/ui/ImageReveal";
+import { TiltCard } from "@/components/ui/TiltCard";
 import { Button } from "@/components/ui/Button";
 import type { Service } from "@/data/services";
 import { cn } from "@/lib/utils";
@@ -49,7 +50,19 @@ export function ServiceCard({ service, variant = "compact", className }: Service
                 <dd>{service.instructor}</dd>
               </div>
             )}
+            {service.startingPrice && (
+              <div className="flex gap-2">
+                <dt className="uppercase tracking-[0.1em] text-charcoal/40">Pricing</dt>
+                <dd>{service.startingPrice}</dd>
+              </div>
+            )}
           </dl>
+
+          {service.classVariants && (
+            <p className="mt-4 max-w-lg text-sm text-charcoal/55">
+              Includes: {service.classVariants.join(", ")}
+            </p>
+          )}
 
           <div className="mt-8">
             <Button href={`/book?service=${service.slug}`}>Book</Button>
@@ -61,15 +74,17 @@ export function ServiceCard({ service, variant = "compact", className }: Service
 
   return (
     <article className={cn("group flex flex-col", className)}>
-      <ImageReveal
-        src={service.image.src}
-        alt={service.image.alt}
-        width={480}
-        height={360}
-        hoverScale
-        containerClassName="aspect-[4/5] rounded-2xl"
-        sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
-      />
+      <TiltCard className="aspect-[4/5] overflow-hidden rounded-2xl">
+        <ImageReveal
+          src={service.image.src}
+          alt={service.image.alt}
+          width={480}
+          height={360}
+          hoverScale
+          containerClassName="h-full w-full"
+          sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
+        />
+      </TiltCard>
       <h3 className="font-display mt-6 text-2xl text-charcoal">{service.name}</h3>
       <p className="mt-2 text-sm leading-relaxed text-charcoal/65">{service.shortDescription}</p>
       <a

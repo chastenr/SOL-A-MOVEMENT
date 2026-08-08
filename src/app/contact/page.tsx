@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { siteConfig } from "@/data/site";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
@@ -7,7 +8,7 @@ import { ContactForm } from "@/components/contact/ContactForm";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Get in touch with SOLÉA Movement & Wellness — studio address, hours and contact form.",
+  description: "Get in touch with Veora Wellness — studio address, hours and contact form.",
   alternates: { canonical: "/contact" },
 };
 
@@ -18,7 +19,7 @@ export default function ContactPage() {
         <SectionHeading
           eyebrow="Get in Touch"
           heading="We would love to hear from you."
-          body="Questions about a service, your booking, or SOLÉA in general? Send us a message and we'll get back to you soon."
+          body="Questions about a service, your booking, or Veora in general? Send us a message and we'll get back to you soon."
         />
       </AnimatedSection>
 
@@ -35,15 +36,27 @@ export default function ContactPage() {
             <p>{siteConfig.contact.email}</p>
           </InfoRow>
           <InfoRow icon={Clock} label="Hours">
-            <dl className="space-y-1">
-              {siteConfig.hours.map((entry) => (
-                <div key={entry.day} className="flex justify-between gap-6 text-sm">
-                  <dt className="text-charcoal/60">{entry.day}</dt>
-                  <dd>{entry.hours}</dd>
-                </div>
-              ))}
-            </dl>
+            {siteConfig.hours.length > 0 ? (
+              <dl className="space-y-1">
+                {siteConfig.hours.map((entry) => (
+                  <div key={entry.day} className="flex justify-between gap-6 text-sm">
+                    <dt className="text-charcoal/60">{entry.day}</dt>
+                    <dd>{entry.hours}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <p className="text-sm text-charcoal/70">{siteConfig.hoursNote}</p>
+            )}
           </InfoRow>
+
+          <p className="text-sm text-charcoal/60">
+            Have a quick question?{" "}
+            <Link href="/faq" className="underline underline-offset-2 hover:text-charcoal">
+              Check our FAQ
+            </Link>{" "}
+            before reaching out.
+          </p>
         </AnimatedSection>
 
         <AnimatedSection delay={0.1}>

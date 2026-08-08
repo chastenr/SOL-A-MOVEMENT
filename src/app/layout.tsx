@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  keywords: ["Pilates", "reformer pilates", "yoga", "mobility", "wellness studio", "movement studio"],
+  keywords: ["Pilates", "mat pilates", "yoga", "barre", "ballet", "wellness studio", "movement studio", "Bacoor Cavite"],
   openGraph: {
     type: "website",
     url: siteConfig.url,

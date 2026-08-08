@@ -22,7 +22,7 @@ export default function OpengraphImage() {
       >
         <div style={{ fontSize: 72, letterSpacing: 4 }}>{siteConfig.shortName}</div>
         <div style={{ fontSize: 22, letterSpacing: 6, textTransform: "uppercase", marginTop: 16, color: "#e5d8c3" }}>
-          Movement &amp; Wellness
+          Wellness Studio
         </div>
         <div style={{ fontSize: 26, marginTop: 40, color: "#f3ecdf", fontStyle: "italic" }}>
           {siteConfig.tagline}

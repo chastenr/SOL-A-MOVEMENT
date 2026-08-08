@@ -3,7 +3,7 @@ import { siteConfig } from "@/data/site";
 export function OrganizationSchema() {
   const schema = {
     "@context": "https://schema.org",
-    "@type": "HealthAndBeautyBusiness",
+    "@type": "ExerciseGym",
     name: siteConfig.name,
     alternateName: siteConfig.shortName,
     description: siteConfig.description,
@@ -12,10 +12,18 @@ export function OrganizationSchema() {
     email: siteConfig.contact.email,
     address: {
       "@type": "PostalAddress",
-      streetAddress: siteConfig.contact.address.line1,
-      addressLocality: siteConfig.contact.address.line2,
+      streetAddress: siteConfig.contact.address.streetAddress,
+      addressLocality: siteConfig.contact.address.addressLocality,
+      addressRegion: siteConfig.contact.address.addressRegion,
+      postalCode: siteConfig.contact.address.postalCode,
+      addressCountry: siteConfig.contact.address.addressCountry,
     },
-    sameAs: [siteConfig.contact.instagram],
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: siteConfig.contact.geo.lat,
+      longitude: siteConfig.contact.geo.lng,
+    },
+    sameAs: [siteConfig.social.instagram, siteConfig.social.facebook],
     openingHoursSpecification: siteConfig.hours
       .filter((entry) => entry.hours !== "Closed")
       .map((entry) => ({

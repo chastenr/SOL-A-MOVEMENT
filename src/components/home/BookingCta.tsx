@@ -23,7 +23,7 @@ export function BookingCta() {
           Choose your session, find your time, reserve your visit.
         </h2>
         <p className="mt-6 text-base leading-relaxed text-ivory/75 sm:text-lg">
-          Choose your session, find a time that works for you, and reserve your visit to SOLÉA.
+          Choose your session, find a time that works for you, and reserve your visit to Veora.
         </p>
         <div className="mt-10 flex justify-center">
           <Button href="/book" size="lg">

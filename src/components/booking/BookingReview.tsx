@@ -3,6 +3,7 @@
 import { format, parseISO } from "date-fns";
 import { AlertCircle } from "lucide-react";
 import { getServiceBySlug } from "@/data/services";
+import { siteConfig } from "@/data/site";
 import type { BookingFormValues } from "@/lib/validations";
 import { Button } from "@/components/ui/Button";
 
@@ -20,7 +21,7 @@ export function BookingReview({ values, onBack, onConfirm, submitting, error }: 
   return (
     <div>
       <h2 className="font-display text-3xl text-charcoal sm:text-4xl">Review your booking</h2>
-      <p className="mt-2 text-charcoal/60">Please confirm your details before booking.</p>
+      <p className="mt-2 text-charcoal/60">Please confirm your details — we&apos;ll follow up to confirm your requested time.</p>
 
       <dl className="mt-8 divide-y divide-charcoal/10 rounded-2xl border border-charcoal/10">
         <Row label="Service" value={service?.name ?? values.service} />
@@ -31,6 +32,11 @@ export function BookingReview({ values, onBack, onConfirm, submitting, error }: 
         <Row label="Phone" value={values.phone} />
         <Row label="Notes" value={values.notes || "—"} />
       </dl>
+
+      <p className="mt-4 text-xs text-charcoal/50">
+        Please cancel or reschedule at least {siteConfig.cancellationWindowHours} hours before your
+        class to avoid a forfeited credit.
+      </p>
 
       {error && (
         <div className="mt-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

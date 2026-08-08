@@ -39,13 +39,13 @@ export function Hero() {
           <h1 className="font-display balance mt-6 max-w-4xl text-5xl leading-[1.05] text-ivory sm:text-6xl md:text-7xl">
             Move with intention.
             <br />
-            Feel like yourself.
+            Feel your best.
           </h1>
         </StaggerItem>
         <StaggerItem>
           <p className="mt-8 max-w-xl text-base leading-relaxed text-ivory/80 sm:text-lg">
-            {siteConfig.shortName} Movement &amp; Wellness is a thoughtfully designed space for
-            strength, mobility, restoration and mindful movement.
+            Explore Pilates, yoga, barre, strength and ballet, all in one welcoming studio in
+            Bacoor, Cavite — designed to help you move with purpose and reconnect with your body.
           </p>
         </StaggerItem>
         <StaggerItem>

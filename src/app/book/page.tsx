@@ -6,7 +6,7 @@ import { BookingFlow } from "@/components/booking/BookingFlow";
 export const metadata: Metadata = {
   title: siteConfig.bookingCtaLabel,
   description:
-    "Book your Reformer Pilates, Mat Pilates, Yoga Flow, Mobility & Stretch, Private or Wellness session at SOLÉA Movement & Wellness.",
+    "Book your Mat Pilates, Yoga, Barre, Strength & HIIT, Recovery & Restore or Ballet class at Veora Wellness.",
   alternates: { canonical: "/book" },
 };
 

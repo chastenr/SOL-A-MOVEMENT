@@ -2,23 +2,27 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ScheduleCard, type ScheduleCardData } from "@/components/schedule/ScheduleCard";
+import { ScheduleCard } from "@/components/schedule/ScheduleCard";
+import type { ClassDirectoryEntry } from "@/data/schedule";
 import { cn } from "@/lib/utils";
 
-const FILTERS = ["All", "Pilates", "Yoga", "Wellness", "Private"] as const;
+export function ScheduleView({ entries }: { entries: ClassDirectoryEntry[] }) {
+  const filters = useMemo(() => {
+    const categories = Array.from(new Set(entries.map((entry) => entry.category)));
+    return ["All", ...categories];
+  }, [entries]);
 
-export function ScheduleView({ sessions }: { sessions: ScheduleCardData[] }) {
-  const [activeFilter, setActiveFilter] = useState<(typeof FILTERS)[number]>("All");
+  const [activeFilter, setActiveFilter] = useState<string>("All");
 
-  const filteredSessions = useMemo(() => {
-    if (activeFilter === "All") return sessions;
-    return sessions.filter((session) => session.service.category === activeFilter);
-  }, [sessions, activeFilter]);
+  const filteredEntries = useMemo(() => {
+    if (activeFilter === "All") return entries;
+    return entries.filter((entry) => entry.category === activeFilter);
+  }, [entries, activeFilter]);
 
   return (
     <div>
       <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2">
-        {FILTERS.map((filter) => {
+        {filters.map((filter) => {
           const isActive = filter === activeFilter;
           return (
             <button
@@ -38,18 +42,15 @@ export function ScheduleView({ sessions }: { sessions: ScheduleCardData[] }) {
         })}
       </div>
 
-      {filteredSessions.length === 0 ? (
+      {filteredEntries.length === 0 ? (
         <p className="mt-16 text-center text-charcoal/60">
-          No sessions in this category right now — check back soon or explore another category.
+          No classes in this category right now — check back soon or explore another category.
         </p>
       ) : (
-        <motion.div
-          layout
-          className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          {filteredSessions.map((session) => (
-            <motion.div key={session.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <ScheduleCard session={session} />
+        <motion.div layout className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredEntries.map((entry) => (
+            <motion.div key={entry.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <ScheduleCard entry={entry} />
             </motion.div>
           ))}
         </motion.div>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Learn about SOLÉA Movement & Wellness — our philosophy, our studio experience and our approach to intentional movement.",
+    "Learn about Veora Wellness — our philosophy, our studio experience and our approach to intentional movement.",
   alternates: { canonical: "/about" },
 };
 
@@ -39,7 +39,7 @@ export default function AboutPage() {
       <section className="mx-auto max-w-3xl px-6 py-24 text-center sm:px-8 sm:py-32">
         <AnimatedSection>
           <p className="font-display balance text-2xl leading-relaxed text-charcoal sm:text-3xl">
-            SOLÉA was created for anyone who wants movement to feel less like a task and more
+            Veora was created for anyone who wants movement to feel less like a task and more
             like a return to themselves — strength built with care, mobility restored with
             patience, and a studio that feels like it was designed just for you.
           </p>
@@ -60,7 +60,7 @@ export default function AboutPage() {
             <SectionHeading
               eyebrow="Our Philosophy"
               heading="Movement as a practice, not a punishment."
-              body="We believe movement should build you up — physically and mentally. Every SOLÉA session is guided with intention, blending strength, control and breath so that how you move in the studio changes how you move through your life."
+              body="We believe movement should build you up — physically and mentally. Every Veora session is guided with intention, blending strength, control and breath so that how you move in the studio changes how you move through your life."
             />
           </AnimatedSection>
         </div>
@@ -70,14 +70,14 @@ export default function AboutPage() {
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
           <AnimatedSection>
             <SectionHeading
-              eyebrow="The SOLÉA Studio"
+              eyebrow="The Veora Studio"
               heading="A calm, considered space to show up as you are."
-              body="From natural light to quiet, intentional design, every part of the SOLÉA studio is considered — so you can focus on how you feel rather than how things look."
+              body="Located in Bacoor, Cavite, our studio is quietly, intentionally designed — so you can focus on how you feel rather than how things look. Premium mats and equipment, complimentary lockers and shower facilities are provided for every visit."
             />
           </AnimatedSection>
           <ImageReveal
-            src={images.services["reformer-pilates"].src}
-            alt={images.services["reformer-pilates"].alt}
+            src={images.studioExperienceOne.src}
+            alt={images.studioExperienceOne.alt}
             width={800}
             height={960}
             containerClassName="aspect-[4/5] rounded-2xl"
@@ -99,7 +99,7 @@ export default function AboutPage() {
 
           <AnimatedSection className="mt-16 grid items-center gap-10 rounded-3xl bg-ivory p-8 sm:grid-cols-[240px_1fr] sm:p-12">
             <div className="flex aspect-square items-center justify-center rounded-2xl bg-sand/60">
-              <span className="font-display text-5xl text-charcoal/40">S</span>
+              <span className="font-display text-5xl text-charcoal/40">V</span>
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-clay">Founder photo to be added</p>
@@ -107,7 +107,7 @@ export default function AboutPage() {
                 [Founder name to be provided]
               </p>
               <p className="mt-4 max-w-xl text-charcoal/70">
-                [Founder biography provided by client] — this space is reserved for the SOLÉA
+                [Founder biography provided by client] — this space is reserved for the Veora
                 founder&apos;s story, background and approach to movement, to be added once provided.
               </p>
             </div>
@@ -119,8 +119,8 @@ export default function AboutPage() {
         <AnimatedSection>
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-clay">Our Mission</p>
           <p className="font-display balance mt-6 text-3xl leading-tight text-charcoal sm:text-4xl">
-            To help every person who walks through our doors move with more strength, more ease
-            and more confidence than they arrived with.
+            We believe movement should be accessible, intentional and enjoyable for every body —
+            and that belief guides every class we teach.
           </p>
         </AnimatedSection>
       </section>
@@ -131,7 +131,7 @@ export default function AboutPage() {
             align="center"
             eyebrow="Community"
             heading="A studio, and a community."
-            body="SOLÉA is built on the belief that movement is better shared — a place to be seen, supported and encouraged as you build a practice that's your own."
+            body="Veora welcomes everyone, regardless of age, gender or fitness level — a place to be seen, supported and encouraged as you build a practice that's your own."
             tone="light"
             className="mx-auto"
           />

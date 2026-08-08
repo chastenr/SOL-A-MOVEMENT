@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 const TOPICS = [
   "General Question",
   "Booking Question",
-  "Private Sessions",
+  "Studio Rental",
   "Press or Partnership",
   "Other",
 ];

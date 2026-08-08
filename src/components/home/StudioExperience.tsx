@@ -1,4 +1,4 @@
-import { Activity, HeartHandshake, Users } from "lucide-react";
+import { Activity, ShowerHead, Users } from "lucide-react";
 import { images } from "@/data/images";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { ImageReveal } from "@/components/ui/ImageReveal";
@@ -7,18 +7,19 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 const features = [
   {
     icon: Activity,
-    title: "Intentional Movement",
-    description: "Programs designed around strength, mobility and longevity.",
-  },
-  {
-    icon: HeartHandshake,
-    title: "Personal Attention",
-    description: "A supportive experience focused on individual needs and progress.",
+    title: "Beginner-Friendly",
+    description:
+      "Every class is approachable for first-timers, with modifications offered throughout so you can move at your own pace.",
   },
   {
     icon: Users,
-    title: "Welcoming Community",
-    description: "A comfortable environment where movement meets connection.",
+    title: "Open to Everyone",
+    description: "We welcome every body, regardless of age, gender or fitness level.",
+  },
+  {
+    icon: ShowerHead,
+    title: "Everything Provided",
+    description: "Premium mats and equipment, complimentary lockers and shower facilities are all included in your visit.",
   },
 ];
 
@@ -28,9 +29,9 @@ export function StudioExperience() {
       <AnimatedSection>
         <SectionHeading
           align="center"
-          eyebrow="The SOLÉA Experience"
+          eyebrow="The Veora Experience"
           heading="A space to move, breathe and reset."
-          body="Every detail at SOLÉA is designed to help you feel comfortable, supported and present—from intentional movement to a calm, welcoming environment."
+          body="Every detail at Veora is designed to help you feel comfortable, supported and present — from beginner-friendly classes to a calm, welcoming studio."
           className="mx-auto"
         />
       </AnimatedSection>
