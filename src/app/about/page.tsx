@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <section className="relative flex min-h-[60vh] items-end overflow-hidden bg-charcoal">
+      <section className="relative flex min-h-[60vh] items-end overflow-hidden bg-walnut">
         <div className="absolute inset-0">
           <ImageReveal
             src={images.hero.src}
@@ -26,7 +26,7 @@ export default function AboutPage() {
             sizes="100vw"
             containerClassName="h-full w-full"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/40 to-charcoal/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-walnut via-walnut/40 to-walnut/10" />
         </div>
         <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-12 pt-28 sm:px-8 lg:px-12">
           <p className="text-xs font-medium uppercase tracking-[0.3em] text-ivory/70">About Us</p>
@@ -53,7 +53,7 @@ export default function AboutPage() {
             alt={images.introduction.alt}
             width={800}
             height={960}
-            containerClassName="aspect-[4/5] rounded-2xl lg:order-2"
+            containerClassName="mask-arch-deep aspect-[4/5] shadow-glow-warm lg:order-2"
             sizes="(min-width: 1024px) 45vw, 100vw"
           />
           <AnimatedSection>
@@ -80,7 +80,7 @@ export default function AboutPage() {
             alt={images.studioExperienceOne.alt}
             width={800}
             height={960}
-            containerClassName="aspect-[4/5] rounded-2xl"
+            containerClassName="mask-arch-deep aspect-[4/5] shadow-glow-warm"
             sizes="(min-width: 1024px) 45vw, 100vw"
           />
         </div>
@@ -126,7 +126,7 @@ export default function AboutPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pb-14 sm:px-8 sm:pb-16 lg:px-12">
-        <AnimatedSection className="rounded-3xl bg-charcoal px-8 py-12 text-center sm:px-16 sm:py-16">
+        <AnimatedSection className="texture-plaster rounded-3xl bg-walnut px-8 py-12 text-center sm:px-16 sm:py-16">
           <SectionHeading
             align="center"
             eyebrow="Community"

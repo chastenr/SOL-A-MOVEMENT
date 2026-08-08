@@ -25,7 +25,7 @@ export function MobileMenu({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-40 flex flex-col bg-charcoal xl:hidden"
+          className="fixed inset-0 z-40 flex flex-col bg-walnut xl:hidden"
         >
           <div className="flex flex-1 flex-col justify-center overflow-y-auto px-8 pb-10 pt-24">
             <nav className="flex flex-col">

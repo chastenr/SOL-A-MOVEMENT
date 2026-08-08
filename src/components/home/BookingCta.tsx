@@ -1,19 +1,23 @@
 import Image from "next/image";
 import { images } from "@/data/images";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
+import { ArchDivider } from "@/components/ui/ArchDivider";
 import { Button } from "@/components/ui/Button";
 
 export function BookingCta() {
   return (
-    <section className="relative isolate overflow-hidden bg-charcoal py-20 sm:py-28">
+    <section className="relative isolate overflow-hidden bg-walnut py-20 sm:py-28">
+      <div className="absolute inset-x-0 top-0 z-10 text-plaster">
+        <ArchDivider />
+      </div>
       <Image
         src={images.bookingCta.src}
         alt={images.bookingCta.alt}
         fill
         sizes="100vw"
-        className="object-cover opacity-40"
+        className="object-cover opacity-35"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-charcoal/90 via-charcoal/60 to-charcoal/90" />
+      <div className="absolute inset-0 bg-gradient-to-b from-walnut/90 via-walnut/60 to-walnut/90" />
 
       <AnimatedSection className="relative z-10 mx-auto max-w-3xl px-6 text-center sm:px-8">
         <p className="text-xs font-medium uppercase tracking-[0.3em] text-clay">

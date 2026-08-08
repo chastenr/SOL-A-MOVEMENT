@@ -37,15 +37,15 @@ export function Footer() {
   if (pathname.startsWith("/admin")) return null;
 
   return (
-    <footer className="bg-charcoal text-ivory">
-      <div className="mx-auto max-w-7xl px-6 py-12 sm:px-8 sm:py-14 lg:px-12">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="texture-plaster bg-walnut text-ivory">
+      <div className="relative z-10 mx-auto max-w-7xl px-6 py-16 sm:px-8 sm:py-20 lg:px-12">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <p className="font-display text-xl tracking-[0.06em]">{siteConfig.shortName}</p>
-            <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-ivory/50">
+            <p className="font-display text-2xl tracking-[0.06em]">{siteConfig.shortName}</p>
+            <p className="mt-1.5 text-[10px] uppercase tracking-[0.22em] text-ivory/50">
               Wellness Studio
             </p>
-            <p className="font-display mt-5 max-w-xs text-lg italic text-ivory/80">
+            <p className="font-display mt-6 max-w-xs text-xl italic leading-snug text-ivory/80">
               {siteConfig.tagline}
             </p>
             <div className="mt-5 flex items-center gap-5">

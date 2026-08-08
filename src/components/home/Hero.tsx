@@ -43,11 +43,11 @@ export function Hero() {
       ref={ref}
       onMouseMove={enabled ? handleMouseMove : undefined}
       onMouseLeave={enabled ? handleMouseLeave : undefined}
-      className="relative flex min-h-screen items-center overflow-hidden bg-charcoal"
+      className="relative flex min-h-screen items-end overflow-hidden bg-walnut"
     >
       <motion.div
         className="absolute inset-0"
-        initial={{ scale: 1.12 }}
+        initial={{ scale: 1.06 }}
         animate={{ scale: 1 }}
         transition={{ duration: 1.8, ease: EASE }}
       >
@@ -82,19 +82,19 @@ export function Hero() {
             </video>
           )}
         </motion.div>
-        <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/25 to-charcoal/5" />
-        <div className="absolute inset-0 bg-gradient-to-r from-charcoal/50 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-walnut via-walnut/30 to-charcoal/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-walnut/55 via-transparent to-transparent" />
       </motion.div>
 
-      <StaggerContainer className="relative z-10 mx-auto w-full max-w-7xl px-6 py-28 sm:px-8 sm:py-32 lg:px-12">
+      <StaggerContainer className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-16 sm:px-8 sm:pb-20 lg:px-12">
         <StaggerItem>
           <p className="text-xs font-medium uppercase tracking-[0.3em] text-ivory/70">
-            {siteConfig.name}
+            {siteConfig.name} · Bacoor, Cavite
           </p>
         </StaggerItem>
         <RevealHeading
           lines={["Move with intention.", "Feel your best."]}
-          className="font-display balance mt-5 max-w-4xl text-5xl leading-[1.05] text-ivory sm:text-6xl md:text-7xl"
+          className="font-display balance mt-5 max-w-4xl text-[clamp(2.75rem,7vw,6.5rem)] leading-[1.02] text-ivory"
         />
         <StaggerItem>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-ivory/80 sm:text-lg">
@@ -119,7 +119,7 @@ export function Hero() {
         <StaggerItem>
           <div className="mt-8 flex items-center gap-2 text-ivory/60">
             <MapPin size={14} aria-hidden />
-            <p className="text-xs uppercase tracking-[0.18em]">Opening soon in Bacoor, Cavite</p>
+            <p className="text-xs uppercase tracking-[0.18em]">Opening soon</p>
           </div>
         </StaggerItem>
       </StaggerContainer>
