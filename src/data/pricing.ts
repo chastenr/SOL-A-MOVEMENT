@@ -9,6 +9,8 @@ export type PricingOption = {
   includedServices: string[];
   conditions?: string[];
   recommended?: boolean;
+  /** Badge text shown when `recommended` is true. Defaults to "Most Popular". */
+  recommendedLabel?: string;
   /** Set only when this option redeems against exactly one services.ts slug (Restore, Ballet) — lets /book pre-select it. Classics-tier options span 4 services, so they're left unset. */
   serviceSlug?: string;
 };
@@ -63,6 +65,8 @@ export const pricing: {
       conditions: [
         "Available only during our preselling period — after official launch, pricing transitions to standard rates.",
       ],
+      recommended: true,
+      recommendedLabel: "Best Value",
     },
     {
       slug: "founding-classic-quarter",
@@ -180,6 +184,7 @@ export const pricing: {
       validity: "60 days from purchase",
       description: "Eight flexible class credits.",
       includedServices: ["Mat Pilates, Yoga, Barre, Strength or Mobility classes"],
+      recommended: true,
     },
     {
       slug: "classic-lifestyle",

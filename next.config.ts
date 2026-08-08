@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "upload.wikimedia.org" },
       { protocol: "https", hostname: "ik.imagekit.io" },
+      { protocol: "https", hostname: "images.pexels.com" },
     ],
   },
 };

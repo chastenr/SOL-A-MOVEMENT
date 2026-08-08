@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { format, parseISO } from "date-fns";
 import { bookingSchema } from "@/lib/validations";
 import { getServiceBySlug } from "@/data/services";
-import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase";
+import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase/admin";
 import { sendCustomerBookingEmail, sendOwnerBookingEmail } from "@/lib/email";
 import { getClientKey, isRateLimited } from "@/lib/rate-limit";
 

@@ -8,7 +8,15 @@ import { Button } from "@/components/ui/Button";
 const EASE = [0.16, 1, 0.3, 1] as const;
 const STAGGER = 0.06;
 
-export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function MobileMenu({
+  open,
+  onClose,
+  signedIn,
+}: {
+  open: boolean;
+  onClose: () => void;
+  signedIn: boolean;
+}) {
   return (
     <AnimatePresence>
       {open && (
@@ -37,12 +45,25 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                   </Link>
                 </motion.div>
               ))}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: STAGGER * siteConfig.nav.length, ease: EASE }}
+              >
+                <Link
+                  href={signedIn ? "/account" : "/login"}
+                  onClick={onClose}
+                  className="font-display block border-b border-ivory/10 py-3.5 text-3xl text-ivory transition-colors hover:text-clay"
+                >
+                  {signedIn ? "My Account" : "Login"}
+                </Link>
+              </motion.div>
             </nav>
 
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: STAGGER * siteConfig.nav.length, ease: EASE }}
+              transition={{ duration: 0.5, delay: STAGGER * (siteConfig.nav.length + 1), ease: EASE }}
               className="mt-8"
             >
               <Button href="/book" size="lg" className="w-full" onClick={onClose}>
@@ -53,7 +74,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: STAGGER * siteConfig.nav.length + 0.15 }}
+              transition={{ duration: 0.5, delay: STAGGER * (siteConfig.nav.length + 1) + 0.15 }}
               className="mt-8 space-y-1 text-sm text-ivory/50"
             >
               <p>{siteConfig.contact.phone}</p>

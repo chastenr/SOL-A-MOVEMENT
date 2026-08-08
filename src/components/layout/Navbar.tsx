@@ -9,12 +9,14 @@ import { siteConfig } from "@/data/site";
 import { Button } from "@/components/ui/Button";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { cn } from "@/lib/utils";
+import { useAuthState } from "@/lib/auth/use-auth-state";
 
 export function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [lastPathname, setLastPathname] = useState(pathname);
+  const { signedIn } = useAuthState();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -27,6 +29,10 @@ export function Navbar() {
     setLastPathname(pathname);
     setMobileOpen(false);
   }
+
+  // The admin dashboard is its own product surface with its own chrome (see
+  // admin/(protected)/layout.tsx) — it doesn't share the public navbar.
+  if (pathname.startsWith("/admin")) return null;
 
   // Only the homepage has a full-bleed dark hero directly beneath the nav,
   // so only it gets the transparent-at-top treatment; every other page has
@@ -90,6 +96,13 @@ export function Navbar() {
             })}
           </nav>
 
+          <Link
+            href={signedIn ? "/account" : "/login"}
+            className="hidden shrink-0 text-[11px] uppercase tracking-[0.2em] text-ivory/60 transition-colors duration-300 hover:text-ivory xl:inline"
+          >
+            {signedIn ? "My Account" : "Login"}
+          </Link>
+
           <div className="hidden shrink-0 xl:block">
             <Button
               href="/book"
@@ -134,7 +147,7 @@ export function Navbar() {
         </motion.div>
       </header>
 
-      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} signedIn={signedIn} />
     </>
   );
 }

@@ -1,0 +1,24 @@
+import type { Metadata } from "next";
+import { AnimatedSection } from "@/components/ui/AnimatedSection";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
+
+export const metadata: Metadata = {
+  title: "Reset Password",
+  description: "Set a new password for your Veora Wellness account.",
+  alternates: { canonical: "/reset-password" },
+};
+
+export default function ResetPasswordPage() {
+  return (
+    <section className="mx-auto max-w-md px-6 pt-28 pb-16 sm:px-8 sm:pb-20">
+      <AnimatedSection>
+        <SectionHeading eyebrow="Reset Password" heading="Choose a new password." align="center" className="mx-auto" />
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.1} className="mt-10">
+        <ResetPasswordForm />
+      </AnimatedSection>
+    </section>
+  );
+}

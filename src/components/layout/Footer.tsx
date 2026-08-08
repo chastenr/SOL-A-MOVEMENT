@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { siteConfig } from "@/data/site";
 
 function InstagramIcon({ size = 18 }: { size?: number }) {
@@ -28,6 +31,11 @@ function FacebookIcon({ size = 18 }: { size?: number }) {
 }
 
 export function Footer() {
+  const pathname = usePathname();
+  // The admin dashboard is its own product surface with its own chrome
+  // (see admin/(protected)/layout.tsx) — it doesn't share the public footer.
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <footer className="bg-charcoal text-ivory">
       <div className="mx-auto max-w-7xl px-6 py-12 sm:px-8 sm:py-14 lg:px-12">

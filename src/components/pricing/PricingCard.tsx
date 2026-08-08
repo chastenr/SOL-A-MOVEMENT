@@ -17,7 +17,19 @@ export function PricingCard({ option, ctaType, className }: PricingCardProps) {
       : `/contact?topic=Studio+Rental`;
 
   return (
-    <TiltCard maxTilt={3} className={cn("h-full rounded-2xl border border-charcoal/10 bg-ivory p-8", className)}>
+    <TiltCard
+      maxTilt={3}
+      className={cn(
+        "h-full rounded-2xl border bg-ivory p-8",
+        option.recommended ? "border-clay/50 shadow-[0_20px_45px_-24px_rgba(169,116,86,0.4)]" : "border-charcoal/10",
+        className
+      )}
+    >
+      {option.recommended && (
+        <span className="absolute -top-3 left-8 rounded-full bg-clay px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-ivory">
+          {option.recommendedLabel ?? "Most Popular"}
+        </span>
+      )}
       <div className="flex h-full flex-col">
         <p className="font-display text-xl text-charcoal">{option.name}</p>
 
