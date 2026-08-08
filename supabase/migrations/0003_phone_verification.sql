@@ -59,3 +59,21 @@ $$;
 
 revoke execute on function public.mark_phone_verified() from public;
 grant execute on function public.mark_phone_verified() to authenticated;
+
+-- Clears verification when the customer changes their mobile number — a
+-- verified phone factor describes one specific number, so a stale
+-- phone_verified_at pointing at a number that's no longer current would be
+-- misleading. Only ever clears the CALLER's own row (auth.uid()-derived).
+create or replace function public.clear_phone_verification()
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  update public.profiles set phone_verified_at = null, updated_at = now() where id = auth.uid();
+end;
+$$;
+
+revoke execute on function public.clear_phone_verification() from public;
+grant execute on function public.clear_phone_verification() to authenticated;

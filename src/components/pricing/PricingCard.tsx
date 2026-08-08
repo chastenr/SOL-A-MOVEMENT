@@ -11,10 +11,10 @@ type PricingCardProps = {
 };
 
 export function PricingCard({ option, ctaType, className }: PricingCardProps) {
-  const bookingHref =
-    ctaType === "book"
-      ? `/book?package=${option.slug}${option.serviceSlug ? `&service=${option.serviceSlug}` : ""}`
-      : `/contact?topic=Studio+Rental`;
+  // "book" options are real credit packages — availing one goes through
+  // checkout (auth + phone verification gated there), not straight into the
+  // guest booking form. "inquire" (studio rentals) still routes to contact.
+  const ctaHref = ctaType === "book" ? `/checkout/${option.slug}` : `/contact?topic=Studio+Rental`;
 
   return (
     <TiltCard
@@ -64,8 +64,8 @@ export function PricingCard({ option, ctaType, className }: PricingCardProps) {
 
         <div className="mt-6 flex-1" />
 
-        <Button href={bookingHref} className="mt-6 w-full">
-          {ctaType === "book" ? "Book a Session" : "Inquire About This Package"}
+        <Button href={ctaHref} className="mt-6 w-full">
+          {ctaType === "book" ? "Avail Package" : "Inquire About This Package"}
         </Button>
       </div>
     </TiltCard>

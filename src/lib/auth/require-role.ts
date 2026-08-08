@@ -50,7 +50,15 @@ export async function requireUser(): Promise<AuthedUser> {
  * gate is simply not enforced yet, never silently "passed."
  */
 export async function requireVerifiedCustomer(returnTo: string): Promise<AuthedUser> {
-  const user = await requireUser();
+  const safeReturnTo = sanitizeRedirectTo(returnTo, "/account");
+
+  // Not using requireUser() here: it redirects to a bare /login with no
+  // redirectTo, which would strand the customer on /account after signing
+  // in instead of resuming checkout/booking. Preserving the destination
+  // through the login step too completes the intended chain: /login ->
+  // (back to this page) -> /verify-phone if still needed -> back again.
+  const user = await getAuthedUser();
+  if (!user) redirect(`/login?redirectTo=${encodeURIComponent(safeReturnTo)}`);
   if (!isPhoneVerificationRequired()) return user;
 
   const supabase = await createSupabaseServerClient();
@@ -61,7 +69,6 @@ export async function requireVerifiedCustomer(returnTo: string): Promise<AuthedU
     .single();
 
   if (!profile?.phone_verified_at) {
-    const safeReturnTo = sanitizeRedirectTo(returnTo, "/account");
     redirect(`/verify-phone?redirectTo=${encodeURIComponent(safeReturnTo)}`);
   }
 

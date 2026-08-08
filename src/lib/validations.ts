@@ -156,3 +156,21 @@ export const serviceFormSchema = z.object({
 });
 
 export type ServiceFormValues = z.infer<typeof serviceFormSchema>;
+
+export const bookClassSchema = z.object({
+  classSessionId: z.string().uuid("Invalid class session."),
+  customerPackageId: z.string().uuid("Invalid package."),
+});
+
+export type BookClassValues = z.infer<typeof bookClassSchema>;
+
+export const classSessionFormSchema = z.object({
+  classTypeId: z.string().uuid("Please select a class."),
+  locationId: z.string().uuid("Please select a location."),
+  instructorId: z.string().uuid("Invalid instructor.").optional().or(z.literal("")),
+  startAt: z.string().min(1, "Start time is required."),
+  durationMinutes: z.coerce.number().int().min(15).max(240),
+  capacity: z.coerce.number().int().min(1).max(100),
+});
+
+export type ClassSessionFormValues = z.infer<typeof classSessionFormSchema>;

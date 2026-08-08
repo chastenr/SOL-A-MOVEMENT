@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { format } from "date-fns";
 import { requireUser } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getCustomerPackages, getCustomerBookings, getCustomerPurchases } from "@/lib/customer/account";
+import { centavosToPeso } from "@/lib/money";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
@@ -14,16 +17,24 @@ export const metadata: Metadata = {
 export default async function AccountPage() {
   const user = await requireUser();
   const supabase = await createSupabaseServerClient();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("first_name, last_name, email, mobile_number")
-    .eq("id", user.id)
-    .single();
+  const { data: profile } = await supabase.from("profiles").select("first_name").eq("id", user.id).single();
+
+  const [packages, bookings, purchases] = await Promise.all([
+    getCustomerPackages(user.id),
+    getCustomerBookings(user.id),
+    getCustomerPurchases(user.id),
+  ]);
+
+  const activePackage = packages.find((pkg) => pkg.status === "active");
+  const upcomingBooking = bookings
+    .filter((booking) => booking.isUpcoming)
+    .sort((a, b) => new Date(a.session!.startAt).getTime() - new Date(b.session!.startAt).getTime())[0];
+  const recentPurchase = purchases[0];
 
   const firstName = profile?.first_name || "there";
 
   return (
-    <section className="mx-auto max-w-4xl px-6 pt-28 pb-16 sm:px-8 sm:pb-20">
+    <div>
       <AnimatedSection className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
         <SectionHeading eyebrow="My Account" heading={`Welcome, ${firstName}.`} />
         <form action={logoutAction}>
@@ -36,39 +47,64 @@ export default async function AccountPage() {
       <AnimatedSection delay={0.1} className="mt-10 grid gap-6 sm:grid-cols-2">
         <div className="rounded-2xl border border-charcoal/10 bg-ivory p-6">
           <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">Active Package</p>
-          <p className="mt-3 text-charcoal/70">You don&rsquo;t have an active package yet.</p>
-          <Button href="/pricing" variant="secondary" size="md" className="mt-4">
-            View Packages
-          </Button>
+          {activePackage ? (
+            <>
+              <p className="mt-3 text-charcoal">{activePackage.packageName}</p>
+              <p className="mt-1 text-sm text-charcoal/60">
+                {activePackage.remainingCredits} / {activePackage.creditCount} credits remaining
+              </p>
+              {activePackage.expiresAt && (
+                <p className="text-sm text-charcoal/60">
+                  Expires {format(new Date(activePackage.expiresAt), "MMMM d, yyyy")}
+                </p>
+              )}
+              <Button href="/account/book" variant="secondary" size="md" className="mt-4">
+                Book a Class
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 text-charcoal/70">You don&rsquo;t have an active package yet.</p>
+              <Button href="/pricing" variant="secondary" size="md" className="mt-4">
+                View Packages
+              </Button>
+            </>
+          )}
         </div>
+
         <div className="rounded-2xl border border-charcoal/10 bg-ivory p-6">
           <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">Upcoming Booking</p>
-          <p className="mt-3 text-charcoal/70">No upcoming classes.</p>
-          <Button href="/schedule" variant="secondary" size="md" className="mt-4">
-            Book a Class
-          </Button>
+          {upcomingBooking?.session ? (
+            <>
+              <p className="mt-3 text-charcoal">{upcomingBooking.session.className}</p>
+              <p className="text-sm text-charcoal/60">
+                {format(new Date(upcomingBooking.session.startAt), "EEEE, MMMM d 'at' h:mm a")}
+              </p>
+              <p className="text-sm text-charcoal/60">{upcomingBooking.session.location}</p>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 text-charcoal/70">No upcoming classes.</p>
+              <Button href="/account/book" variant="secondary" size="md" className="mt-4">
+                Book a Class
+              </Button>
+            </>
+          )}
         </div>
       </AnimatedSection>
 
-      <AnimatedSection delay={0.15} className="mt-10 rounded-2xl border border-charcoal/10 bg-cream/40 p-6">
-        <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">Profile</p>
-        <dl className="mt-4 space-y-2 text-sm">
-          <div className="flex justify-between gap-6">
-            <dt className="text-charcoal/55">Name</dt>
-            <dd className="text-charcoal">
-              {profile?.first_name} {profile?.last_name}
-            </dd>
+      {recentPurchase && (
+        <AnimatedSection delay={0.15} className="mt-10 rounded-2xl border border-charcoal/10 bg-cream/40 p-6">
+          <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">Recent Purchase</p>
+          <div className="mt-3 flex items-center justify-between">
+            <div>
+              <p className="text-charcoal">{recentPurchase.packageName}</p>
+              <p className="text-sm text-charcoal/60">{recentPurchase.referenceNumber}</p>
+            </div>
+            <p className="text-charcoal">{centavosToPeso(recentPurchase.amountCentavos)}</p>
           </div>
-          <div className="flex justify-between gap-6">
-            <dt className="text-charcoal/55">Email</dt>
-            <dd className="text-charcoal">{profile?.email}</dd>
-          </div>
-          <div className="flex justify-between gap-6">
-            <dt className="text-charcoal/55">Mobile Number</dt>
-            <dd className="text-charcoal">{profile?.mobile_number || "—"}</dd>
-          </div>
-        </dl>
-      </AnimatedSection>
-    </section>
+        </AnimatedSection>
+      )}
+    </div>
   );
 }

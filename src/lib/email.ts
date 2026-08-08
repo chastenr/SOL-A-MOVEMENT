@@ -117,6 +117,83 @@ export type ContactEmailPayload = {
   submittedAt: string;
 };
 
+export type PurchaseEmailPayload = {
+  customerEmail: string;
+  customerFirstName: string;
+  packageName: string;
+  referenceNumber: string;
+  amountFormatted: string;
+};
+
+export async function sendPaymentProofSubmittedEmail(purchase: PurchaseEmailPayload) {
+  if (!resend || !ownerEmail) return { skipped: true as const };
+
+  const html = wrapper(
+    "Payment Proof Submitted",
+    `<table style="width:100%;border-collapse:collapse;">
+      ${row("Customer", `${purchase.customerFirstName} (${purchase.customerEmail})`)}
+      ${row("Package", purchase.packageName)}
+      ${row("Reference", purchase.referenceNumber)}
+      ${row("Amount", purchase.amountFormatted)}
+    </table>
+    <p style="margin:20px 0 0;font-size:15px;color:#221f1c;">Review and approve in the admin dashboard.</p>`
+  );
+
+  return resend.emails.send({
+    from: fromEmail,
+    to: ownerEmail,
+    subject: `Payment Proof Submitted — ${purchase.referenceNumber}`,
+    html,
+  });
+}
+
+export async function sendPurchaseApprovedEmail(purchase: PurchaseEmailPayload) {
+  if (!resend) return { skipped: true as const };
+
+  const html = wrapper(
+    "Payment Approved",
+    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${purchase.customerFirstName},</p>
+     <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Your payment has been confirmed and your credits are now active.</p>
+     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+       ${row("Package", purchase.packageName)}
+       ${row("Reference", purchase.referenceNumber)}
+       ${row("Amount", purchase.amountFormatted)}
+     </table>
+     <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">Sign in to your account to book your first class.</p>`
+  );
+
+  return resend.emails.send({
+    from: fromEmail,
+    to: purchase.customerEmail,
+    subject: "Your Veora Payment is Confirmed",
+    html,
+  });
+}
+
+export async function sendPurchaseRejectedEmail(purchase: PurchaseEmailPayload & { reason?: string }) {
+  if (!resend) return { skipped: true as const };
+
+  const html = wrapper(
+    "Payment Could Not Be Verified",
+    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${purchase.customerFirstName},</p>
+     <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">We weren't able to verify your recent payment.</p>
+     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+       ${row("Package", purchase.packageName)}
+       ${row("Reference", purchase.referenceNumber)}
+       ${row("Amount", purchase.amountFormatted)}
+       ${purchase.reason ? row("Reason", purchase.reason) : ""}
+     </table>
+     <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">Please contact us so we can help resolve this.</p>`
+  );
+
+  return resend.emails.send({
+    from: fromEmail,
+    to: purchase.customerEmail,
+    subject: "Update on Your Veora Payment",
+    html,
+  });
+}
+
 export async function sendContactEmail(contact: ContactEmailPayload) {
   if (!resend || !ownerEmail) return { skipped: true as const };
 

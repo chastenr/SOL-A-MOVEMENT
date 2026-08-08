@@ -886,11 +886,11 @@ create policy "class_bookings_write_admin" on public.class_bookings for all
 -- cancel_class_booking() below — never a direct client insert/update.
 
 -- The atomic credit-deduct + capacity-check + booking-insert function.
--- p_user_id is trusted from the CALLER (the API route's own auth.getUser()
--- result) — this function is intentionally service_role-only (see grants
--- below) because it does not re-derive identity from auth.uid() internally.
+-- Identity is derived from auth.uid() INTERNALLY (not a p_user_id param) —
+-- this is what makes it safe to grant directly to `authenticated` rather
+-- than requiring the service-role key, matching the pattern used by
+-- approve_purchase()/admin_cancel_class_booking() elsewhere in this file.
 create or replace function public.book_class_session(
-  p_user_id uuid,
   p_class_session_id uuid,
   p_customer_package_id uuid
 ) returns table (booking_id uuid, remaining_credits integer)
@@ -899,16 +899,21 @@ security definer
 set search_path = public, pg_temp
 as $$
 declare
+  v_user_id uuid := auth.uid();
   v_booking_id uuid;
   v_remaining integer;
   v_pkg public.customer_packages;
   v_new_booked_count integer;
 begin
+  if v_user_id is null then
+    raise exception 'NOT_AUTHENTICATED' using errcode = 'P0000';
+  end if;
+
   -- Fixed lock order (package, then session) on every call path — prevents
   -- deadlocks between two concurrent bookings touching the same
   -- package/session pair in reverse order.
   select * into v_pkg from public.customer_packages
-    where id = p_customer_package_id and user_id = p_user_id
+    where id = p_customer_package_id and user_id = v_user_id
     for update;
   if not found then
     raise exception 'PACKAGE_NOT_FOUND' using errcode = 'P0001';
@@ -932,7 +937,7 @@ begin
 
   if exists (
     select 1 from public.class_bookings
-    where class_session_id = p_class_session_id and user_id = p_user_id and status = 'booked'
+    where class_session_id = p_class_session_id and user_id = v_user_id and status = 'booked'
   ) then
     raise exception 'ALREADY_BOOKED' using errcode = 'P0005';
   end if;
@@ -968,32 +973,45 @@ begin
   end if;
 
   insert into public.class_bookings (class_session_id, user_id, customer_package_id, status, credits_used)
-  values (p_class_session_id, p_user_id, p_customer_package_id, 'booked', 1)
+  values (p_class_session_id, v_user_id, p_customer_package_id, 'booked', 1)
   returning id into v_booking_id;
 
   return query select v_booking_id, v_remaining;
 end;
 $$;
 
-revoke execute on function public.book_class_session(uuid, uuid, uuid) from public, anon, authenticated;
-grant execute on function public.book_class_session(uuid, uuid, uuid) to service_role;
+revoke execute on function public.book_class_session(uuid, uuid) from public;
+grant execute on function public.book_class_session(uuid, uuid) to authenticated;
 
 -- Cancellation restores the credit and frees the session slot atomically.
--- Also service_role-only for the same reason as book_class_session().
-create or replace function public.cancel_class_booking(p_user_id uuid, p_booking_id uuid)
+-- Same auth.uid()-derived-identity pattern as book_class_session() above —
+-- a customer can only ever cancel their OWN booking.
+create or replace function public.cancel_class_booking(p_booking_id uuid)
 returns void
 language plpgsql
 security definer
 set search_path = public, pg_temp
 as $$
 declare
+  v_user_id uuid := auth.uid();
   v_booking public.class_bookings;
 begin
-  select * into v_booking from public.class_bookings
-    where id = p_booking_id and user_id = p_user_id and status = 'booked'
-    for update;
+  if v_user_id is null then
+    raise exception 'NOT_AUTHENTICATED' using errcode = 'P0000';
+  end if;
+
+  select cb.* into v_booking from public.class_bookings cb
+    join public.class_sessions cs on cs.id = cb.class_session_id
+    where cb.id = p_booking_id and cb.user_id = v_user_id and cb.status = 'booked'
+    for update of cb;
   if not found then
     raise exception 'BOOKING_NOT_FOUND' using errcode = 'P0007';
+  end if;
+
+  if exists (
+    select 1 from public.class_sessions where id = v_booking.class_session_id and start_at <= now()
+  ) then
+    raise exception 'SESSION_ALREADY_STARTED' using errcode = 'P0008';
   end if;
 
   update public.class_bookings
@@ -1001,7 +1019,7 @@ begin
    where id = p_booking_id;
 
   update public.customer_packages
-     set remaining_credits = remaining_credits + credits_used,
+     set remaining_credits = remaining_credits + v_booking.credits_used,
          status = case when status = 'exhausted' then 'active' else status end,
          updated_at = now()
    where id = v_booking.customer_package_id;
@@ -1012,8 +1030,8 @@ begin
 end;
 $$;
 
-revoke execute on function public.cancel_class_booking(uuid, uuid) from public, anon, authenticated;
-grant execute on function public.cancel_class_booking(uuid, uuid) to service_role;
+revoke execute on function public.cancel_class_booking(uuid) from public;
+grant execute on function public.cancel_class_booking(uuid) to authenticated;
 
 -- =========================================================================
 -- 8. webhook_events (future PayMongo — no fake success ever written here)
