@@ -96,3 +96,63 @@ export const resetPasswordSchema = z
   });
 
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+
+const slugSchema = z
+  .string()
+  .trim()
+  .min(1, "Slug is required.")
+  .max(80)
+  .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Use lowercase letters, numbers and hyphens only.");
+
+const SERVICE_SLUGS = ["mat-pilates", "yoga", "barre", "strength-hiit", "recovery-restore", "ballet"] as const;
+
+export const packageFormSchema = z.object({
+  slug: slugSchema,
+  name: z.string().trim().min(1, "Name is required.").max(160),
+  category: z.enum(["classic", "restore", "ballet", "studio_rental"]),
+  packageGroup: z.enum([
+    "intro_offer",
+    "single_session",
+    "package",
+    "membership",
+    "private_session",
+    "special_offer",
+  ]),
+  serviceSlug: z.enum(SERVICE_SLUGS).optional().or(z.literal("")),
+  price: z.coerce.number().min(0, "Price must be 0 or more."),
+  originalPrice: z.coerce.number().min(0).optional().or(z.literal("")),
+  creditCount: z.coerce.number().int().min(1).optional().or(z.literal("")),
+  validityDescription: z.string().trim().min(1, "Validity description is required.").max(200),
+  validityDays: z.coerce.number().int().min(1).optional().or(z.literal("")),
+  expiresFrom: z.enum(["purchase", "first_booking"]),
+  description: z.string().trim().min(1, "Description is required.").max(2000),
+  includedServices: z.string().trim().max(2000).optional().or(z.literal("")),
+  conditions: z.string().trim().max(2000).optional().or(z.literal("")),
+  isRecommended: z.boolean(),
+  recommendedLabel: z.string().trim().max(60).optional().or(z.literal("")),
+  isFounderOffer: z.boolean(),
+  isActive: z.boolean(),
+  sortOrder: z.coerce.number().int(),
+});
+
+export type PackageFormValues = z.infer<typeof packageFormSchema>;
+
+export const serviceFormSchema = z.object({
+  slug: z.enum(SERVICE_SLUGS),
+  name: z.string().trim().min(1, "Name is required.").max(120),
+  category: z.string().trim().min(1, "Category is required.").max(80),
+  shortDescription: z.string().trim().min(1, "Short description is required.").max(300),
+  description: z.string().trim().min(1, "Description is required.").max(2000),
+  duration: z.string().trim().min(1, "Duration is required.").max(80),
+  level: z.string().trim().min(1, "Level is required.").max(80),
+  instructor: z.string().trim().max(120).optional().or(z.literal("")),
+  startingPrice: z.string().trim().max(120).optional().or(z.literal("")),
+  classVariants: z.string().trim().max(2000).optional().or(z.literal("")),
+  imageSrc: z.string().trim().min(1, "Image URL is required.").url("Enter a valid URL."),
+  imageAlt: z.string().trim().min(1, "Image alt text is required.").max(300),
+  imageCredit: z.string().trim().max(200).optional().or(z.literal("")),
+  isActive: z.boolean(),
+  sortOrder: z.coerce.number().int(),
+});
+
+export type ServiceFormValues = z.infer<typeof serviceFormSchema>;

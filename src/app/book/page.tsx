@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { getServiceBySlug } from "@/data/services";
-import { getPricingOptionBySlug } from "@/data/pricing";
+import { getServices } from "@/lib/catalog/services";
+import { getPricingOptionBySlug } from "@/lib/catalog/packages";
 import { siteConfig } from "@/data/site";
 import { BookingFlow } from "@/components/booking/BookingFlow";
 
@@ -22,14 +22,20 @@ function isValidDate(value?: string) {
 
 export default async function BookPage({ searchParams }: BookPageProps) {
   const params = await searchParams;
-  const pricingOption = getPricingOptionBySlug(params.package ?? "");
-  const service = getServiceBySlug(params.service ?? pricingOption?.serviceSlug ?? "")?.slug;
+  const [services, pricingOption] = await Promise.all([
+    getServices(),
+    getPricingOptionBySlug(params.package ?? ""),
+  ]);
+  const service = services.find(
+    (s) => s.slug === (params.service ?? pricingOption?.serviceSlug ?? "")
+  )?.slug;
   const date = isValidDate(params.date) ? params.date : undefined;
   const time = date && params.time ? params.time : undefined;
 
   return (
     <section className="mx-auto max-w-5xl px-6 pt-28 pb-16 sm:px-8 sm:pb-20 lg:px-12">
       <BookingFlow
+        services={services}
         initialService={service}
         initialDate={date}
         initialTime={time}

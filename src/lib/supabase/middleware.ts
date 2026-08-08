@@ -2,7 +2,11 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 const PROTECTED_PREFIXES = ["/account", "/admin"];
-const PUBLIC_EXCEPTIONS = ["/admin/login"];
+// /admin/login: pre-auth admin sign-in. /admin/mfa: reached by an admin who
+// IS signed in but not yet AAL2 — excepted so an unauthenticated direct hit
+// gets the page's own redirect to /admin/login rather than the generic
+// customer /login.
+const PUBLIC_EXCEPTIONS = ["/admin/login", "/admin/mfa"];
 const AUTH_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password"];
 
 /**
@@ -38,7 +42,8 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isProtected = PROTECTED_PREFIXES.some((prefix) => path.startsWith(prefix));
+  const isPublicException = PUBLIC_EXCEPTIONS.some((prefix) => path.startsWith(prefix));
+  const isProtected = !isPublicException && PROTECTED_PREFIXES.some((prefix) => path.startsWith(prefix));
   const isAuthRoute = AUTH_ROUTES.some((prefix) => path.startsWith(prefix));
 
   if (!user && isProtected) {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { pricing } from "@/data/pricing";
+import type { PricingOption } from "@/data/pricing";
+import { getPricingGroups } from "@/lib/catalog/packages";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { PricingCard } from "@/components/pricing/PricingCard";
@@ -14,18 +15,18 @@ export const metadata: Metadata = {
 
 const CATEGORY_ORDER = ["Classics", "Restore", "Ballet"] as const;
 
-function categoryOf(option: (typeof pricing.packages)[number]): (typeof CATEGORY_ORDER)[number] {
+function categoryOf(option: PricingOption): (typeof CATEGORY_ORDER)[number] {
   if (option.serviceSlug === "recovery-restore") return "Restore";
   if (option.serviceSlug === "ballet") return "Ballet";
   return "Classics";
 }
 
 // Recommended option first within its group — the rest keep their original order.
-function sortGroup(options: typeof pricing.packages) {
+function sortGroup(options: PricingOption[]) {
   return [...options].sort((a, b) => Number(!!b.recommended) - Number(!!a.recommended));
 }
 
-function OptionGrid({ options, ctaType }: { options: typeof pricing.packages; ctaType: "book" | "inquire" }) {
+function OptionGrid({ options, ctaType }: { options: PricingOption[]; ctaType: "book" | "inquire" }) {
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {sortGroup(options).map((option, index) => (
@@ -50,7 +51,7 @@ function PricingSection({
   eyebrow: string;
   heading: string;
   body?: string;
-  options: typeof pricing.packages;
+  options: PricingOption[];
   ctaType: "book" | "inquire";
   /** Splits mixed Classics/Restore/Ballet options into labeled sub-groups instead of one flat grid. */
   groupByCategory?: boolean;
@@ -90,7 +91,9 @@ function PricingSection({
   );
 }
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const pricing = await getPricingGroups();
+
   return (
     <>
       <section className="mx-auto max-w-7xl px-6 pt-28 pb-8 sm:px-8 lg:px-12">

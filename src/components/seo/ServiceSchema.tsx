@@ -1,7 +1,8 @@
 import { siteConfig } from "@/data/site";
-import { services } from "@/data/services";
+import { getServices } from "@/lib/catalog/services";
 
-export function ServiceSchema() {
+export async function ServiceSchema() {
+  const services = await getServices();
   const schema = services.map((service) => ({
     "@context": "https://schema.org",
     "@type": "Service",

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
+import type { Service } from "@/data/services";
 import { bookingSchema, type BookingFormValues } from "@/lib/validations";
 import { BookingProgress } from "@/components/booking/BookingProgress";
 import { ServiceSelector } from "@/components/booking/ServiceSelector";
@@ -13,6 +14,7 @@ import { BookingReview } from "@/components/booking/BookingReview";
 import { BookingConfirmation } from "@/components/booking/BookingConfirmation";
 
 type BookingFlowProps = {
+  services: Service[];
   initialService?: string;
   initialDate?: string;
   initialTime?: string;
@@ -22,6 +24,7 @@ type BookingFlowProps = {
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 export function BookingFlow({
+  services,
   initialService,
   initialDate,
   initialTime,
@@ -101,7 +104,7 @@ export function BookingFlow({
   }
 
   if (confirmedBooking) {
-    return <BookingConfirmation booking={confirmedBooking} onBookAnother={handleBookAnother} />;
+    return <BookingConfirmation services={services} booking={confirmedBooking} onBookAnother={handleBookAnother} />;
   }
 
   return (
@@ -119,6 +122,7 @@ export function BookingFlow({
           >
             {step === 1 && (
               <ServiceSelector
+                services={services}
                 value={serviceValue}
                 packageName={packageName}
                 onSelect={(slug) => form.setValue("service", slug, { shouldValidate: true })}
@@ -139,6 +143,7 @@ export function BookingFlow({
 
             {step === 3 && (
               <BookingForm
+                services={services}
                 form={form}
                 onContinue={async () => {
                   const valid = await form.trigger([
@@ -157,6 +162,7 @@ export function BookingFlow({
 
             {step === 4 && (
               <BookingReview
+                services={services}
                 values={form.getValues()}
                 onBack={() => setStep(3)}
                 onConfirm={handleConfirm}

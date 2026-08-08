@@ -13,6 +13,7 @@ import {
 } from "@/lib/validations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRateLimited, getActionClientKey } from "@/lib/rate-limit";
+import { normalizePhoneE164 } from "@/lib/phone";
 
 type ActionResult = { error: string } | { success: true };
 type SignUpResult = { error: string } | { success: true; needsEmailConfirmation: boolean };
@@ -30,6 +31,13 @@ export async function signUpAction(values: SignUpFormValues): Promise<SignUpResu
     return { error: "Too many sign-up attempts. Please try again in a few minutes." };
   }
 
+  // Never trust customer-typed phone formatting — normalize to E.164 here so
+  // profiles.mobile_number is always in the shape phone MFA enrollment needs.
+  const mobileNumber = normalizePhoneE164(parsed.data.mobileNumber);
+  if (!mobileNumber) {
+    return { error: "Enter a valid mobile number." };
+  }
+
   const supabase = await createSupabaseServerClient();
   const { data } = parsed;
 
@@ -42,7 +50,7 @@ export async function signUpAction(values: SignUpFormValues): Promise<SignUpResu
       data: {
         first_name: data.firstName,
         last_name: data.lastName,
-        mobile_number: data.mobileNumber,
+        mobile_number: mobileNumber,
         birthday: data.birthday || null,
       },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/account`,

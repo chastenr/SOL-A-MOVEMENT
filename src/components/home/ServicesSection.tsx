@@ -1,10 +1,12 @@
-import { services } from "@/data/services";
+import { getServices } from "@/lib/catalog/services";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { Button } from "@/components/ui/Button";
 
-export function ServicesSection() {
+export async function ServicesSection() {
+  const services = await getServices();
+
   return (
     <section className="bg-sand/25 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">

@@ -2,12 +2,13 @@
 
 import type { UseFormReturn } from "react-hook-form";
 import { format, parseISO } from "date-fns";
-import { getServiceBySlug } from "@/data/services";
+import type { Service } from "@/data/services";
 import type { BookingFormValues } from "@/lib/validations";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 type BookingFormProps = {
+  services: Service[];
   form: UseFormReturn<BookingFormValues>;
   onContinue: () => void;
   onBack: () => void;
@@ -16,14 +17,14 @@ type BookingFormProps = {
 const inputClasses =
   "w-full rounded-xl border border-charcoal/15 bg-ivory px-4 py-3 text-sm text-charcoal placeholder:text-charcoal/35 transition-colors focus:border-charcoal focus:outline-none";
 
-export function BookingForm({ form, onContinue, onBack }: BookingFormProps) {
+export function BookingForm({ services, form, onContinue, onBack }: BookingFormProps) {
   const {
     register,
     formState: { errors },
     watch,
   } = form;
 
-  const service = getServiceBySlug(watch("service"));
+  const service = services.find((s) => s.slug === watch("service"));
   const date = watch("date");
   const time = watch("time");
   const packageName = watch("packageName");

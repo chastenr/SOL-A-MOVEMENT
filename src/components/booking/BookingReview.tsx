@@ -2,12 +2,13 @@
 
 import { format, parseISO } from "date-fns";
 import { AlertCircle } from "lucide-react";
-import { getServiceBySlug } from "@/data/services";
+import type { Service } from "@/data/services";
 import { siteConfig } from "@/data/site";
 import type { BookingFormValues } from "@/lib/validations";
 import { Button } from "@/components/ui/Button";
 
 type BookingReviewProps = {
+  services: Service[];
   values: BookingFormValues;
   onBack: () => void;
   onConfirm: () => void;
@@ -15,8 +16,8 @@ type BookingReviewProps = {
   error: string | null;
 };
 
-export function BookingReview({ values, onBack, onConfirm, submitting, error }: BookingReviewProps) {
-  const service = getServiceBySlug(values.service);
+export function BookingReview({ services, values, onBack, onConfirm, submitting, error }: BookingReviewProps) {
+  const service = services.find((s) => s.slug === values.service);
 
   return (
     <div>

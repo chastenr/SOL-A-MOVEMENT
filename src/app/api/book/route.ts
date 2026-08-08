@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { format, parseISO } from "date-fns";
 import { bookingSchema } from "@/lib/validations";
-import { getServiceBySlug } from "@/data/services";
+import { getServiceBySlug } from "@/lib/catalog/services";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase/admin";
 import { sendCustomerBookingEmail, sendOwnerBookingEmail } from "@/lib/email";
 import { getClientKey, isRateLimited } from "@/lib/rate-limit";
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
   }
 
   const booking = parsed.data;
-  const service = getServiceBySlug(booking.service);
+  const service = await getServiceBySlug(booking.service);
   if (!service) {
     return NextResponse.json({ message: "That service could not be found." }, { status: 400 });
   }

@@ -3,18 +3,20 @@
 import { motion } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import { Check } from "lucide-react";
-import { getServiceBySlug } from "@/data/services";
+import type { Service } from "@/data/services";
 import type { BookingFormValues } from "@/lib/validations";
 import { Button } from "@/components/ui/Button";
 
 export function BookingConfirmation({
+  services,
   booking,
   onBookAnother,
 }: {
+  services: Service[];
   booking: BookingFormValues;
   onBookAnother: () => void;
 }) {
-  const service = getServiceBySlug(booking.service);
+  const service = services.find((s) => s.slug === booking.service);
 
   return (
     <motion.div

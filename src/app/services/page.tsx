@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { services } from "@/data/services";
+import { getServices } from "@/lib/catalog/services";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ServiceCard } from "@/components/services/ServiceCard";
@@ -13,7 +13,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/services" },
 };
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const services = await getServices();
+
   return (
     <>
       <ServiceSchema />

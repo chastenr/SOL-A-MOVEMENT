@@ -2,18 +2,19 @@
 
 import Image from "next/image";
 import { Check } from "lucide-react";
-import { services } from "@/data/services";
+import type { Service } from "@/data/services";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 type ServiceSelectorProps = {
+  services: Service[];
   value?: string;
   packageName?: string;
   onSelect: (slug: string) => void;
   onContinue: () => void;
 };
 
-export function ServiceSelector({ value, packageName, onSelect, onContinue }: ServiceSelectorProps) {
+export function ServiceSelector({ services, value, packageName, onSelect, onContinue }: ServiceSelectorProps) {
   return (
     <div>
       <h2 className="font-display text-3xl text-charcoal sm:text-4xl">Select a service</h2>
