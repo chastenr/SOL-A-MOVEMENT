@@ -30,25 +30,25 @@ function FacebookIcon({ size = 18 }: { size?: number }) {
 export function Footer() {
   return (
     <footer className="bg-charcoal text-ivory">
-      <div className="mx-auto max-w-7xl px-6 py-16 sm:px-8 lg:px-12">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto max-w-7xl px-6 py-12 sm:px-8 sm:py-14 lg:px-12">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <p className="font-display text-2xl tracking-[0.06em]">{siteConfig.shortName}</p>
-            <p className="mt-1 text-sm uppercase tracking-[0.2em] text-ivory/50">
+            <p className="font-display text-xl tracking-[0.06em]">{siteConfig.shortName}</p>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-ivory/50">
               Wellness Studio
             </p>
-            <p className="font-display mt-6 max-w-xs text-xl italic text-ivory/80">
+            <p className="font-display mt-5 max-w-xs text-lg italic text-ivory/80">
               {siteConfig.tagline}
             </p>
-            <div className="mt-6 flex items-center gap-5">
+            <div className="mt-5 flex items-center gap-5">
               <Link
                 href={siteConfig.social.instagram}
                 target="_blank"
                 rel="noreferrer noopener"
                 aria-label="Veora on Instagram"
-                className="inline-flex items-center gap-2 text-sm text-ivory/60 transition-colors hover:text-ivory"
+                className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.15em] text-ivory/60 transition-colors hover:text-clay"
               >
-                <InstagramIcon />
+                <InstagramIcon size={15} />
                 Instagram
               </Link>
               <Link
@@ -56,22 +56,22 @@ export function Footer() {
                 target="_blank"
                 rel="noreferrer noopener"
                 aria-label="Veora on Facebook"
-                className="inline-flex items-center gap-2 text-sm text-ivory/60 transition-colors hover:text-ivory"
+                className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.15em] text-ivory/60 transition-colors hover:text-clay"
               >
-                <FacebookIcon />
+                <FacebookIcon size={15} />
                 Facebook
               </Link>
             </div>
           </div>
 
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-ivory/50">Explore</p>
-            <ul className="mt-5 space-y-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-ivory/45">Explore</p>
+            <ul className="mt-4 space-y-2.5">
               {siteConfig.footerNav.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-ivory/80 transition-colors hover:text-ivory"
+                    className="text-[13px] text-ivory/75 transition-colors hover:text-clay"
                   >
                     {link.label}
                   </Link>
@@ -81,8 +81,8 @@ export function Footer() {
           </div>
 
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-ivory/50">Studio</p>
-            <ul className="mt-5 space-y-3 text-sm text-ivory/80">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-ivory/45">Studio</p>
+            <ul className="mt-4 space-y-2.5 text-[13px] text-ivory/75">
               <li>{siteConfig.contact.address.line1}</li>
               <li>{siteConfig.contact.address.line2}</li>
               <li>{siteConfig.contact.phone}</li>
@@ -91,7 +91,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-16 grid gap-2 border-t border-ivory/10 pt-8 text-xs text-ivory/50 sm:grid-cols-2">
+        <div className="mt-10 grid gap-2 border-t border-ivory/10 pt-6 text-[11px] text-ivory/45 sm:grid-cols-2">
           <p>© 2026 {siteConfig.name}. All rights reserved.</p>
           <div className="sm:text-right">
             {siteConfig.hours.length > 0 ? (

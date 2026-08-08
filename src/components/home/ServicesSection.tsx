@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/Button";
 
 export function ServicesSection() {
   return (
-    <section className="bg-cream/40 py-24 sm:py-32">
+    <section className="bg-sand/25 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
-        <AnimatedSection className="flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-end">
+        <AnimatedSection className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeading
             eyebrow="Our Classes"
             heading="Find the movement that moves you."
@@ -19,9 +19,9 @@ export function ServicesSection() {
           </Button>
         </AnimatedSection>
 
-        <div className="mt-16 grid gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service, index) => (
-            <AnimatedSection key={service.slug} delay={index * 0.08}>
+            <AnimatedSection key={service.slug} delay={Math.min(index * 0.06, 0.3)}>
               <ServiceCard service={service} />
             </AnimatedSection>
           ))}

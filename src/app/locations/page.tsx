@@ -16,7 +16,7 @@ export default function LocationsPage() {
   const locations = getActiveLocations();
 
   return (
-    <section className="mx-auto max-w-7xl px-6 pt-40 pb-24 sm:px-8 sm:pb-32 lg:px-12">
+    <section className="mx-auto max-w-7xl px-6 pt-28 pb-16 sm:px-8 sm:pb-20 lg:px-12">
       <AnimatedSection>
         <SectionHeading
           eyebrow="Visit Us"

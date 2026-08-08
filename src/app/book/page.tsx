@@ -28,7 +28,7 @@ export default async function BookPage({ searchParams }: BookPageProps) {
   const time = date && params.time ? params.time : undefined;
 
   return (
-    <section className="mx-auto max-w-5xl px-6 pt-36 pb-24 sm:px-8 sm:pb-32 lg:px-12">
+    <section className="mx-auto max-w-5xl px-6 pt-28 pb-16 sm:px-8 sm:pb-20 lg:px-12">
       <BookingFlow
         initialService={service}
         initialDate={date}

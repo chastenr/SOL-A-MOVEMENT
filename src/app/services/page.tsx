@@ -17,7 +17,7 @@ export default function ServicesPage() {
   return (
     <>
       <ServiceSchema />
-      <section className="mx-auto max-w-7xl px-6 pt-40 pb-16 sm:px-8 lg:px-12">
+      <section className="mx-auto max-w-7xl px-6 pt-28 pb-10 sm:px-8 lg:px-12">
         <AnimatedSection className="flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-end">
           <SectionHeading
             eyebrow="Our Classes"
@@ -30,8 +30,8 @@ export default function ServicesPage() {
         </AnimatedSection>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 pb-24 sm:px-8 sm:pb-32 lg:px-12">
-        <div className="flex flex-col gap-16">
+      <section className="mx-auto max-w-7xl px-6 pb-14 sm:px-8 sm:pb-16 lg:px-12">
+        <div className="flex flex-col gap-10">
           {services.map((service, index) => (
             <AnimatedSection key={service.slug} delay={Math.min(index * 0.05, 0.3)}>
               <ServiceCard service={service} variant="detailed" />
@@ -40,7 +40,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      <section className="bg-cream/40 py-24 sm:py-32">
+      <section className="bg-sand/25 py-14 sm:py-16">
         <div className="mx-auto max-w-3xl px-6 text-center sm:px-8">
           <AnimatedSection>
             <SectionHeading
@@ -50,7 +50,7 @@ export default function ServicesPage() {
               body="Our studio is also available for private rentals — perfect for wellness events, workshops and intimate gatherings, with or without an instructor."
               className="mx-auto"
             />
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <div className="mt-6 flex flex-wrap justify-center gap-4">
               <Button href="/pricing#studio-rentals" size="lg">
                 See Rental Pricing
               </Button>

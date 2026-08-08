@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/data/site";
 import { Hero } from "@/components/home/Hero";
-import { SocialProof } from "@/components/home/SocialProof";
 import { Introduction } from "@/components/home/Introduction";
 import { ServicesSection } from "@/components/home/ServicesSection";
 import { StudioExperience } from "@/components/home/StudioExperience";
@@ -17,7 +16,6 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <SocialProof />
       <Introduction />
       <ServicesSection />
       <StudioExperience />

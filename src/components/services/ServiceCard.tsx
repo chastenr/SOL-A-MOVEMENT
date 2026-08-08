@@ -74,7 +74,7 @@ export function ServiceCard({ service, variant = "compact", className }: Service
 
   return (
     <article className={cn("group flex flex-col", className)}>
-      <TiltCard className="aspect-[4/5] overflow-hidden rounded-2xl">
+      <TiltCard maxTilt={4} className="aspect-[4/3] overflow-hidden rounded-lg">
         <ImageReveal
           src={service.image.src}
           alt={service.image.alt}
@@ -85,11 +85,11 @@ export function ServiceCard({ service, variant = "compact", className }: Service
           sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
         />
       </TiltCard>
-      <h3 className="font-display mt-6 text-2xl text-charcoal">{service.name}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-charcoal/65">{service.shortDescription}</p>
+      <h3 className="font-display mt-4 text-xl text-charcoal">{service.name}</h3>
+      <p className="mt-1.5 text-sm leading-relaxed text-charcoal/65">{service.shortDescription}</p>
       <a
         href={`/services#${service.slug}`}
-        className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.15em] text-charcoal/70 transition-colors group-hover:text-clay"
+        className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.15em] text-charcoal/70 transition-colors group-hover:text-clay"
       >
         Learn more
         <ArrowUpRight size={14} aria-hidden />

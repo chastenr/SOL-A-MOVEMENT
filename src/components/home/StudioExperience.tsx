@@ -25,44 +25,54 @@ const features = [
 
 export function StudioExperience() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-24 sm:px-8 sm:py-32 lg:px-12">
-      <AnimatedSection>
-        <SectionHeading
-          align="center"
-          eyebrow="The Veora Experience"
-          heading="A space to move, breathe and reset."
-          body="Every detail at Veora is designed to help you feel comfortable, supported and present — from beginner-friendly classes to a calm, welcoming studio."
-          className="mx-auto"
-        />
-      </AnimatedSection>
+    <section className="bg-cream/50 py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
+        <div className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-0">
+          <div className="relative">
+            <ImageReveal
+              src={images.studioExperienceOne.src}
+              alt={images.studioExperienceOne.alt}
+              width={800}
+              height={900}
+              containerClassName="aspect-[4/5] rounded-xl sm:aspect-[5/4] lg:aspect-auto lg:h-full lg:min-h-[420px] lg:rounded-r-none"
+              sizes="(min-width: 1024px) 45vw, 100vw"
+            />
+            <div className="absolute bottom-4 right-4 hidden w-[34%] sm:block">
+              <ImageReveal
+                src={images.studioExperienceTwo.src}
+                alt={images.studioExperienceTwo.alt}
+                width={400}
+                height={400}
+                containerClassName="aspect-square rounded-lg border-4 border-cream/70 shadow-[0_16px_40px_-16px_rgba(34,31,28,0.45)]"
+                sizes="20vw"
+              />
+            </div>
+          </div>
 
-      <div className="mt-16 grid gap-6 sm:grid-cols-2">
-        <ImageReveal
-          src={images.studioExperienceOne.src}
-          alt={images.studioExperienceOne.alt}
-          width={800}
-          height={1000}
-          containerClassName="aspect-[4/5] rounded-2xl sm:translate-y-8"
-          sizes="(min-width: 640px) 45vw, 100vw"
-        />
-        <ImageReveal
-          src={images.studioExperienceTwo.src}
-          alt={images.studioExperienceTwo.alt}
-          width={800}
-          height={1000}
-          containerClassName="aspect-[4/5] rounded-2xl"
-          sizes="(min-width: 640px) 45vw, 100vw"
-        />
-      </div>
+          <div className="flex flex-col justify-center rounded-xl bg-ivory px-6 py-10 sm:px-10 sm:py-12 lg:rounded-l-none lg:px-14 lg:py-14">
+            <AnimatedSection>
+              <SectionHeading
+                eyebrow="The Veora Experience"
+                heading="A space to move, breathe and reset."
+                body="Every detail at Veora is designed to help you feel comfortable, supported and present — from beginner-friendly classes to a calm, welcoming studio."
+              />
+            </AnimatedSection>
 
-      <div className="mt-20 grid gap-10 sm:grid-cols-3 sm:gap-8">
-        {features.map((feature, index) => (
-          <AnimatedSection key={feature.title} delay={index * 0.1}>
-            <feature.icon className="text-clay" size={28} strokeWidth={1.5} aria-hidden />
-            <h3 className="font-display mt-4 text-2xl text-charcoal">{feature.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-charcoal/65">{feature.description}</p>
-          </AnimatedSection>
-        ))}
+            <div className="mt-8 space-y-6">
+              {features.map((feature, index) => (
+                <AnimatedSection key={feature.title} delay={Math.min(index * 0.08, 0.24)}>
+                  <div className="flex items-start gap-4">
+                    <feature.icon className="mt-0.5 shrink-0 text-clay" size={22} strokeWidth={1.5} aria-hidden />
+                    <div>
+                      <h3 className="font-display text-lg text-charcoal">{feature.title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-charcoal/65">{feature.description}</p>
+                    </div>
+                  </div>
+                </AnimatedSection>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -30,11 +30,11 @@ function PricingSection({
   if (options.length === 0) return null;
 
   return (
-    <section id={id} className="mx-auto max-w-7xl scroll-mt-28 px-6 py-16 sm:px-8 lg:px-12">
+    <section id={id} className="mx-auto max-w-7xl scroll-mt-24 px-6 py-10 sm:px-8 sm:py-12 lg:px-12">
       <AnimatedSection>
         <SectionHeading eyebrow={eyebrow} heading={heading} body={body} />
       </AnimatedSection>
-      <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {options.map((option, index) => (
           <AnimatedSection key={option.slug} delay={Math.min(index * 0.06, 0.3)}>
             <PricingCard option={option} ctaType={ctaType} />
@@ -48,7 +48,7 @@ function PricingSection({
 export default function PricingPage() {
   return (
     <>
-      <section className="mx-auto max-w-7xl px-6 pt-40 pb-8 sm:px-8 lg:px-12">
+      <section className="mx-auto max-w-7xl px-6 pt-28 pb-8 sm:px-8 lg:px-12">
         <AnimatedSection>
           <SectionHeading
             eyebrow="Pricing"
@@ -89,7 +89,7 @@ export default function PricingPage() {
         ctaType="inquire"
       />
 
-      <section className="mx-auto max-w-3xl px-6 pb-24 text-center sm:px-8 sm:pb-32">
+      <section className="mx-auto max-w-3xl px-6 pb-14 text-center sm:px-8 sm:pb-16">
         <AnimatedSection>
           <p className="text-sm text-charcoal/55">
             Class credits are personal and non-transferable. Please cancel or reschedule at least

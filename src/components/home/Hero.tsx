@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
+import { MapPin } from "lucide-react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { siteConfig } from "@/data/site";
 import { images } from "@/data/images";
@@ -41,7 +42,7 @@ export function Hero() {
       ref={ref}
       onMouseMove={enabled ? handleMouseMove : undefined}
       onMouseLeave={enabled ? handleMouseLeave : undefined}
-      className="relative flex min-h-[92vh] items-end overflow-hidden bg-charcoal"
+      className="relative flex min-h-[88vh] items-center overflow-hidden bg-charcoal"
     >
       <motion.div
         className="absolute inset-0"
@@ -66,10 +67,11 @@ export function Hero() {
             className="object-cover"
           />
         </motion.div>
-        <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/30 to-charcoal/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/25 to-charcoal/5" />
+        <div className="absolute inset-0 bg-gradient-to-r from-charcoal/50 via-transparent to-transparent" />
       </motion.div>
 
-      <StaggerContainer className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-20 pt-40 sm:px-8 sm:pb-24 lg:px-12">
+      <StaggerContainer className="relative z-10 mx-auto w-full max-w-7xl px-6 py-28 sm:px-8 sm:py-32 lg:px-12">
         <StaggerItem>
           <p className="text-xs font-medium uppercase tracking-[0.3em] text-ivory/70">
             {siteConfig.name}
@@ -77,22 +79,32 @@ export function Hero() {
         </StaggerItem>
         <RevealHeading
           lines={["Move with intention.", "Feel your best."]}
-          className="font-display balance mt-6 max-w-4xl text-5xl leading-[1.05] text-ivory sm:text-6xl md:text-7xl"
+          className="font-display balance mt-5 max-w-4xl text-5xl leading-[1.05] text-ivory sm:text-6xl md:text-7xl"
         />
         <StaggerItem>
-          <p className="mt-8 max-w-xl text-base leading-relaxed text-ivory/80 sm:text-lg">
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-ivory/80 sm:text-lg">
             Explore Pilates, yoga, barre, strength and ballet, all in one welcoming studio in
             Bacoor, Cavite — designed to help you move with purpose and reconnect with your body.
           </p>
         </StaggerItem>
         <StaggerItem>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
+          <div className="mt-8 flex flex-wrap items-center gap-5">
             <Button href="/book" size="lg" magnetic>
               {siteConfig.bookingCtaLabel}
             </Button>
-            <Button href="/services" size="lg" variant="secondary" className="border-ivory/40 text-ivory hover:border-ivory">
+            <Button
+              href="/services"
+              variant="ghost"
+              className="text-ivory/80 hover:text-ivory"
+            >
               Explore Services
             </Button>
+          </div>
+        </StaggerItem>
+        <StaggerItem>
+          <div className="mt-8 flex items-center gap-2 text-ivory/60">
+            <MapPin size={14} aria-hidden />
+            <p className="text-xs uppercase tracking-[0.18em]">Opening soon in Bacoor, Cavite</p>
           </div>
         </StaggerItem>
       </StaggerContainer>

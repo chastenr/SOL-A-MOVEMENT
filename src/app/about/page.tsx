@@ -28,7 +28,7 @@ export default function AboutPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/40 to-charcoal/10" />
         </div>
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-16 pt-40 sm:px-8 lg:px-12">
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-12 pt-28 sm:px-8 lg:px-12">
           <p className="text-xs font-medium uppercase tracking-[0.3em] text-ivory/70">About Us</p>
           <h1 className="font-display balance mt-6 max-w-3xl text-4xl leading-[1.1] text-ivory sm:text-5xl md:text-6xl">
             A studio built around how movement should feel.
@@ -36,7 +36,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-3xl px-6 py-24 text-center sm:px-8 sm:py-32">
+      <section className="mx-auto max-w-3xl px-6 py-14 text-center sm:px-8 sm:py-16">
         <AnimatedSection>
           <p className="font-display balance text-2xl leading-relaxed text-charcoal sm:text-3xl">
             Veora was created for anyone who wants movement to feel less like a task and more
@@ -46,8 +46,8 @@ export default function AboutPage() {
         </AnimatedSection>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-8 sm:px-8 lg:px-12">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+      <section className="mx-auto max-w-7xl px-6 py-10 sm:px-8 lg:px-12">
+        <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
           <ImageReveal
             src={images.introduction.src}
             alt={images.introduction.alt}
@@ -66,8 +66,8 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-24 sm:px-8 sm:py-32 lg:px-12">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+      <section className="mx-auto max-w-7xl px-6 py-14 sm:px-8 sm:py-16 lg:px-12">
+        <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
           <AnimatedSection>
             <SectionHeading
               eyebrow="The Veora Studio"
@@ -86,7 +86,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-cream/40 py-24 sm:py-32">
+      <section className="bg-cream/40 py-14 sm:py-16">
         <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
           <AnimatedSection>
             <SectionHeading
@@ -97,7 +97,7 @@ export default function AboutPage() {
             />
           </AnimatedSection>
 
-          <AnimatedSection className="mt-16 grid items-center gap-10 rounded-3xl bg-ivory p-8 sm:grid-cols-[240px_1fr] sm:p-12">
+          <AnimatedSection className="mt-10 grid items-center gap-8 rounded-2xl bg-ivory p-6 sm:grid-cols-[200px_1fr] sm:p-10">
             <div className="flex aspect-square items-center justify-center rounded-2xl bg-sand/60">
               <span className="font-display text-5xl text-charcoal/40">V</span>
             </div>
@@ -115,7 +115,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-4xl px-6 py-24 text-center sm:px-8 sm:py-32">
+      <section className="mx-auto max-w-4xl px-6 py-14 text-center sm:px-8 sm:py-16">
         <AnimatedSection>
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-clay">Our Mission</p>
           <p className="font-display balance mt-6 text-3xl leading-tight text-charcoal sm:text-4xl">
@@ -125,8 +125,8 @@ export default function AboutPage() {
         </AnimatedSection>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 pb-24 sm:px-8 sm:pb-32 lg:px-12">
-        <AnimatedSection className="rounded-3xl bg-charcoal px-8 py-16 text-center sm:px-16 sm:py-20">
+      <section className="mx-auto max-w-7xl px-6 pb-14 sm:px-8 sm:pb-16 lg:px-12">
+        <AnimatedSection className="rounded-3xl bg-charcoal px-8 py-12 text-center sm:px-16 sm:py-16">
           <SectionHeading
             align="center"
             eyebrow="Community"
@@ -135,7 +135,7 @@ export default function AboutPage() {
             tone="light"
             className="mx-auto"
           />
-          <div className="mt-10 flex justify-center">
+          <div className="mt-8 flex justify-center">
             <Button href="/book" size="lg">
               {siteConfig.bookingCtaLabel}
             </Button>
