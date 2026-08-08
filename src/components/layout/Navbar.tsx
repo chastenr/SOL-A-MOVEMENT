@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -27,6 +28,12 @@ export function Navbar() {
     setMobileOpen(false);
   }
 
+  // Only the homepage has a full-bleed dark hero directly beneath the nav,
+  // so only it gets the transparent-at-top treatment; every other page has
+  // light content starting at the top and needs the solid pill immediately.
+  const isHome = pathname === "/";
+  const showSolid = scrolled || mobileOpen || !isHome;
+
   return (
     <>
       <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
@@ -35,15 +42,25 @@ export function Navbar() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className={cn(
-            "pointer-events-auto mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 rounded-full border px-4 backdrop-blur-xl transition-all duration-300 sm:h-[4.5rem] sm:px-6",
-            scrolled || mobileOpen
-              ? "border-ivory/15 bg-charcoal/85 shadow-[0_16px_40px_-18px_rgba(0,0,0,0.55)]"
-              : "border-ivory/10 bg-charcoal/60 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.4)]"
+            "pointer-events-auto mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 rounded-full border px-4 transition-all duration-300 sm:h-[4.5rem] sm:px-6",
+            showSolid
+              ? "border-ivory/15 bg-charcoal/85 shadow-[0_16px_40px_-18px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+              : "border-transparent bg-transparent [text-shadow:0_1px_6px_rgba(0,0,0,0.5)]"
           )}
         >
-          <Link href="/" className="font-display shrink-0 text-lg tracking-[0.06em] text-ivory sm:text-xl">
-            {siteConfig.shortName}
-            <span className="ml-2 hidden text-[10px] font-sans font-normal uppercase tracking-[0.22em] text-ivory/55 sm:inline">
+          <Link href="/" className="flex shrink-0 items-center gap-2 text-ivory">
+            <Image
+              src="/veora-mark.png"
+              alt=""
+              width={342}
+              height={360}
+              priority
+              className="h-7 w-auto drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)] sm:h-8"
+            />
+            <span className="font-display text-lg tracking-[0.06em] sm:text-xl">
+              {siteConfig.shortName}
+            </span>
+            <span className="ml-1 hidden text-[10px] font-sans font-normal uppercase tracking-[0.22em] text-ivory/55 sm:inline">
               Wellness Studio
             </span>
           </Link>
@@ -77,7 +94,10 @@ export function Navbar() {
             <Button
               href="/book"
               magnetic
-              className="border-ivory/40 px-5 py-2.5 text-[0.68rem] text-ivory hover:border-ivory hover:bg-ivory hover:text-charcoal"
+              className={cn(
+                "px-5 py-2.5 text-[0.68rem] text-ivory hover:border-ivory hover:bg-ivory hover:text-charcoal",
+                showSolid ? "border-ivory/40" : "border-ivory/70"
+              )}
               variant="secondary"
             >
               {siteConfig.bookingCtaLabel}
@@ -89,22 +109,25 @@ export function Navbar() {
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((open) => !open)}
-            className="relative z-50 flex h-9 w-9 shrink-0 flex-col items-center justify-center gap-[5px] rounded-full border border-ivory/20 bg-ivory/5 xl:hidden"
+            className={cn(
+              "relative z-50 flex h-9 w-9 shrink-0 flex-col items-center justify-center gap-[5px] rounded-full border xl:hidden",
+              showSolid ? "border-ivory/20 bg-ivory/5" : "border-ivory/40 bg-ivory/10"
+            )}
           >
             <span className="sr-only">Menu</span>
             <motion.span
               animate={{ rotate: mobileOpen ? 45 : 0, y: mobileOpen ? 5 : 0 }}
-              className="h-px w-4 bg-ivory"
+              className="h-px w-4 bg-ivory shadow-[0_1px_3px_rgba(0,0,0,0.5)]"
               transition={{ duration: 0.3 }}
             />
             <motion.span
               animate={{ opacity: mobileOpen ? 0 : 1 }}
-              className="h-px w-4 bg-ivory"
+              className="h-px w-4 bg-ivory shadow-[0_1px_3px_rgba(0,0,0,0.5)]"
               transition={{ duration: 0.2 }}
             />
             <motion.span
               animate={{ rotate: mobileOpen ? -45 : 0, y: mobileOpen ? -5 : 0 }}
-              className="h-px w-4 bg-ivory"
+              className="h-px w-4 bg-ivory shadow-[0_1px_3px_rgba(0,0,0,0.5)]"
               transition={{ duration: 0.3 }}
             />
           </button>

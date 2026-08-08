@@ -58,3 +58,19 @@ export function usePointerCapability(): boolean {
 
   return enabled;
 }
+
+/**
+ * True when the user has requested reduced motion — unlike
+ * usePointerCapability, this is not tied to hover/pointer support, so it
+ * still applies on touch devices (e.g. gating autoplaying background video).
+ */
+export function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
+
+  return reduced;
+}

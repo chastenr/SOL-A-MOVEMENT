@@ -9,13 +9,14 @@ import { images } from "@/data/images";
 import { Button } from "@/components/ui/Button";
 import { RevealHeading } from "@/components/ui/RevealHeading";
 import { StaggerContainer, StaggerItem } from "@/components/ui/AnimatedSection";
-import { EASE, usePointerCapability } from "@/lib/motion";
+import { EASE, usePointerCapability, usePrefersReducedMotion } from "@/lib/motion";
 
 const DEPTH_SPRING = { stiffness: 120, damping: 20, mass: 0.6 };
 
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
   const enabled = usePointerCapability();
+  const reduceMotion = usePrefersReducedMotion();
 
   const pointerX = useMotionValue(0.5);
   const pointerY = useMotionValue(0.5);
@@ -42,7 +43,7 @@ export function Hero() {
       ref={ref}
       onMouseMove={enabled ? handleMouseMove : undefined}
       onMouseLeave={enabled ? handleMouseLeave : undefined}
-      className="relative flex min-h-[88vh] items-center overflow-hidden bg-charcoal"
+      className="relative flex min-h-screen items-center overflow-hidden bg-charcoal"
     >
       <motion.div
         className="absolute inset-0"
@@ -58,14 +59,28 @@ export function Hero() {
               : undefined
           }
         >
-          <Image
-            src={images.hero.src}
-            alt={images.hero.alt}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
+          {reduceMotion ? (
+            <Image
+              src={images.hero.src}
+              alt={images.hero.alt}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+          ) : (
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster="/videos/hero-poster.jpg"
+              aria-hidden
+              className="h-full w-full object-cover"
+            >
+              <source src="/videos/hero-loop.mp4" type="video/mp4" />
+            </video>
+          )}
         </motion.div>
         <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/25 to-charcoal/5" />
         <div className="absolute inset-0 bg-gradient-to-r from-charcoal/50 via-transparent to-transparent" />
