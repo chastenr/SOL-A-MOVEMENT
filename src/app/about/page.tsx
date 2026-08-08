@@ -1,0 +1,147 @@
+import type { Metadata } from "next";
+import { images } from "@/data/images";
+import { siteConfig } from "@/data/site";
+import { AnimatedSection } from "@/components/ui/AnimatedSection";
+import { ImageReveal } from "@/components/ui/ImageReveal";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { Button } from "@/components/ui/Button";
+
+export const metadata: Metadata = {
+  title: "About",
+  description:
+    "Learn about SOLÉA Movement & Wellness — our philosophy, our studio experience and our approach to intentional movement.",
+  alternates: { canonical: "/about" },
+};
+
+export default function AboutPage() {
+  return (
+    <>
+      <section className="relative flex min-h-[60vh] items-end overflow-hidden bg-charcoal">
+        <div className="absolute inset-0">
+          <ImageReveal
+            src={images.hero.src}
+            alt={images.hero.alt}
+            fill
+            priority
+            sizes="100vw"
+            containerClassName="h-full w-full"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/40 to-charcoal/10" />
+        </div>
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-16 pt-40 sm:px-8 lg:px-12">
+          <p className="text-xs font-medium uppercase tracking-[0.3em] text-ivory/70">About Us</p>
+          <h1 className="font-display balance mt-6 max-w-3xl text-4xl leading-[1.1] text-ivory sm:text-5xl md:text-6xl">
+            A studio built around how movement should feel.
+          </h1>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-3xl px-6 py-24 text-center sm:px-8 sm:py-32">
+        <AnimatedSection>
+          <p className="font-display balance text-2xl leading-relaxed text-charcoal sm:text-3xl">
+            SOLÉA was created for anyone who wants movement to feel less like a task and more
+            like a return to themselves — strength built with care, mobility restored with
+            patience, and a studio that feels like it was designed just for you.
+          </p>
+        </AnimatedSection>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-8 sm:px-8 lg:px-12">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+          <ImageReveal
+            src={images.introduction.src}
+            alt={images.introduction.alt}
+            width={800}
+            height={960}
+            containerClassName="aspect-[4/5] rounded-2xl lg:order-2"
+            sizes="(min-width: 1024px) 45vw, 100vw"
+          />
+          <AnimatedSection>
+            <SectionHeading
+              eyebrow="Our Philosophy"
+              heading="Movement as a practice, not a punishment."
+              body="We believe movement should build you up — physically and mentally. Every SOLÉA session is guided with intention, blending strength, control and breath so that how you move in the studio changes how you move through your life."
+            />
+          </AnimatedSection>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-24 sm:px-8 sm:py-32 lg:px-12">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+          <AnimatedSection>
+            <SectionHeading
+              eyebrow="The SOLÉA Studio"
+              heading="A calm, considered space to show up as you are."
+              body="From natural light to quiet, intentional design, every part of the SOLÉA studio is considered — so you can focus on how you feel rather than how things look."
+            />
+          </AnimatedSection>
+          <ImageReveal
+            src={images.services["reformer-pilates"].src}
+            alt={images.services["reformer-pilates"].alt}
+            width={800}
+            height={960}
+            containerClassName="aspect-[4/5] rounded-2xl"
+            sizes="(min-width: 1024px) 45vw, 100vw"
+          />
+        </div>
+      </section>
+
+      <section className="bg-cream/40 py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
+          <AnimatedSection>
+            <SectionHeading
+              align="center"
+              eyebrow="Founder"
+              heading="Led with care and attention to detail."
+              className="mx-auto"
+            />
+          </AnimatedSection>
+
+          <AnimatedSection className="mt-16 grid items-center gap-10 rounded-3xl bg-ivory p-8 sm:grid-cols-[240px_1fr] sm:p-12">
+            <div className="flex aspect-square items-center justify-center rounded-2xl bg-sand/60">
+              <span className="font-display text-5xl text-charcoal/40">S</span>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-clay">Founder photo to be added</p>
+              <p className="font-display mt-3 text-2xl text-charcoal">
+                [Founder name to be provided]
+              </p>
+              <p className="mt-4 max-w-xl text-charcoal/70">
+                [Founder biography provided by client] — this space is reserved for the SOLÉA
+                founder&apos;s story, background and approach to movement, to be added once provided.
+              </p>
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-4xl px-6 py-24 text-center sm:px-8 sm:py-32">
+        <AnimatedSection>
+          <p className="text-xs font-medium uppercase tracking-[0.22em] text-clay">Our Mission</p>
+          <p className="font-display balance mt-6 text-3xl leading-tight text-charcoal sm:text-4xl">
+            To help every person who walks through our doors move with more strength, more ease
+            and more confidence than they arrived with.
+          </p>
+        </AnimatedSection>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 pb-24 sm:px-8 sm:pb-32 lg:px-12">
+        <AnimatedSection className="rounded-3xl bg-charcoal px-8 py-16 text-center sm:px-16 sm:py-20">
+          <SectionHeading
+            align="center"
+            eyebrow="Community"
+            heading="A studio, and a community."
+            body="SOLÉA is built on the belief that movement is better shared — a place to be seen, supported and encouraged as you build a practice that's your own."
+            tone="light"
+            className="mx-auto"
+          />
+          <div className="mt-10 flex justify-center">
+            <Button href="/book" size="lg">
+              {siteConfig.bookingCtaLabel}
+            </Button>
+          </div>
+        </AnimatedSection>
+      </section>
+    </>
+  );
+}
