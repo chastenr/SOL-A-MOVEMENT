@@ -16,13 +16,21 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 //
 // style-src needs 'unsafe-inline': Framer Motion (used throughout Hero, the
 // navbar, and most section reveals) animates via direct inline `style`
-// attribute writes, not stylesheet classes. There's no browser available in
-// this environment to verify a stricter policy wouldn't silently break that
-// motion sitewide, so this is a documented, deliberate exception rather than
-// a blind default. script-src has no such dependency and stays strict.
+// attribute writes, not stylesheet classes.
+//
+// script-src ALSO needs 'unsafe-inline' — this was a real bug, caught live:
+// Next.js's App Router hydrates by streaming RSC payloads through inline
+// `<script>self.__next_f.push(...)</script>` tags in the page HTML. Without
+// 'unsafe-inline' here, the browser silently blocks those scripts, which
+// means React never hydrates at all — every Framer Motion element that
+// starts as `opacity:0` in the server HTML (the navbar, the hero heading,
+// nearly every section reveal) stays invisible forever, and no client
+// interactivity (mobile menu, forms, auth state) works. This is exactly the
+// 'unsafe-inline' Next's own "Without Nonces" CSP guide includes on
+// script-src by default — matching it now instead of deviating from it.
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: https://images.pexels.com https://ik.imagekit.io https://images.unsplash.com https://upload.wikimedia.org`,
   "font-src 'self'",
