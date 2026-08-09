@@ -104,6 +104,23 @@ export const resetPasswordSchema = z
 
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 
+// Distinct from resetPasswordSchema (used by the "forgot password" email-link
+// flow, which has no old password to check) — this is for a signed-in user
+// changing their password from their own account settings, which must prove
+// they still know the current one first.
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password."),
+    password: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
+
+export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
+
 const slugSchema = z
   .string()
   .trim()

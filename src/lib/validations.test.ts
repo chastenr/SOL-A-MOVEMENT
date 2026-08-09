@@ -4,6 +4,7 @@ import {
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  changePasswordSchema,
   bookingSchema,
 } from "@/lib/validations";
 
@@ -82,6 +83,40 @@ describe("resetPasswordSchema", () => {
   it("rejects mismatched passwords", () => {
     expect(
       resetPasswordSchema.safeParse({ password: "password1", confirmPassword: "password2" }).success
+    ).toBe(false);
+  });
+});
+
+describe("changePasswordSchema", () => {
+  it("accepts a current password plus matching strong new passwords", () => {
+    expect(
+      changePasswordSchema.safeParse({
+        currentPassword: "oldpassword1",
+        password: "password1",
+        confirmPassword: "password1",
+      }).success
+    ).toBe(true);
+  });
+
+  it("rejects an empty current password", () => {
+    const result = changePasswordSchema.safeParse({
+      currentPassword: "",
+      password: "password1",
+      confirmPassword: "password1",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.path).toEqual(["currentPassword"]);
+    }
+  });
+
+  it("rejects mismatched new passwords", () => {
+    expect(
+      changePasswordSchema.safeParse({
+        currentPassword: "oldpassword1",
+        password: "password1",
+        confirmPassword: "password2",
+      }).success
     ).toBe(false);
   });
 });

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { resetPasswordSchema, type ResetPasswordFormValues } from "@/lib/validations";
+import { changePasswordSchema, type ChangePasswordFormValues } from "@/lib/validations";
 import { changePasswordAction } from "@/app/account/security/actions";
 import { Button } from "@/components/ui/Button";
 import { Field, fieldInputClasses } from "@/components/ui/Field";
@@ -18,12 +18,12 @@ export function ChangePasswordForm() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<ResetPasswordFormValues>({
-    resolver: zodResolver(resetPasswordSchema),
-    defaultValues: { password: "", confirmPassword: "" },
+  } = useForm<ChangePasswordFormValues>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: { currentPassword: "", password: "", confirmPassword: "" },
   });
 
-  async function onSubmit(values: ResetPasswordFormValues) {
+  async function onSubmit(values: ChangePasswordFormValues) {
     setSubmitting(true);
     setError(null);
     setSaved(false);
@@ -44,6 +44,9 @@ export function ChangePasswordForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid max-w-sm gap-4">
+      <Field label="Current Password" required error={errors.currentPassword?.message}>
+        <input type="password" {...register("currentPassword")} className={fieldInputClasses} autoComplete="current-password" />
+      </Field>
       <Field label="New Password" required error={errors.password?.message}>
         <input type="password" {...register("password")} className={fieldInputClasses} autoComplete="new-password" />
       </Field>
