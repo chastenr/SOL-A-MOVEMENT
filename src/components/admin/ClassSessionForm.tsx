@@ -1,32 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { classSessionFormSchema, type ClassSessionFormValues } from "@/lib/validations";
 import { createClassSessionAction } from "@/app/admin/(protected)/classes/actions";
+import { CLASS_DURATION_MINUTES, formatHourLabel } from "@/lib/studio-hours";
 import { Button } from "@/components/ui/Button";
 import { Field, fieldInputClasses } from "@/components/ui/Field";
 
 type Option = { id: string; name: string };
+type ClassTypeOption = Option & { serviceSlug: string };
+type TimeSlot = { locationId: string; hour: number; isActive: boolean };
+
+const BALLET_SERVICE_SLUG = "ballet";
 
 export function ClassSessionForm({
   classTypes,
   locations,
   instructors,
+  timeSlots,
 }: {
-  classTypes: Option[];
+  classTypes: ClassTypeOption[];
   locations: Option[];
   instructors: Option[];
+  timeSlots: TimeSlot[];
 }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [date, setDate] = useState("");
+  const [hour, setHour] = useState<number | "">("");
 
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<ClassSessionFormValues>({
     resolver: zodResolver(classSessionFormSchema),
@@ -35,11 +46,43 @@ export function ClassSessionForm({
       locationId: locations[0]?.id ?? "",
       instructorId: "",
       startAt: "",
-      durationMinutes: 50,
-      capacity: 12,
+      durationMinutes: CLASS_DURATION_MINUTES,
+      capacity: 10,
       minimumParticipants: "",
     },
   });
+
+  const selectedClassTypeId = watch("classTypeId");
+  const selectedLocationId = watch("locationId");
+  const selectedClassType = classTypes.find((option) => option.id === selectedClassTypeId);
+  // Ballet keeps a free-typed start time + duration (60/90 min); every other
+  // class type is fixed at 50 minutes, on the hour — see studio-hours.ts.
+  const isFixedSchedule = selectedClassType?.serviceSlug !== BALLET_SERVICE_SLUG;
+
+  const openHours = timeSlots
+    .filter((slot) => slot.locationId === selectedLocationId && slot.isActive)
+    .map((slot) => slot.hour)
+    .sort((a, b) => a - b);
+
+  useEffect(() => {
+    if (!isFixedSchedule) return;
+    setValue("durationMinutes", CLASS_DURATION_MINUTES);
+  }, [isFixedSchedule, setValue]);
+
+  useEffect(() => {
+    if (!isFixedSchedule) return;
+    setValue(
+      "startAt",
+      date && hour !== "" ? `${date}T${String(hour).padStart(2, "0")}:00` : "",
+      { shouldValidate: date !== "" && hour !== "" }
+    );
+  }, [isFixedSchedule, date, hour, setValue]);
+
+  useEffect(() => {
+    if (hour !== "" && !openHours.includes(Number(hour))) setHour("");
+    // Only re-check when the location (and thus the open-hours list) changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLocationId]);
 
   async function onSubmit(values: ClassSessionFormValues) {
     setSubmitting(true);
@@ -90,16 +133,57 @@ export function ClassSessionForm({
           ))}
         </select>
       </Field>
-      <Field label="Start Time" required error={errors.startAt?.message}>
-        <input type="datetime-local" {...register("startAt")} className={fieldInputClasses} />
-        <p className="mt-1 text-xs text-charcoal/40">
-          Studio hours are 7:00 AM–8:00 PM — the class must start and end within that window.
-        </p>
-      </Field>
 
-      <Field label="Duration (minutes)" required error={errors.durationMinutes?.message}>
-        <input type="number" step="5" {...register("durationMinutes")} className={fieldInputClasses} />
-      </Field>
+      {isFixedSchedule ? (
+        <>
+          <input type="hidden" {...register("startAt")} />
+          <input type="hidden" {...register("durationMinutes")} />
+          <Field label="Date" required error={errors.startAt?.message}>
+            <input
+              type="date"
+              value={date}
+              onChange={(event) => setDate(event.target.value)}
+              className={fieldInputClasses}
+            />
+          </Field>
+          <Field label="Start Time" required>
+            <select
+              value={hour}
+              onChange={(event) => setHour(event.target.value === "" ? "" : Number(event.target.value))}
+              disabled={openHours.length === 0}
+              className={`${fieldInputClasses} appearance-none`}
+            >
+              <option value="">— Select an hour —</option>
+              {openHours.map((openHour) => (
+                <option key={openHour} value={openHour}>
+                  {formatHourLabel(openHour)}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-charcoal/40">
+              {openHours.length === 0
+                ? "No hours are open for this location yet — enable some under Class Times."
+                : "Fixed at 50 minutes, back-to-back on the hour — customers should arrive 10 minutes early."}
+            </p>
+          </Field>
+          <Field label="Duration">
+            <p className={`${fieldInputClasses} bg-charcoal/5 text-charcoal/60`}>50 minutes (fixed)</p>
+          </Field>
+        </>
+      ) : (
+        <>
+          <Field label="Start Time" required error={errors.startAt?.message}>
+            <input type="datetime-local" {...register("startAt")} className={fieldInputClasses} />
+            <p className="mt-1 text-xs text-charcoal/40">
+              Studio hours are 7:00 AM–8:00 PM — the class must start and end within that window.
+            </p>
+          </Field>
+          <Field label="Duration (minutes)" required error={errors.durationMinutes?.message}>
+            <input type="number" step="5" {...register("durationMinutes")} className={fieldInputClasses} />
+          </Field>
+        </>
+      )}
+
       <Field label="Capacity" required error={errors.capacity?.message}>
         <input type="number" step="1" {...register("capacity")} className={fieldInputClasses} />
       </Field>

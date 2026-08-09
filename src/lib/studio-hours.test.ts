@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isWithinStudioHours, manilaLocalToUtc } from "@/lib/studio-hours";
+import { formatHourLabel, isWithinStudioHours, manilaLocalToUtc } from "@/lib/studio-hours";
 
 describe("isWithinStudioHours", () => {
   it("accepts a class starting and ending inside 7 AM–8 PM", () => {
@@ -36,5 +36,23 @@ describe("manilaLocalToUtc", () => {
 
   it("converts a Manila wall-clock evening time to the correct UTC instant", () => {
     expect(manilaLocalToUtc("2026-08-10T19:30").toISOString()).toBe("2026-08-10T11:30:00.000Z");
+  });
+});
+
+describe("formatHourLabel", () => {
+  it("formats morning hours", () => {
+    expect(formatHourLabel(7)).toBe("7:00 AM");
+  });
+
+  it("formats noon as 12 PM", () => {
+    expect(formatHourLabel(12)).toBe("12:00 PM");
+  });
+
+  it("formats midnight as 12 AM", () => {
+    expect(formatHourLabel(0)).toBe("12:00 AM");
+  });
+
+  it("formats evening hours", () => {
+    expect(formatHourLabel(19)).toBe("7:00 PM");
   });
 });

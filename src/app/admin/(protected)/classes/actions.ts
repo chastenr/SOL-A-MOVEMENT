@@ -6,14 +6,47 @@ import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { classSessionFormSchema, type ClassSessionFormValues } from "@/lib/validations";
 import { sendClassCancelledByStudioEmail } from "@/lib/email";
-import { manilaLocalToUtc } from "@/lib/studio-hours";
+import { CLASS_DURATION_MINUTES, getMinutesSinceMidnight, manilaLocalToUtc } from "@/lib/studio-hours";
 
 type ActionResult = { error: string } | { success: true };
+
+const BALLET_SERVICE_SLUG = "ballet";
 
 export async function createClassSessionAction(values: ClassSessionFormValues): Promise<ActionResult> {
   await requireAdmin();
   const parsed = classSessionFormSchema.safeParse(values);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+
+  const supabase = await createSupabaseServerClient();
+
+  const { data: classType } = await supabase
+    .from("class_types")
+    .select("service_slug")
+    .eq("id", parsed.data.classTypeId)
+    .single();
+
+  // Every class type except Ballet is locked to the 50-minute, on-the-hour
+  // schedule managed at /admin/classes/time-slots — the client already
+  // enforces this in the form, but the action can't trust that payload
+  // (same reasoning as the studio-hours check below), so it re-derives the
+  // duration and re-checks the hour against class_time_slots itself. Ballet
+  // keeps its free-typed start time + duration (60/90 min) untouched.
+  let durationMinutes = parsed.data.durationMinutes;
+  if (classType?.service_slug !== BALLET_SERVICE_SLUG) {
+    durationMinutes = CLASS_DURATION_MINUTES;
+    const minutesSinceMidnight = getMinutesSinceMidnight(parsed.data.startAt);
+    if (minutesSinceMidnight === null || minutesSinceMidnight % 60 !== 0) {
+      return { error: "Pick one of the open hourly time slots." };
+    }
+    const { data: slot } = await supabase
+      .from("class_time_slots")
+      .select("id")
+      .eq("location_id", parsed.data.locationId)
+      .eq("hour", Math.floor(minutesSinceMidnight / 60))
+      .eq("is_active", true)
+      .maybeSingle();
+    if (!slot) return { error: "That time isn't open for this location. Pick another hour." };
+  }
 
   // manilaLocalToUtc, not `new Date(parsed.data.startAt)` — the input has
   // no timezone in it at all, and the admin types Manila wall-clock time.
@@ -22,9 +55,8 @@ export async function createClassSessionAction(values: ClassSessionFormValues): 
   // scheduled class 8 hours from what was actually typed.
   const startAt = manilaLocalToUtc(parsed.data.startAt);
   if (Number.isNaN(startAt.getTime())) return { error: "Enter a valid start time." };
-  const endAt = addMinutes(startAt, parsed.data.durationMinutes);
+  const endAt = addMinutes(startAt, durationMinutes);
 
-  const supabase = await createSupabaseServerClient();
   const { error } = await supabase.from("class_sessions").insert({
     class_type_id: parsed.data.classTypeId,
     location_id: parsed.data.locationId,

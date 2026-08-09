@@ -2,6 +2,19 @@
 export const STUDIO_OPEN_HOUR = 7;
 export const STUDIO_CLOSE_HOUR = 20;
 
+// Fixed length for Mat Pilates/Yoga/Barre/Strength & HIIT, confirmed by the
+// client: 50 minutes, back-to-back on the hour with a 10-minute turnover
+// before the next class. Ballet is NOT on this schedule — those classes are
+// 60/90 minutes (see class_types.duration_minutes) and keep a free-typed
+// start time + duration in the admin form.
+export const CLASS_DURATION_MINUTES = 50;
+
+export function formatHourLabel(hour: number): string {
+  const period = hour < 12 ? "AM" : "PM";
+  const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+  return `${displayHour}:00 ${period}`;
+}
+
 /**
  * A <input type="datetime-local"> value carries no timezone at all — the
  * admin, scheduling from the Philippines, types what they see on a Manila
