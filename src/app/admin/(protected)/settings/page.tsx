@@ -7,11 +7,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Payment Methods and Class Times used to live here as their own pages —
+// both moved to live inline on the operational page they belong next to
+// (Payments and Classes) instead, so switching between "review this" and
+// "configure that" doesn't cost a full page navigation.
 const SETTINGS_LINKS = [
   { href: "/admin/packages", label: "Packages", description: "The credit packages customers can buy — name, category, price, credits." },
   { href: "/admin/services", label: "Services", description: "The service types shown across the site (Mat Pilates, Yoga, Barre, and so on)." },
-  { href: "/admin/settings/payments", label: "Payment Methods", description: "Bank/GCash details customers see when paying manually." },
-  { href: "/admin/classes/time-slots", label: "Class Times", description: "Which hourly time slots are open for scheduling classes." },
   { href: "/admin/security", label: "Security", description: "Your own admin login — password, email, two-factor." },
 ] as const;
 

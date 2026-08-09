@@ -32,7 +32,7 @@ export async function createPaymentSettingAction(values: PaymentSettingFormValue
   const { error } = await supabase.from("payment_settings").insert(toRow(parsed.data));
   if (error) return { error: "Something went wrong. Please try again." };
 
-  revalidatePath("/admin/settings/payments");
+  revalidatePath("/admin/payments");
   revalidatePath("/purchases");
   return { success: true };
 }
@@ -49,7 +49,7 @@ export async function updatePaymentSettingAction(
   const { error } = await supabase.from("payment_settings").update(toRow(parsed.data)).eq("id", id);
   if (error) return { error: "Something went wrong. Please try again." };
 
-  revalidatePath("/admin/settings/payments");
+  revalidatePath("/admin/payments");
   revalidatePath("/purchases");
   return { success: true };
 }
@@ -63,7 +63,7 @@ export async function setPaymentSettingActiveAction(id: string, isActive: boolea
   const { error } = await supabase.from("payment_settings").update({ is_active: isActive }).eq("id", id);
   if (error) throw new Error("Something went wrong.");
 
-  revalidatePath("/admin/settings/payments");
+  revalidatePath("/admin/payments");
   revalidatePath("/purchases");
 }
 
@@ -73,6 +73,6 @@ export async function deletePaymentSettingAction(id: string): Promise<void> {
   const { error } = await supabase.from("payment_settings").delete().eq("id", id);
   if (error) throw new Error("Something went wrong.");
 
-  revalidatePath("/admin/settings/payments");
+  revalidatePath("/admin/payments");
   revalidatePath("/purchases");
 }

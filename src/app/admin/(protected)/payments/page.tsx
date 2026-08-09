@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getAdminPurchases, type AdminPurchaseStatus } from "@/lib/admin/payments";
 import { centavosToPeso } from "@/lib/money";
+import { Button } from "@/components/ui/Button";
+import { setPaymentSettingActiveAction, deletePaymentSettingAction } from "@/app/admin/(protected)/settings/payments/actions";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -40,6 +43,16 @@ const STATUS_BADGE: Record<AdminPurchaseStatus, string> = {
   expired: "bg-charcoal/10 text-charcoal/40",
 };
 
+type PaymentSettingRow = {
+  id: string;
+  method: string;
+  label: string;
+  bank_name: string | null;
+  account_number: string | null;
+  is_active: boolean;
+  sort_order: number;
+};
+
 export default async function AdminPaymentsPage({
   searchParams,
 }: {
@@ -47,12 +60,108 @@ export default async function AdminPaymentsPage({
 }) {
   await requireAdmin();
   const { status } = await searchParams;
+  const supabase = await createSupabaseServerClient();
 
-  const purchases = await getAdminPurchases(status);
+  // Fetched together — combining the old separate Payment Methods page into
+  // this one shouldn't cost two sequential round-trips instead of one.
+  const [purchases, { data: settingsData }] = await Promise.all([
+    getAdminPurchases(status),
+    supabase
+      .from("payment_settings")
+      .select("id, method, label, bank_name, account_number, is_active, sort_order")
+      .order("sort_order"),
+  ]);
+  const paymentSettings = (settingsData as PaymentSettingRow[] | null) ?? [];
 
   return (
     <div>
       <h1 className="font-display text-2xl text-charcoal">Payments</h1>
+
+      <details className="mt-4 group rounded-xl border border-charcoal/10 bg-ivory">
+        <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-charcoal marker:content-none">
+          <span className="inline-flex items-center gap-2">
+            Payment Methods
+            <span className="text-xs font-normal text-charcoal/45 group-open:hidden">
+              — bank/GCash details customers see when paying
+            </span>
+          </span>
+        </summary>
+        <div className="border-t border-charcoal/10 px-4 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-xs text-charcoal/50">
+              Shown to customers on <code>/purchases/[id]</code> while paying manually. Only active methods
+              are shown.
+            </p>
+            <Button href="/admin/settings/payments/new">Add Method</Button>
+          </div>
+
+          {paymentSettings.length === 0 ? (
+            <p className="mt-4 text-sm text-charcoal/60">
+              No payment methods yet — customers see &ldquo;payment instructions are being finalized&rdquo;
+              until you add one.
+            </p>
+          ) : (
+            <div className="mt-4 overflow-x-auto rounded-lg border border-charcoal/10">
+              <table className="w-full min-w-[560px] text-left text-sm">
+                <thead className="border-b border-charcoal/10 text-xs uppercase tracking-[0.08em] text-charcoal/45">
+                  <tr>
+                    <th className="px-3 py-2">Label</th>
+                    <th className="px-3 py-2">Bank / Account</th>
+                    <th className="px-3 py-2">Status</th>
+                    <th className="px-3 py-2" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {paymentSettings.map((setting) => (
+                    <tr key={setting.id} className="border-b border-charcoal/5 last:border-0">
+                      <td className="px-3 py-2">
+                        <Link
+                          href={`/admin/settings/payments/${setting.id}`}
+                          className="font-medium text-charcoal hover:underline"
+                        >
+                          {setting.label}
+                        </Link>
+                      </td>
+                      <td className="px-3 py-2 text-charcoal/70">
+                        {setting.bank_name ?? "—"}
+                        {setting.account_number ? ` · ${setting.account_number}` : ""}
+                      </td>
+                      <td className="px-3 py-2">
+                        <span
+                          className={
+                            setting.is_active
+                              ? "rounded-full bg-clay/10 px-2.5 py-1 text-xs text-clay"
+                              : "rounded-full bg-charcoal/10 px-2.5 py-1 text-xs text-charcoal/50"
+                          }
+                        >
+                          {setting.is_active ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        <div className="flex items-center justify-end gap-3">
+                          <form action={setPaymentSettingActiveAction.bind(null, setting.id, !setting.is_active)}>
+                            <button type="submit" className="text-xs underline underline-offset-2 hover:text-charcoal">
+                              {setting.is_active ? "Deactivate" : "Activate"}
+                            </button>
+                          </form>
+                          <form action={deletePaymentSettingAction.bind(null, setting.id)}>
+                            <button
+                              type="submit"
+                              className="text-xs text-charcoal/40 underline underline-offset-2 hover:text-red-600"
+                            >
+                              Delete
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </details>
 
       <div className="mt-6 flex flex-wrap gap-2">
         {TABS.map((tab) => (

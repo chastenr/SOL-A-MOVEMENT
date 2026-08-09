@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/Button";
 import { CancelClassSessionButton } from "@/components/admin/CancelClassSessionButton";
 import { DuplicateWeekForm } from "@/components/admin/DuplicateWeekForm";
 import { getDisplayStatus, STATUS_STYLES } from "@/lib/class-session-status";
-import { setClassSessionBookingEnabledAction } from "./actions";
+import { formatHourLabel } from "@/lib/studio-hours";
+import { setClassSessionBookingEnabledAction, setClassTimeSlotActiveAction } from "./actions";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -29,19 +30,39 @@ type SessionRow = {
   instructor: { name: string } | null;
 };
 
+type SlotRow = {
+  id: string;
+  hour: number;
+  is_active: boolean;
+  location: { name: string } | null;
+};
+
 export default async function AdminClassesPage() {
   await requireAdmin();
   const supabase = await createSupabaseServerClient();
 
-  const { data } = await supabase
-    .from("class_sessions")
-    .select(
-      "id, start_at, end_at, capacity, booked_count, minimum_participants, booking_enabled, status, class_type:class_types(name), location:locations(name), instructor:instructors(name)"
-    )
-    .order("start_at", { ascending: true })
-    .limit(100);
+  // Fetched together (not one-then-the-other) so combining these two
+  // formerly-separate pages into one doesn't turn into two sequential
+  // round-trips instead of one.
+  const [{ data }, { data: slotsData }] = await Promise.all([
+    supabase
+      .from("class_sessions")
+      .select(
+        "id, start_at, end_at, capacity, booked_count, minimum_participants, booking_enabled, status, class_type:class_types(name), location:locations(name), instructor:instructors(name)"
+      )
+      .order("start_at", { ascending: true })
+      .limit(100),
+    supabase.from("class_time_slots").select("id, hour, is_active, location:locations(name)").order("hour"),
+  ]);
 
   const sessions = (data as unknown as SessionRow[]) ?? [];
+
+  const slots = ((slotsData as unknown as SlotRow[] | null) ?? []).slice();
+  const slotsByLocation = new Map<string, SlotRow[]>();
+  for (const slot of slots) {
+    const locationName = slot.location?.name ?? "—";
+    slotsByLocation.set(locationName, [...(slotsByLocation.get(locationName) ?? []), slot]);
+  }
 
   return (
     <div>
@@ -54,11 +75,6 @@ export default async function AdminClassesPage() {
         <code>/account/book</code>. &quot;Needs Attention&quot; means the booking cutoff has passed and the
         class is still below its minimum — review and cancel if it won&apos;t run.
       </p>
-      <p className="mt-1 text-sm">
-        <Link href="/admin/classes/time-slots" className="underline underline-offset-2 hover:text-charcoal">
-          Manage which hours are open for scheduling →
-        </Link>
-      </p>
 
       <div className="mt-6 rounded-xl border border-charcoal/10 bg-ivory p-4">
         <p className="text-xs uppercase tracking-[0.1em] text-charcoal/45">Coach schedules change weekly</p>
@@ -66,6 +82,54 @@ export default async function AdminClassesPage() {
           <DuplicateWeekForm />
         </div>
       </div>
+
+      <details className="mt-4 group rounded-xl border border-charcoal/10 bg-ivory">
+        <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-charcoal marker:content-none">
+          <span className="inline-flex items-center gap-2">
+            Class Times
+            <span className="text-xs font-normal text-charcoal/45 group-open:hidden">
+              — which hours are open for scheduling
+            </span>
+          </span>
+        </summary>
+        <div className="border-t border-charcoal/10 px-4 py-4">
+          <p className="text-xs text-charcoal/50">
+            Hourly start times for Mat Pilates, Yoga, Barre and Strength &amp; HIIT — each fixed at 50
+            minutes. Turn a time off and it won&rsquo;t be offered above. Ballet isn&rsquo;t affected — those
+            classes are 60/90 minutes with their own start time.
+          </p>
+          {slotsByLocation.size === 0 ? (
+            <p className="mt-4 text-sm text-charcoal/60">No locations found to schedule class times for yet.</p>
+          ) : (
+            [...slotsByLocation.entries()].map(([locationName, locationSlots]) => (
+              <div key={locationName} className="mt-4 overflow-hidden rounded-lg border border-charcoal/10">
+                <div className="border-b border-charcoal/10 bg-cream/40 px-3 py-2">
+                  <p className="text-xs font-medium text-charcoal">{locationName}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-px bg-charcoal/5 sm:grid-cols-3 lg:grid-cols-4">
+                  {locationSlots.map((slot) => (
+                    <div key={slot.id} className="flex items-center justify-between gap-3 bg-ivory px-3 py-2">
+                      <span className="text-sm text-charcoal">{formatHourLabel(slot.hour)}</span>
+                      <form action={setClassTimeSlotActiveAction.bind(null, slot.id, !slot.is_active)}>
+                        <button
+                          type="submit"
+                          className={
+                            slot.is_active
+                              ? "rounded-full bg-clay/10 px-2.5 py-1 text-xs text-clay underline-offset-2 hover:underline"
+                              : "rounded-full bg-charcoal/10 px-2.5 py-1 text-xs text-charcoal/50 underline-offset-2 hover:underline"
+                          }
+                        >
+                          {slot.is_active ? "Open" : "Closed"}
+                        </button>
+                      </form>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </details>
 
       {sessions.length === 0 ? (
         <p className="mt-8 text-charcoal/60">

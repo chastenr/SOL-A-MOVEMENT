@@ -53,7 +53,7 @@ export function PaymentSettingForm({
         setServerError(result.error);
         return;
       }
-      router.push("/admin/settings/payments");
+      router.push("/admin/payments");
       router.refresh();
     } catch {
       setServerError("Something went wrong. Please try again.");
@@ -118,7 +118,7 @@ export function PaymentSettingForm({
         <Button type="submit" disabled={submitting}>
           {submitting ? "Saving…" : settingId ? "Save Changes" : "Add Payment Method"}
         </Button>
-        <Button type="button" variant="secondary" onClick={() => router.push("/admin/settings/payments")}>
+        <Button type="button" variant="secondary" onClick={() => router.push("/admin/payments")}>
           Cancel
         </Button>
       </div>

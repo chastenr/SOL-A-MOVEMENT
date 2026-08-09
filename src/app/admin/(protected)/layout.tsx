@@ -18,14 +18,7 @@ const NAV = [
   {
     href: "/admin/settings",
     label: "Settings",
-    matchPrefixes: [
-      "/admin/packages",
-      "/admin/services",
-      "/admin/security",
-      "/admin/classes/time-slots",
-      "/admin/users",
-      "/admin/logs",
-    ],
+    matchPrefixes: ["/admin/packages", "/admin/services", "/admin/security", "/admin/users", "/admin/logs"],
   },
 ] as const;
 

@@ -15,7 +15,7 @@ const BALLET_SERVICE_SLUG = "ballet";
 
 /**
  * Every class type except Ballet is locked to the 50-minute, on-the-hour
- * schedule managed at /admin/classes/time-slots — the client already
+ * schedule managed in the Class Times section on this page — the client already
  * enforces this in the form, but neither create nor update can trust that
  * payload (same reasoning as the studio-hours/booking-cutoff checks
  * elsewhere in this app), so this re-derives the duration and re-checks the
@@ -246,6 +246,21 @@ export async function cancelClassSessionAction(sessionId: string): Promise<Cance
   revalidatePath("/admin/calendar");
   revalidatePath("/admin/bookings");
   return { success: true, refundedCount: rows.length };
+}
+
+// Moved here from the now-removed /admin/classes/time-slots page — Class
+// Times lives as a section on this same page now, not a separate tab, so
+// its one action lives with the rest of this page's actions too. Plain
+// <form action={...}> handler (no client-side error UI) — failures throw
+// rather than returning a value, same convention as setServiceActiveAction.
+export async function setClassTimeSlotActiveAction(id: string, isActive: boolean): Promise<void> {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("class_time_slots").update({ is_active: isActive }).eq("id", id);
+  if (error) throw new Error("Something went wrong.");
+
+  revalidatePath("/admin/classes");
+  revalidatePath("/admin/classes/new");
 }
 
 /**
