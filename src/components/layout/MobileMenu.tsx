@@ -4,8 +4,8 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { siteConfig } from "@/data/site";
 import { Button } from "@/components/ui/Button";
+import { EASE, usePrefersReducedMotion } from "@/lib/motion";
 
-const EASE = [0.16, 1, 0.3, 1] as const;
 const STAGGER = 0.06;
 
 export function MobileMenu({
@@ -17,14 +17,17 @@ export function MobileMenu({
   onClose: () => void;
   signedIn: boolean;
 }) {
+  const reduceMotion = usePrefersReducedMotion();
+  const stagger = reduceMotion ? 0 : STAGGER;
+
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          initial={{ opacity: 0, scale: reduceMotion ? 1 : 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.98 }}
+          transition={{ duration: reduceMotion ? 0.15 : 0.35, ease: EASE }}
           className="fixed inset-0 z-40 flex flex-col bg-walnut xl:hidden"
         >
           <div className="flex flex-1 flex-col justify-center overflow-y-auto px-8 pb-10 pt-24">
@@ -32,9 +35,9 @@ export function MobileMenu({
               {siteConfig.nav.map((item, index) => (
                 <motion.div
                   key={item.href}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: reduceMotion ? 0 : 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: STAGGER * index, ease: EASE }}
+                  transition={{ duration: 0.5, delay: stagger * index, ease: EASE }}
                 >
                   <Link
                     href={item.href}
@@ -46,9 +49,9 @@ export function MobileMenu({
                 </motion.div>
               ))}
               <motion.div
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: reduceMotion ? 0 : 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: STAGGER * siteConfig.nav.length, ease: EASE }}
+                transition={{ duration: 0.5, delay: stagger * siteConfig.nav.length, ease: EASE }}
               >
                 <Link
                   href={signedIn ? "/account" : "/login"}
@@ -61,9 +64,9 @@ export function MobileMenu({
             </nav>
 
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: reduceMotion ? 0 : 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: STAGGER * (siteConfig.nav.length + 1), ease: EASE }}
+              transition={{ duration: 0.5, delay: stagger * (siteConfig.nav.length + 1), ease: EASE }}
               className="mt-8"
             >
               <Button href="/book" size="lg" className="w-full" onClick={onClose}>
@@ -74,7 +77,7 @@ export function MobileMenu({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: STAGGER * (siteConfig.nav.length + 1) + 0.15 }}
+              transition={{ duration: 0.5, delay: stagger * (siteConfig.nav.length + 1) + 0.15, ease: EASE }}
               className="mt-8 space-y-1 text-sm text-ivory/50"
             >
               <p>{siteConfig.contact.phone}</p>
