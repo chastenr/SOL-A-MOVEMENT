@@ -125,7 +125,7 @@ export function Footer() {
             <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-ivory/25 text-[9px] font-medium tracking-tight text-ivory/60 transition-colors group-hover:border-ivory/50 group-hover:text-ivory">
               C
             </span>
-            <span className="uppercase tracking-[0.14em]">Site by ElevenChase</span>
+            <span className="uppercase tracking-[0.14em]">ElevenChase</span>
           </Link>
         </div>
       </div>
