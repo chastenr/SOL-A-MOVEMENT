@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { resetPasswordSchema, type ResetPasswordFormValues } from "@/lib/validations";
 import { resetPasswordAction } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/Button";
-import { Field, fieldInputClasses } from "@/components/ui/Field";
+import { PasswordField } from "@/components/ui/PasswordField";
 
 export function ResetPasswordForm() {
   const router = useRouter();
@@ -43,12 +43,20 @@ export function ResetPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5">
-      <Field label="New Password" required error={errors.password?.message}>
-        <input type="password" {...register("password")} className={fieldInputClasses} autoComplete="new-password" />
-      </Field>
-      <Field label="Confirm New Password" required error={errors.confirmPassword?.message}>
-        <input type="password" {...register("confirmPassword")} className={fieldInputClasses} autoComplete="new-password" />
-      </Field>
+      <PasswordField
+        label="New Password"
+        required
+        error={errors.password?.message}
+        registration={register("password")}
+        autoComplete="new-password"
+      />
+      <PasswordField
+        label="Confirm New Password"
+        required
+        error={errors.confirmPassword?.message}
+        registration={register("confirmPassword")}
+        autoComplete="new-password"
+      />
 
       {serverError && <p className="text-sm text-red-600">{serverError}</p>}
 

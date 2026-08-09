@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { changePasswordSchema, type ChangePasswordFormValues } from "@/lib/validations";
 import { changePasswordAction } from "@/app/account/security/actions";
 import { Button } from "@/components/ui/Button";
-import { Field, fieldInputClasses } from "@/components/ui/Field";
+import { PasswordField } from "@/components/ui/PasswordField";
 
 export function ChangePasswordForm() {
   const [submitting, setSubmitting] = useState(false);
@@ -44,15 +44,27 @@ export function ChangePasswordForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid max-w-sm gap-4">
-      <Field label="Current Password" required error={errors.currentPassword?.message}>
-        <input type="password" {...register("currentPassword")} className={fieldInputClasses} autoComplete="current-password" />
-      </Field>
-      <Field label="New Password" required error={errors.password?.message}>
-        <input type="password" {...register("password")} className={fieldInputClasses} autoComplete="new-password" />
-      </Field>
-      <Field label="Confirm New Password" required error={errors.confirmPassword?.message}>
-        <input type="password" {...register("confirmPassword")} className={fieldInputClasses} autoComplete="new-password" />
-      </Field>
+      <PasswordField
+        label="Current Password"
+        required
+        error={errors.currentPassword?.message}
+        registration={register("currentPassword")}
+        autoComplete="current-password"
+      />
+      <PasswordField
+        label="New Password"
+        required
+        error={errors.password?.message}
+        registration={register("password")}
+        autoComplete="new-password"
+      />
+      <PasswordField
+        label="Confirm New Password"
+        required
+        error={errors.confirmPassword?.message}
+        registration={register("confirmPassword")}
+        autoComplete="new-password"
+      />
       {error && <p className="text-sm text-red-600">{error}</p>}
       {saved && <p className="text-sm text-clay">Password updated.</p>}
       <Button type="submit" disabled={submitting} className="w-fit">
