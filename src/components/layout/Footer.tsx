@@ -114,6 +114,20 @@ export function Footer() {
             )}
           </div>
         </div>
+
+        <div className="mt-6 flex justify-center border-t border-ivory/10 pt-6 sm:justify-start">
+          <Link
+            href="https://elevenchase.com"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="group inline-flex items-center gap-2 text-[11px] text-ivory/40 transition-colors hover:text-ivory/80"
+          >
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-ivory/25 text-[9px] font-medium tracking-tight text-ivory/60 transition-colors group-hover:border-ivory/50 group-hover:text-ivory">
+              C
+            </span>
+            <span className="uppercase tracking-[0.14em]">Site by ElevenChase</span>
+          </Link>
+        </div>
       </div>
     </footer>
   );

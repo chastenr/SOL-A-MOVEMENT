@@ -13,12 +13,15 @@ const NAV = [
   { href: "/admin/security", label: "Security" },
 ] as const;
 
+const SUPER_ADMIN_NAV = [{ href: "/admin/users", label: "Users" }] as const;
+
 // Every page under this group calls requireAdmin() here — Server Component
 // pages re-execute per navigation even under a shared layout, but this is
 // still the first, cheap layer; every admin page/action re-checks itself too
 // (defense in depth — see src/lib/auth/require-role.ts).
 export default async function AdminProtectedLayout({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
+  const navItems = admin.role === "super_admin" ? [...NAV, ...SUPER_ADMIN_NAV] : NAV;
 
   return (
     <div className="min-h-screen bg-cream/40 lg:flex">
@@ -27,7 +30,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
           <p className="font-display text-lg">Veora Admin</p>
         </div>
         <nav className="flex gap-1 overflow-x-auto px-4 pb-4 lg:flex-col lg:overflow-visible lg:px-3">
-          {NAV.map((item) => (
+          {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}

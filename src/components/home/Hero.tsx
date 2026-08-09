@@ -84,6 +84,10 @@ export function Hero() {
         </motion.div>
         <div className="absolute inset-0 bg-gradient-to-t from-walnut via-walnut/30 to-charcoal/10" />
         <div className="absolute inset-0 bg-gradient-to-r from-walnut/55 via-transparent to-transparent" />
+        {/* Independent top vignette so the floating nav stays legible regardless
+            of the bottom-focused gradient above or what the video shows at any
+            given frame. */}
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-charcoal/55 to-transparent sm:h-56" />
       </motion.div>
 
       <StaggerContainer className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-16 sm:px-8 sm:pb-20 lg:px-12">

@@ -51,7 +51,7 @@ export function Navbar() {
             "pointer-events-auto mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 rounded-full border px-4 transition-all duration-300 sm:h-[4.5rem] sm:px-6",
             showSolid
               ? "border-ivory/10 bg-walnut/92 shadow-[0_16px_40px_-18px_rgba(20,14,10,0.55)] backdrop-blur-xl"
-              : "border-transparent bg-transparent [text-shadow:0_1px_6px_rgba(0,0,0,0.5)]"
+              : "border-ivory/10 bg-gradient-to-b from-charcoal/45 to-charcoal/20 backdrop-blur-[3px] [text-shadow:0_1px_8px_rgba(0,0,0,0.7)]"
           )}
         >
           <Link href="/" className="flex shrink-0 items-center gap-2 text-ivory">

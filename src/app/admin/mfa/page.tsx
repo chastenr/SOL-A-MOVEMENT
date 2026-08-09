@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAuthedUser } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { PhoneMfaFlow } from "@/components/auth/PhoneMfaFlow";
+import { AdminMfaChooser } from "@/components/auth/AdminMfaChooser";
 
 export const metadata: Metadata = {
   title: "Admin Verification",
@@ -26,7 +26,7 @@ export default async function AdminMfaPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-charcoal px-6">
       <div className="w-full max-w-sm rounded-2xl border border-ivory/10 bg-ivory p-8">
-        <PhoneMfaFlow redirectTo="/admin" heading="Verify your identity" />
+        <AdminMfaChooser redirectTo="/admin" />
       </div>
     </div>
   );

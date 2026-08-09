@@ -85,6 +85,12 @@ export const forgotPasswordSchema = z.object({
 
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
+export const changeEmailSchema = z.object({
+  email: z.string().trim().min(1, "Email is required.").email("Enter a valid email address."),
+});
+
+export type ChangeEmailFormValues = z.infer<typeof changeEmailSchema>;
+
 export const resetPasswordSchema = z
   .object({
     password: passwordSchema,

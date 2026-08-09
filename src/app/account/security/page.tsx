@@ -6,6 +6,7 @@ import { maskPhone } from "@/lib/phone";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { ChangePasswordForm } from "@/components/account/ChangePasswordForm";
+import { ChangeEmailForm } from "@/components/account/ChangeEmailForm";
 
 export const metadata: Metadata = {
   title: "Security",
@@ -38,6 +39,13 @@ export default async function AccountSecurityPage() {
             Verify Number
           </Button>
         )}
+      </div>
+
+      <div className="mt-8 max-w-lg">
+        <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">Email Address</p>
+        <div className="mt-4">
+          <ChangeEmailForm currentEmail={user.email} />
+        </div>
       </div>
 
       <div className="mt-8 max-w-lg">
