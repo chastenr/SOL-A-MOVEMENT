@@ -5,6 +5,19 @@ const resendApiKey = process.env.RESEND_API_KEY;
 const fromEmail = process.env.RESEND_FROM_EMAIL || "Veora Wellness <onboarding@resend.dev>";
 const ownerEmail = process.env.OWNER_BOOKING_EMAIL;
 
+// Operational recipients for the credit-based booking system specifically
+// (distinct from ownerEmail above, which the older guest /api/book flow and
+// the contact form use). Configured via env so real staff addresses never
+// need to be hardcoded here — see .env.example. Falls back to ownerEmail so
+// nothing silently stops emailing if these two are never set.
+const bookingNotificationRecipients = [
+  ...new Set(
+    [process.env.BOOKING_NOTIFICATION_EMAIL, process.env.OWNER_NOTIFICATION_EMAIL, ownerEmail].filter(
+      (value): value is string => Boolean(value)
+    )
+  ),
+];
+
 export const isEmailConfigured = Boolean(resendApiKey);
 
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
@@ -190,6 +203,132 @@ export async function sendPurchaseRejectedEmail(purchase: PurchaseEmailPayload &
     from: fromEmail,
     to: purchase.customerEmail,
     subject: "Update on Your Veora Payment",
+    html,
+  });
+}
+
+export type ClassBookingEmailPayload = {
+  customerFirstName: string;
+  customerLastName: string;
+  customerEmail: string;
+  customerPhone: string;
+  className: string;
+  coachName: string;
+  formattedDate: string;
+  time: string;
+  packageName: string;
+  packageAmountFormatted: string;
+  originalSessions: number;
+  sessionsUsed: number;
+  sessionsRemaining: number;
+  status: string;
+};
+
+/**
+ * Internal "new reservation" notice for the credit-based booking engine —
+ * distinct from sendOwnerBookingEmail (the older guest /api/book flow).
+ * Field set matches the studio's own requested format exactly (client,
+ * class, coach, date, time, package, amount, original/used/remaining
+ * sessions, status) so Bianca/Ashley can act on the email alone.
+ */
+export async function sendClassBookingNotificationEmail(booking: ClassBookingEmailPayload) {
+  if (!resend || bookingNotificationRecipients.length === 0) return { skipped: true as const };
+
+  const fullName = `${booking.customerFirstName} ${booking.customerLastName}`.trim();
+  const html = wrapper(
+    "New Booking",
+    `<table style="width:100%;border-collapse:collapse;">
+      ${row("Client", fullName)}
+      ${row("Email", booking.customerEmail)}
+      ${row("Phone", booking.customerPhone || "—")}
+      ${row("Class", booking.className)}
+      ${row("Coach", booking.coachName)}
+      ${row("Date", booking.formattedDate)}
+      ${row("Time", booking.time)}
+      ${row("Package", booking.packageName)}
+      ${row("Package Purchase", booking.packageAmountFormatted)}
+      ${row("Original Sessions", String(booking.originalSessions))}
+      ${row("Sessions Used", String(booking.sessionsUsed))}
+      ${row("Sessions Remaining", String(booking.sessionsRemaining))}
+      ${row("Status", booking.status)}
+    </table>`
+  );
+
+  return resend.emails.send({
+    from: fromEmail,
+    to: bookingNotificationRecipients,
+    subject: `New Booking — ${fullName} — ${booking.className} — ${booking.formattedDate}`,
+    html,
+  });
+}
+
+export type ClassScheduleEmailPayload = {
+  customerFirstName: string;
+  customerEmail: string;
+  className: string;
+  coachName: string;
+  formattedDate: string;
+  time: string;
+  packageName: string;
+  sessionsRemaining?: number;
+};
+
+/** Sent the moment a class-credit reservation is created (see /api/bookings). */
+export async function sendClassBookingConfirmationEmail(booking: ClassScheduleEmailPayload) {
+  if (!resend) return { skipped: true as const };
+
+  const html = wrapper(
+    "Your Reservation is In",
+    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${booking.customerFirstName},</p>
+     <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">We've received your reservation. One session was deducted from your package.</p>
+     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+       ${row("Class", booking.className)}
+       ${row("Coach", booking.coachName)}
+       ${row("Date", booking.formattedDate)}
+       ${row("Time", booking.time)}
+       ${row("Package", booking.packageName)}
+       ${booking.sessionsRemaining !== undefined ? row("Sessions Remaining", String(booking.sessionsRemaining)) : ""}
+     </table>
+     <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">Bookings close at 10:00 PM the evening before class. If we need to cancel your class, your session credit will automatically be returned.</p>
+     <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">We look forward to seeing you.</p>
+     <p style="margin:24px 0 0;font-size:15px;color:#221f1c;">Veora Wellness</p>`
+  );
+
+  return resend.emails.send({
+    from: fromEmail,
+    to: booking.customerEmail,
+    subject: `Your Reservation — ${booking.className} — ${booking.formattedDate}`,
+    html,
+  });
+}
+
+/** Sent to every affected customer when the studio cancels a class (single booking or a whole session). */
+export async function sendClassCancelledByStudioEmail(booking: ClassScheduleEmailPayload) {
+  if (!resend) return { skipped: true as const };
+
+  const html = wrapper(
+    "Class Cancellation",
+    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${booking.customerFirstName},</p>
+     <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Unfortunately, your ${booking.className} class has been cancelled.</p>
+     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+       ${row("Class", booking.className)}
+       ${row("Coach", booking.coachName)}
+       ${row("Date", booking.formattedDate)}
+       ${row("Time", booking.time)}
+     </table>
+     <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">Your reservation credit has automatically been returned to your package.</p>
+     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+       ${row("Package", booking.packageName)}
+       ${booking.sessionsRemaining !== undefined ? row("Remaining Sessions", String(booking.sessionsRemaining)) : ""}
+     </table>
+     <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">We apologize for the inconvenience.</p>
+     <p style="margin:24px 0 0;font-size:15px;color:#221f1c;">Veora Wellness</p>`
+  );
+
+  return resend.emails.send({
+    from: fromEmail,
+    to: booking.customerEmail,
+    subject: `Class Cancellation — ${booking.className} — ${booking.formattedDate}`,
     html,
   });
 }

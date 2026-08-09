@@ -104,6 +104,48 @@ body {
   }
 }
 
+/* Page-to-page transition (see PageTransition.tsx / app/template.tsx).
+   Quick and quiet on purpose: this fires on every nav-link click, so
+   anything slower reads as friction rather than polish. The exiting page
+   fades+settles down slightly, the incoming page fades+rises in — same
+   direction language as the rest of the site's scroll-reveal motion. */
+::view-transition-old(page-enter),
+::view-transition-old(page-exit) {
+  animation: 120ms ease-in both veora-page-out;
+}
+::view-transition-new(page-enter),
+::view-transition-new(page-exit) {
+  animation: 180ms ease-out 60ms both veora-page-in;
+}
+
+@keyframes veora-page-out {
+  to {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes veora-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Let clicks reach the live page during the ~250ms the transition overlay
+   is up, and disable the whole thing outright under reduced motion (the
+   platform API has no built-in opt-out — this is the documented way). */
+::view-transition {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
 /* Architectural motifs, translated from the studio's real arch walls and
    niches (see the design-system audit) into CSS-only, aspect-ratio-agnostic
    shapes — no fixed-coordinate clip-path needed. */

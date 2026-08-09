@@ -165,9 +165,11 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
   const rows = (data as unknown as RawSession[]) ?? [];
   const eligibleSlugs = pkg?.service_slug ? [pkg.service_slug] : CLASSIC_SERVICE_SLUGS;
 
+  // Full sessions stay in the list (badged FULL, booking disabled) rather
+  // than disappearing — so a customer can see the class exists and when it
+  // next runs, per the studio's preferred "visible but disabled" behavior.
   return rows
     .filter((row) => row.class_type && eligibleSlugs.includes(row.class_type.service_slug))
-    .filter((row) => row.booked_count < row.capacity)
     .map((row) => ({
       id: row.id,
       startAt: row.start_at,

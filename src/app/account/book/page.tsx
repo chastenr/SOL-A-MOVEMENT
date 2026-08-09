@@ -3,6 +3,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { requireUser } from "@/lib/auth/require-role";
 import { getCustomerPackages, getEligibleSessions } from "@/lib/customer/account";
+import { isPastBookingCutoff } from "@/lib/booking-cutoff";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -57,29 +58,45 @@ export default async function AccountBookPage({
             </div>
           )}
 
+          <p className="mt-6 text-xs text-charcoal/45">
+            One session is deducted from your package the moment a reservation is confirmed. Bookings close
+            at 10:00 PM the evening before class. If Veora needs to cancel a class, your credit is
+            automatically returned.
+          </p>
+
           {sessions.length === 0 ? (
             <p className="mt-8 text-charcoal/60">
               No upcoming sessions are scheduled for this package yet — check back soon.
             </p>
           ) : (
-            <div className="mt-6 divide-y divide-charcoal/10 rounded-2xl border border-charcoal/10 bg-ivory">
-              {sessions.map((session) => (
-                <div key={session.id} className="flex items-center justify-between gap-4 px-5 py-4">
-                  <div>
-                    <p className="text-charcoal">{session.className}</p>
-                    <p className="text-sm text-charcoal/55">
-                      {format(new Date(session.startAt), "EEEE, MMMM d 'at' h:mm a")} · {session.location}
-                      {session.instructor ? ` · ${session.instructor}` : ""}
-                    </p>
-                    <p className="text-xs text-charcoal/40">
-                      {session.capacity - session.bookedCount} spot{session.capacity - session.bookedCount === 1 ? "" : "s"} left
-                    </p>
+            <div className="mt-4 divide-y divide-charcoal/10 rounded-2xl border border-charcoal/10 bg-ivory">
+              {sessions.map((session) => {
+                const isFull = session.bookedCount >= session.capacity;
+                const cutoffPassed = isPastBookingCutoff(new Date(session.startAt));
+                const spotsLeft = session.capacity - session.bookedCount;
+                return (
+                  <div key={session.id} className="flex items-center justify-between gap-4 px-5 py-4">
+                    <div>
+                      <p className="text-charcoal">{session.className}</p>
+                      <p className="text-sm text-charcoal/55">
+                        {format(new Date(session.startAt), "EEEE, MMMM d 'at' h:mm a")} · {session.location}
+                        {session.instructor ? ` · ${session.instructor}` : ""}
+                      </p>
+                      <p className="text-xs text-charcoal/40">
+                        {isFull ? "Full" : cutoffPassed ? "Booking closed" : `${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`}
+                      </p>
+                    </div>
+                    {selectedPackage &&
+                      (isFull || cutoffPassed ? (
+                        <span className="shrink-0 rounded-full bg-charcoal/10 px-4 py-2 text-[0.68rem] uppercase tracking-[0.15em] text-charcoal/45">
+                          {isFull ? "Full" : "Closed"}
+                        </span>
+                      ) : (
+                        <BookSessionButton classSessionId={session.id} customerPackageId={selectedPackage.id} />
+                      ))}
                   </div>
-                  {selectedPackage && (
-                    <BookSessionButton classSessionId={session.id} customerPackageId={selectedPackage.id} />
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </>

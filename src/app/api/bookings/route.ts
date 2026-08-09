@@ -1,9 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { format } from "date-fns";
 import { requireUserApi, AuthError } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isPhoneVerificationRequired } from "@/lib/feature-flags";
 import { bookClassSchema } from "@/lib/validations";
 import { isRateLimited } from "@/lib/rate-limit";
+import { centavosToPeso } from "@/lib/money";
+import { sendClassBookingConfirmationEmail, sendClassBookingNotificationEmail } from "@/lib/email";
 
 const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0000: { status: 401, message: "Please sign in." },
@@ -13,6 +16,7 @@ const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0004: { status: 404, message: "That class could not be found." },
   P0005: { status: 409, message: "You already have a booking for this class." },
   P0006: { status: 409, message: "Sorry, this class just filled up." },
+  P0009: { status: 409, message: "Bookings close at 10:00 PM the evening before class." },
 };
 
 /**
@@ -73,5 +77,96 @@ export async function POST(request: Request) {
   }
 
   const result = data as { booking_id: string; remaining_credits: number };
+
+  // after() runs once the response has been sent — the booking (already
+  // committed by the RPC above) doesn't wait on two emails' worth of
+  // network round-trips before the customer sees "booked."
+  after(() => notifyBookingCreated(supabase, result.booking_id, result.remaining_credits));
+
   return NextResponse.json({ success: true, bookingId: result.booking_id, remainingCredits: result.remaining_credits });
+}
+
+type BookingNotificationRow = {
+  user_id: string;
+  class_session: {
+    start_at: string;
+    class_type: { name: string } | null;
+    instructor: { name: string } | null;
+  } | null;
+  customer_package: {
+    credit_count: number;
+    package_name_snapshot: string;
+    purchase: { total_amount_centavos: number } | null;
+  } | null;
+};
+
+/**
+ * Fire-and-forget (errors swallowed via allSettled, matching /api/book) —
+ * an email hiccup should never fail a booking that already succeeded and
+ * already deducted a real credit. Two separate queries because
+ * class_bookings.user_id references auth.users, not public.profiles —
+ * PostgREST can't auto-embed across that (same limitation noted elsewhere
+ * in this codebase, e.g. audit_logs.actor_id).
+ */
+async function notifyBookingCreated(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  bookingId: string,
+  remainingCredits: number
+) {
+  const { data: booking } = await supabase
+    .from("class_bookings")
+    .select(
+      `user_id,
+       class_session:class_sessions(start_at, class_type:class_types(name), instructor:instructors(name)),
+       customer_package:customer_packages(credit_count, package_name_snapshot, purchase:purchases(total_amount_centavos))`
+    )
+    .eq("id", bookingId)
+    .single();
+
+  if (!booking) return;
+  const row = booking as unknown as BookingNotificationRow;
+
+  const { data: user } = await supabase
+    .from("profiles")
+    .select("first_name, last_name, email, mobile_number")
+    .eq("id", row.user_id)
+    .single();
+
+  const className = row.class_session?.class_type?.name ?? "Class";
+  const coachName = row.class_session?.instructor?.name ?? "TBA";
+  const startAt = row.class_session?.start_at ? new Date(row.class_session.start_at) : null;
+  const formattedDate = startAt ? format(startAt, "MMMM d, yyyy") : "—";
+  const time = startAt ? format(startAt, "h:mm a") : "—";
+  const packageName = row.customer_package?.package_name_snapshot ?? "—";
+  const originalSessions = row.customer_package?.credit_count ?? 0;
+  const amountCentavos = row.customer_package?.purchase?.total_amount_centavos ?? 0;
+
+  await Promise.allSettled([
+    sendClassBookingConfirmationEmail({
+      customerFirstName: user?.first_name || "there",
+      customerEmail: user?.email ?? "",
+      className,
+      coachName,
+      formattedDate,
+      time,
+      packageName,
+      sessionsRemaining: remainingCredits,
+    }),
+    sendClassBookingNotificationEmail({
+      customerFirstName: user?.first_name ?? "",
+      customerLastName: user?.last_name ?? "",
+      customerEmail: user?.email ?? "",
+      customerPhone: user?.mobile_number ?? "",
+      className,
+      coachName,
+      formattedDate,
+      time,
+      packageName,
+      packageAmountFormatted: centavosToPeso(amountCentavos),
+      originalSessions,
+      sessionsUsed: originalSessions - remainingCredits,
+      sessionsRemaining: remainingCredits,
+      status: "Confirmed",
+    }),
+  ]);
 }

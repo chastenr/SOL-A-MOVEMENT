@@ -34,7 +34,7 @@ export function Footer() {
   const pathname = usePathname();
   // The admin dashboard is its own product surface with its own chrome
   // (see admin/(protected)/layout.tsx) — it doesn't share the public footer.
-  if (pathname.startsWith("/admin")) return null;
+  if (pathname.startsWith("/admin") || pathname === "/maintenance") return null;
 
   return (
     <footer className="texture-plaster bg-walnut text-ivory">

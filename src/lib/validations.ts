@@ -177,6 +177,8 @@ export const classSessionFormSchema = z.object({
   startAt: z.string().min(1, "Start time is required."),
   durationMinutes: z.coerce.number().int().min(15).max(240),
   capacity: z.coerce.number().int().min(1).max(100),
+  // Optional — no minimum enforced (studio decides per session whether one applies).
+  minimumParticipants: z.coerce.number().int().min(1).max(100).optional().or(z.literal("")),
 });
 
 export type ClassSessionFormValues = z.infer<typeof classSessionFormSchema>;

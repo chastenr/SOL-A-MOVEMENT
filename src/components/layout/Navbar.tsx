@@ -72,7 +72,7 @@ export function Navbar() {
 
   // The admin dashboard is its own product surface with its own chrome (see
   // admin/(protected)/layout.tsx) — it doesn't share the public navbar.
-  if (pathname.startsWith("/admin")) return null;
+  if (pathname.startsWith("/admin") || pathname === "/maintenance") return null;
 
   return (
     <>
