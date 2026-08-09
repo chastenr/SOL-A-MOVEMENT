@@ -14,6 +14,7 @@ export type AdminPurchaseRow = {
   referenceNumber: string;
   customer: { id: string; name: string; email: string };
   packageName: string;
+  creditCount: number | null;
   amountCentavos: number;
   method: string;
   provider: string;
@@ -28,6 +29,7 @@ type PurchaseListRow = {
   reference_number: string;
   user_id: string;
   package_name_snapshot: string;
+  credit_count_snapshot: number | null;
   total_amount_centavos: number;
   payment_method: string;
   payment_provider: string;
@@ -44,7 +46,7 @@ export async function getAdminPurchases(status?: AdminPurchaseStatus): Promise<A
   let query = supabase
     .from("purchases")
     .select(
-      "id, reference_number, user_id, package_name_snapshot, total_amount_centavos, payment_method, payment_provider, purchase_status, receipt_url, created_at, approved_at"
+      "id, reference_number, user_id, package_name_snapshot, credit_count_snapshot, total_amount_centavos, payment_method, payment_provider, purchase_status, receipt_url, created_at, approved_at"
     )
     .order("created_at", { ascending: false })
     .limit(200);
@@ -72,6 +74,7 @@ export async function getAdminPurchases(status?: AdminPurchaseStatus): Promise<A
         email: profile?.email ?? "—",
       },
       packageName: row.package_name_snapshot,
+      creditCount: row.credit_count_snapshot,
       amountCentavos: row.total_amount_centavos,
       method: row.payment_method,
       provider: row.payment_provider,
@@ -95,7 +98,7 @@ export async function getAdminPurchaseDetail(id: string): Promise<AdminPurchaseD
   const { data, error } = await supabase
     .from("purchases")
     .select(
-      "id, reference_number, user_id, package_name_snapshot, total_amount_centavos, payment_method, payment_provider, purchase_status, receipt_url, created_at, approved_at, rejected_reason"
+      "id, reference_number, user_id, package_name_snapshot, credit_count_snapshot, total_amount_centavos, payment_method, payment_provider, purchase_status, receipt_url, created_at, approved_at, rejected_reason"
     )
     .eq("id", id)
     .single();
@@ -135,6 +138,7 @@ export async function getAdminPurchaseDetail(id: string): Promise<AdminPurchaseD
     },
     customerPhone: profile?.mobile_number ?? "—",
     packageName: row.package_name_snapshot,
+    creditCount: row.credit_count_snapshot,
     amountCentavos: row.total_amount_centavos,
     method: row.payment_method,
     provider: row.payment_provider,

@@ -84,6 +84,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
                 <tr>
                   <th className="px-4 py-3">Reference</th>
                   <th className="px-4 py-3">Package</th>
+                  <th className="px-4 py-3">Credits</th>
                   <th className="px-4 py-3">Amount</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Date</th>
@@ -94,6 +95,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
                   <tr key={purchase.id} className="border-b border-charcoal/5 last:border-0">
                     <td className="px-4 py-3 text-charcoal/70">{purchase.referenceNumber}</td>
                     <td className="px-4 py-3 text-charcoal">{purchase.packageName}</td>
+                    <td className="px-4 py-3 text-charcoal/70">{purchase.creditCount ?? "—"}</td>
                     <td className="px-4 py-3 text-charcoal/70">{centavosToPeso(purchase.amountCentavos)}</td>
                     <td className="px-4 py-3 text-charcoal/70 capitalize">{purchase.status.replace("_", " ")}</td>
                     <td className="px-4 py-3 text-charcoal/70">{format(new Date(purchase.createdAt), "MMM d, yyyy")}</td>

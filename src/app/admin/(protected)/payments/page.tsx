@@ -188,6 +188,7 @@ export default async function AdminPaymentsPage({
                 <th className="px-4 py-3">Reference</th>
                 <th className="px-4 py-3">Customer</th>
                 <th className="px-4 py-3">Package</th>
+                <th className="px-4 py-3">Credits</th>
                 <th className="px-4 py-3">Amount</th>
                 <th className="px-4 py-3">Method</th>
                 <th className="px-4 py-3">Receipt</th>
@@ -209,6 +210,7 @@ export default async function AdminPaymentsPage({
                     <p className="text-xs text-charcoal/45">{purchase.customer.email}</p>
                   </td>
                   <td className="px-4 py-3 text-charcoal/70">{purchase.packageName}</td>
+                  <td className="px-4 py-3 text-charcoal/70">{purchase.creditCount ?? "—"}</td>
                   <td className="px-4 py-3 text-charcoal/70">{centavosToPeso(purchase.amountCentavos)}</td>
                   <td className="px-4 py-3 text-charcoal/70">{purchase.method}</td>
                   <td className="px-4 py-3 text-charcoal/70">{purchase.hasReceipt ? "Yes" : "—"}</td>

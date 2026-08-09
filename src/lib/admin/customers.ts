@@ -120,6 +120,7 @@ export type AdminCustomerPurchaseRow = {
   id: string;
   referenceNumber: string;
   packageName: string;
+  creditCount: number | null;
   amountCentavos: number;
   method: string;
   status: string;
@@ -130,7 +131,9 @@ export async function getCustomerPurchasesForAdmin(userId: string): Promise<Admi
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("purchases")
-    .select("id, reference_number, package_name_snapshot, total_amount_centavos, payment_method, purchase_status, created_at")
+    .select(
+      "id, reference_number, package_name_snapshot, credit_count_snapshot, total_amount_centavos, payment_method, purchase_status, created_at"
+    )
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
@@ -138,6 +141,10 @@ export async function getCustomerPurchasesForAdmin(userId: string): Promise<Admi
     id: row.id,
     referenceNumber: row.reference_number,
     packageName: row.package_name_snapshot,
+    // Snapshotted at purchase time (see migration 0001) so this stays
+    // accurate even if the package's own credit_count changes later —
+    // null for studio-rental-style products that don't grant a credit count.
+    creditCount: row.credit_count_snapshot,
     amountCentavos: row.total_amount_centavos,
     method: row.payment_method,
     status: row.purchase_status,

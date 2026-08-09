@@ -46,6 +46,7 @@ export default async function AdminPaymentDetailPage({ params }: { params: Promi
           <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">Payment</p>
           <dl className="mt-4 space-y-2 text-sm">
             <Row label="Package" value={purchase.packageName} />
+            <Row label="Credits" value={purchase.creditCount !== null ? String(purchase.creditCount) : "—"} />
             <Row label="Amount" value={centavosToPeso(purchase.amountCentavos)} />
             <Row label="Method" value={purchase.method} />
             <Row label="Provider" value={purchase.provider} />
