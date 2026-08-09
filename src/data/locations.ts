@@ -49,9 +49,11 @@ export const locations: Location[] = [
     bookingEmail: "hello@veorawellness.com",
     mapUrl: "https://www.google.com/maps/search/?api=1&query=14.4108087,120.9503414",
     geo: { lat: 14.4108087, lng: 120.9503414 },
-    // Business hours have not been published yet — do not display fabricated hours.
-    hours: [],
-    hoursNote: "Studio hours will be announced closer to opening. Contact us for current availability.",
+    // Confirmed by the client: studio is open 7:00 AM – 8:00 PM daily.
+    hours: [
+      { day: "Monday – Sunday", hours: "7:00 AM – 8:00 PM" },
+    ],
+    hoursNote: undefined,
     services: ["mat-pilates", "yoga", "barre", "strength-hiit", "recovery-restore", "ballet"],
     active: true,
   },

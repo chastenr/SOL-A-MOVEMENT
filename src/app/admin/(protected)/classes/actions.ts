@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { classSessionFormSchema, type ClassSessionFormValues } from "@/lib/validations";
 import { sendClassCancelledByStudioEmail } from "@/lib/email";
+import { manilaLocalToUtc } from "@/lib/studio-hours";
 
 type ActionResult = { error: string } | { success: true };
 
@@ -14,7 +15,12 @@ export async function createClassSessionAction(values: ClassSessionFormValues): 
   const parsed = classSessionFormSchema.safeParse(values);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
 
-  const startAt = new Date(parsed.data.startAt);
+  // manilaLocalToUtc, not `new Date(parsed.data.startAt)` — the input has
+  // no timezone in it at all, and the admin types Manila wall-clock time.
+  // `new Date(...)` on a bare datetime-local string is parsed as the
+  // SERVER's own timezone (UTC on Vercel), which silently shifted every
+  // scheduled class 8 hours from what was actually typed.
+  const startAt = manilaLocalToUtc(parsed.data.startAt);
   if (Number.isNaN(startAt.getTime())) return { error: "Enter a valid start time." };
   const endAt = addMinutes(startAt, parsed.data.durationMinutes);
 

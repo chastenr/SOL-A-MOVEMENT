@@ -92,6 +92,9 @@ export function ClassSessionForm({
       </Field>
       <Field label="Start Time" required error={errors.startAt?.message}>
         <input type="datetime-local" {...register("startAt")} className={fieldInputClasses} />
+        <p className="mt-1 text-xs text-charcoal/40">
+          Studio hours are 7:00 AM–8:00 PM — the class must start and end within that window.
+        </p>
       </Field>
 
       <Field label="Duration (minutes)" required error={errors.durationMinutes?.message}>

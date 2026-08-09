@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isWithinStudioHours, STUDIO_OPEN_HOUR, STUDIO_CLOSE_HOUR } from "@/lib/studio-hours";
 
 export const bookingSchema = z.object({
   service: z.string().min(1, "Please select a service."),
@@ -170,16 +171,26 @@ export const bookClassSchema = z.object({
 
 export type BookClassValues = z.infer<typeof bookClassSchema>;
 
-export const classSessionFormSchema = z.object({
-  classTypeId: z.string().uuid("Please select a class."),
-  locationId: z.string().uuid("Please select a location."),
-  instructorId: z.string().uuid("Invalid instructor.").optional().or(z.literal("")),
-  startAt: z.string().min(1, "Start time is required."),
-  durationMinutes: z.coerce.number().int().min(15).max(240),
-  capacity: z.coerce.number().int().min(1).max(100),
-  // Optional — no minimum enforced (studio decides per session whether one applies).
-  minimumParticipants: z.coerce.number().int().min(1).max(100).optional().or(z.literal("")),
-});
+export const classSessionFormSchema = z
+  .object({
+    classTypeId: z.string().uuid("Please select a class."),
+    locationId: z.string().uuid("Please select a location."),
+    instructorId: z.string().uuid("Invalid instructor.").optional().or(z.literal("")),
+    startAt: z.string().min(1, "Start time is required."),
+    durationMinutes: z.coerce.number().int().min(15).max(240),
+    capacity: z.coerce.number().int().min(1).max(100),
+    // Optional — no minimum enforced (studio decides per session whether one applies).
+    minimumParticipants: z.coerce.number().int().min(1).max(100).optional().or(z.literal("")),
+  })
+  .superRefine((data, ctx) => {
+    if (data.startAt && !isWithinStudioHours(data.startAt, data.durationMinutes)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Classes must start and end within studio hours (${STUDIO_OPEN_HOUR}:00 AM–${STUDIO_CLOSE_HOUR - 12}:00 PM).`,
+        path: ["startAt"],
+      });
+    }
+  });
 
 export type ClassSessionFormValues = z.infer<typeof classSessionFormSchema>;
 
