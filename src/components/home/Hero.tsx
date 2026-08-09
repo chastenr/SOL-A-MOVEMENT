@@ -47,7 +47,7 @@ export function Hero() {
     >
       <motion.div
         className="absolute inset-0"
-        initial={{ scale: 1.06 }}
+        initial={{ scale: 1.03 }}
         animate={{ scale: 1 }}
         transition={{ duration: 1.8, ease: EASE }}
       >
@@ -101,9 +101,8 @@ export function Hero() {
           className="font-display balance mt-5 max-w-4xl text-[clamp(2.75rem,7vw,6.5rem)] leading-[1.02] text-ivory"
         />
         <StaggerItem>
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-ivory/80 sm:text-lg">
-            Explore Pilates, yoga, barre, strength and ballet, all in one welcoming studio in
-            Bacoor, Cavite — designed to help you move with purpose and reconnect with your body.
+          <p className="mt-6 max-w-md text-base leading-relaxed text-ivory/80 sm:text-lg">
+            Pilates, yoga and barre in one boutique studio in Bacoor, Cavite.
           </p>
         </StaggerItem>
         <StaggerItem>

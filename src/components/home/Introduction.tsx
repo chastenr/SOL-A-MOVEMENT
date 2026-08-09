@@ -12,8 +12,8 @@ export function Introduction() {
         <AnimatedSection>
           <SectionLabel index="01" label="Why Veora" className="mb-5" />
           <SectionHeading
-            heading="More than just a workout. This is a space to feel your best."
-            body="At Veora, wellness is about moving with purpose. Our thoughtfully designed studio offers a welcoming environment where you can explore different movement practices, challenge yourself and reconnect with your body — all under one roof. Whether you're just beginning your wellness journey or looking to elevate your routine, our experienced instructors are here to guide you every step of the way."
+            heading="Movement, made intentional."
+            body="A boutique studio in Bacoor built for strength, balance and confidence, with guidance every step of the way."
           />
           <div className="mt-8">
             <Button href="/about" variant="secondary">

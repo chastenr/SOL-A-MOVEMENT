@@ -27,7 +27,7 @@ export function StudioGallery() {
             <SectionLabel index="04" label="The Studio" className="mb-5" />
             <SectionHeading
               heading="A space designed to feel like an exhale."
-              body="Warm plaster arches, walnut wood tones and soft, considered lighting — every corner of our Bacoor, Cavite studio is built to slow you down the moment you walk in."
+              body="Warm plaster, walnut wood and soft light — built to slow you down."
             />
           </AnimatedSection>
 

@@ -18,7 +18,7 @@ export async function ServicesSection() {
             <SectionLabel index="02" label="Our Classes" className="mb-5" />
             <SectionHeading
               heading="Find the movement that moves you."
-              body="Whether you're trying your first class or building a consistent routine, we have flexible options designed around your goals."
+              body="Six ways to move, one studio to call your own."
             />
           </div>
           <Button href="/services" variant="secondary" className="shrink-0">
@@ -66,7 +66,7 @@ export async function ServicesSection() {
 
                   <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium uppercase tracking-[0.15em] text-charcoal/70 transition-colors group-hover:text-clay">
                     Learn more
-                    <ArrowUpRight size={14} aria-hidden />
+                    <ArrowUpRight size={14} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden />
                   </span>
                 </a>
               </AnimatedSection>

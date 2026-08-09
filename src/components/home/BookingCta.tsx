@@ -23,12 +23,9 @@ export function BookingCta() {
         <p className="text-xs font-medium uppercase tracking-[0.3em] text-clay">
           Ready to move?
         </p>
-        <h2 className="font-display balance mt-5 text-4xl leading-tight text-ivory sm:text-5xl">
-          Choose your session, find your time, reserve your visit.
+        <h2 className="font-display balance mt-5 text-[clamp(2rem,5vw,3.5rem)] leading-[1.1] text-ivory">
+          Your strongest self starts with one class.
         </h2>
-        <p className="mt-5 text-base leading-relaxed text-ivory/75 sm:text-lg">
-          Choose your session, find a time that works for you, and reserve your visit to Veora.
-        </p>
         <div className="mt-8 flex justify-center">
           <Button href="/book" size="lg">
             Book Your Session

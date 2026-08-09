@@ -7,17 +7,15 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 const features = [
   {
     title: "Beginner-Friendly",
-    description:
-      "Every class is approachable for first-timers, with modifications offered throughout so you can move at your own pace.",
+    description: "Modifications offered throughout, at your own pace.",
   },
   {
     title: "Open to Everyone",
-    description: "We welcome every body, regardless of age, gender or fitness level.",
+    description: "Every body, age and fitness level welcome.",
   },
   {
     title: "Everything Provided",
-    description:
-      "Premium mats and equipment, complimentary lockers and shower facilities are all included in your visit.",
+    description: "Mats, equipment, lockers and showers included.",
   },
 ];
 
@@ -52,7 +50,7 @@ export function StudioExperience() {
               <SectionLabel index="03" label="The Veora Experience" className="mb-5" />
               <SectionHeading
                 heading="A space to move, breathe and reset."
-                body="Every detail at Veora is designed to help you feel comfortable, supported and present — from beginner-friendly classes to a calm, welcoming studio."
+                body="Every detail here is considered — so you can feel supported, not just seen."
               />
             </AnimatedSection>
 

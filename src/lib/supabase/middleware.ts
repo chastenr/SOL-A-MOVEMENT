@@ -14,14 +14,25 @@ const AUTH_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password"]
  * UX-only redirect for protected/auth routes. This is NOT the security
  * boundary — every protected page/action/route still calls `requireAdmin()`
  * or checks `auth.getUser()` itself; RLS is the last line of defense.
+ *
+ * This runs on nearly every request (see the matcher in src/proxy.ts), so it
+ * must never throw: a misconfigured/missing Supabase env var here would
+ * otherwise take the entire site down, not just auth-dependent pages. If
+ * Supabase isn't reachable/configured, fall through to an unmodified
+ * response — every protected route still re-checks auth server-side anyway.
  */
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return NextResponse.next({ request });
+  }
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  let supabaseResponse = NextResponse.next({ request });
+  let user = null;
+
+  try {
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -32,14 +43,15 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options));
         },
       },
-    }
-  );
+    });
 
-  // Nothing may run between createServerClient() and getUser() — anything in
-  // between can desync the cookie-refresh logic and randomly log users out.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    // Nothing may run between createServerClient() and getUser() — anything
+    // in between can desync the cookie-refresh logic and randomly log users out.
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch {
+    return NextResponse.next({ request });
+  }
 
   const path = request.nextUrl.pathname;
   const isPublicException = PUBLIC_EXCEPTIONS.some((prefix) => path.startsWith(prefix));

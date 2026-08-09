@@ -47,24 +47,23 @@ export const siteConfig = {
   // Classes are cancelled free of charge up to this many hours before start.
   cancellationWindowHours: 12,
 
+  // Kept short on purpose — the logo already covers Home, and Locations
+  // (a single-address studio) stays reachable via the footer and /contact
+  // rather than taking a top-level slot.
   nav: [
-    { label: "Home", href: "/" },
-    { label: "About", href: "/about" },
-    { label: "Services", href: "/services" },
-    { label: "Pricing", href: "/pricing" },
+    { label: "Studio", href: "/about" },
+    { label: "Classes", href: "/services" },
+    { label: "Packages", href: "/pricing" },
     { label: "Schedule", href: "/schedule" },
-    { label: "Locations", href: "/locations" },
     { label: "Contact", href: "/contact" },
   ],
 
   footerNav: [
-    { label: "Home", href: "/" },
-    { label: "About", href: "/about" },
-    { label: "Services", href: "/services" },
-    { label: "Pricing", href: "/pricing" },
+    { label: "Studio", href: "/about" },
+    { label: "Classes", href: "/services" },
+    { label: "Packages", href: "/pricing" },
     { label: "Schedule", href: "/schedule" },
     { label: "Locations", href: "/locations" },
-    { label: "Book", href: "/book" },
     { label: "Contact", href: "/contact" },
     { label: "FAQ", href: "/faq" },
     { label: "Policies", href: "/policies" },

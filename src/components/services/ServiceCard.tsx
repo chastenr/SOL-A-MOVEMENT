@@ -92,7 +92,7 @@ export function ServiceCard({ service, variant = "compact", className }: Service
         className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.15em] text-charcoal/70 transition-colors group-hover:text-clay"
       >
         Learn more
-        <ArrowUpRight size={14} aria-hidden />
+        <ArrowUpRight size={14} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden />
       </a>
     </article>
   );
