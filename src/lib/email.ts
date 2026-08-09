@@ -251,9 +251,9 @@ export async function sendClassBookingNotificationEmail(booking: ClassBookingEma
       ${row("Time", booking.time)}
       ${row("Package", booking.packageName)}
       ${row("Package Purchase", booking.packageAmountFormatted)}
-      ${row("Original Sessions", String(booking.originalSessions))}
-      ${row("Sessions Used", String(booking.sessionsUsed))}
-      ${row("Sessions Remaining", String(booking.sessionsRemaining))}
+      ${row("Original Credits", String(booking.originalSessions))}
+      ${row("Credits Used", String(booking.sessionsUsed))}
+      ${row("Credits Remaining", String(booking.sessionsRemaining))}
       ${row("Status", booking.status)}
     </table>`
   );
@@ -287,7 +287,7 @@ export async function sendClassBookingConfirmationEmail(booking: ClassScheduleEm
   const html = wrapper(
     "Your Reservation is In",
     `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${booking.customerFirstName},</p>
-     <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">We've received your reservation. One session was deducted from your package.</p>
+     <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">We've received your reservation. One credit was deducted from your package.</p>
      <table style="width:100%;border-collapse:collapse;margin:16px 0;">
        ${row("Class", booking.className)}
        ${row("Coach", booking.coachName)}
@@ -295,7 +295,7 @@ export async function sendClassBookingConfirmationEmail(booking: ClassScheduleEm
        ${row("Time", booking.endTime ? `${booking.time} – ${booking.endTime}` : booking.time)}
        ${booking.bookingReference ? row("Booking ID", booking.bookingReference) : ""}
        ${row("Package", booking.packageName)}
-       ${booking.sessionsRemaining !== undefined ? row("Sessions Remaining", String(booking.sessionsRemaining)) : ""}
+       ${booking.sessionsRemaining !== undefined ? row("Credits Remaining", String(booking.sessionsRemaining)) : ""}
      </table>
      ${
        booking.arrivalTime
@@ -344,7 +344,7 @@ export async function sendClassCancelledByStudioEmail(
      <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">Your reservation credit has automatically been returned to your package.</p>
      <table style="width:100%;border-collapse:collapse;margin:16px 0;">
        ${row("Package", booking.packageName)}
-       ${booking.sessionsRemaining !== undefined ? row("Remaining Sessions", String(booking.sessionsRemaining)) : ""}
+       ${booking.sessionsRemaining !== undefined ? row("Credits Remaining", String(booking.sessionsRemaining)) : ""}
      </table>
      <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">We apologize for the inconvenience.</p>
      <p style="margin:24px 0 0;font-size:15px;color:#221f1c;">Veora Wellness</p>`

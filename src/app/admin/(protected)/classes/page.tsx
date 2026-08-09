@@ -54,6 +54,11 @@ export default async function AdminClassesPage() {
         <code>/account/book</code>. &quot;Needs Attention&quot; means the booking cutoff has passed and the
         class is still below its minimum — review and cancel if it won&apos;t run.
       </p>
+      <p className="mt-1 text-sm">
+        <Link href="/admin/classes/time-slots" className="underline underline-offset-2 hover:text-charcoal">
+          Manage which hours are open for scheduling →
+        </Link>
+      </p>
 
       <div className="mt-6 rounded-xl border border-charcoal/10 bg-ivory p-4">
         <p className="text-xs uppercase tracking-[0.1em] text-charcoal/45">Coach schedules change weekly</p>

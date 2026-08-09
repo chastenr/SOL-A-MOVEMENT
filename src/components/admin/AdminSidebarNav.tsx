@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-type NavItem = { href: string; label: string };
+type NavItem = { href: string; label: string; matchPrefixes?: readonly string[] };
 
 export function AdminSidebarNav({ items }: { items: readonly NavItem[] }) {
   const pathname = usePathname();
@@ -14,8 +14,13 @@ export function AdminSidebarNav({ items }: { items: readonly NavItem[] }) {
       {items.map((item) => {
         // /admin itself must match exactly — every other admin route starts
         // with /admin, which would otherwise make "Dashboard" look active
-        // everywhere.
-        const isActive = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
+        // everywhere. matchPrefixes covers grouped hubs (e.g. "Settings"
+        // linking out to /admin/packages, /admin/security, etc.) whose
+        // sub-pages live outside the hub's own URL prefix.
+        const isActive =
+          item.href === "/admin"
+            ? pathname === "/admin"
+            : pathname.startsWith(item.href) || (item.matchPrefixes?.some((prefix) => pathname.startsWith(prefix)) ?? false);
         return (
           <Link
             key={item.href}

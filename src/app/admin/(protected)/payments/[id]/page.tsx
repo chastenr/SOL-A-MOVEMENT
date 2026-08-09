@@ -18,7 +18,11 @@ export default async function AdminPaymentDetailPage({ params }: { params: Promi
   const purchase = await getAdminPurchaseDetail(id);
   if (!purchase) notFound();
 
-  const canReview = purchase.status === "proof_submitted";
+  // Approving straight from "pending_payment" (no receipt uploaded) is
+  // intentional — this studio verifies bank transfers manually rather than
+  // requiring the in-app upload step (migration 0014). The UI just makes
+  // sure that's a deliberate click, not an accident.
+  const canReview = purchase.status === "proof_submitted" || purchase.status === "pending_payment";
 
   return (
     <div className="max-w-2xl">
@@ -55,7 +59,15 @@ export default async function AdminPaymentDetailPage({ params }: { params: Promi
       <section className="mt-6 rounded-2xl border border-charcoal/10 bg-ivory p-6">
         <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">Receipt</p>
         {!purchase.receiptSignedUrl ? (
-          <p className="mt-2 text-sm text-charcoal/55">No receipt uploaded.</p>
+          <div className="mt-2 space-y-2">
+            <p className="text-sm text-charcoal/55">No receipt uploaded.</p>
+            {purchase.status === "pending_payment" && (
+              <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                Only approve this if you&rsquo;ve verified the payment yourself (bank app, GCash, a screenshot
+                sent over chat, etc.) — no receipt has come through the site yet.
+              </p>
+            )}
+          </div>
         ) : purchase.receiptMimeType === "application/pdf" ? (
           <a
             href={purchase.receiptSignedUrl}

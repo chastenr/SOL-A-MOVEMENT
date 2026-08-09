@@ -3,6 +3,10 @@ import { logoutAction } from "@/lib/auth/actions";
 import { AdminSidebarNav } from "@/components/admin/AdminSidebarNav";
 import { cn } from "@/lib/utils";
 
+// Kept short on purpose — the owner using this day to day shouldn't have to
+// scan a dozen tabs. Anything edited rarely (catalog, payment methods,
+// account security, staff access) lives one click deeper, under Settings,
+// instead of getting its own row here.
 const NAV = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/calendar", label: "Calendar" },
@@ -10,17 +14,19 @@ const NAV = [
   { href: "/admin/customers", label: "Customers" },
   { href: "/admin/payments", label: "Payments" },
   { href: "/admin/classes", label: "Classes" },
-  { href: "/admin/classes/time-slots", label: "Class Times" },
   { href: "/admin/coaches", label: "Coaches" },
-  { href: "/admin/packages", label: "Packages" },
-  { href: "/admin/services", label: "Services" },
-  { href: "/admin/settings/payments", label: "Payment Settings" },
-  { href: "/admin/security", label: "Security" },
-] as const;
-
-const SUPER_ADMIN_NAV = [
-  { href: "/admin/users", label: "Users" },
-  { href: "/admin/logs", label: "Activity Log" },
+  {
+    href: "/admin/settings",
+    label: "Settings",
+    matchPrefixes: [
+      "/admin/packages",
+      "/admin/services",
+      "/admin/security",
+      "/admin/classes/time-slots",
+      "/admin/users",
+      "/admin/logs",
+    ],
+  },
 ] as const;
 
 const ROLE_BADGE: Record<string, string> = {
@@ -34,7 +40,6 @@ const ROLE_BADGE: Record<string, string> = {
 // (defense in depth — see src/lib/auth/require-role.ts).
 export default async function AdminProtectedLayout({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
-  const navItems = admin.role === "super_admin" ? [...NAV, ...SUPER_ADMIN_NAV] : NAV;
 
   return (
     <div className="min-h-screen bg-plaster lg:flex">
@@ -42,7 +47,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
         <div className="px-6 py-5">
           <p className="font-display text-lg tracking-[0.02em]">Veora Admin</p>
         </div>
-        <AdminSidebarNav items={navItems} />
+        <AdminSidebarNav items={NAV} />
       </aside>
 
       <div className="flex-1">

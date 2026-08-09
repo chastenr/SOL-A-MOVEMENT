@@ -100,9 +100,11 @@ export function BookSessionButton({
               </tr>
               <tr>
                 <td className="py-1 pr-3 text-charcoal/45">Package</td>
-                <td className="py-1 text-charcoal">
-                  {packageName} ({confirmed.remainingCredits} left)
-                </td>
+                <td className="py-1 text-charcoal">{packageName}</td>
+              </tr>
+              <tr>
+                <td className="py-1 pr-3 text-charcoal/45">Credits Remaining</td>
+                <td className="py-1 text-charcoal">{confirmed.remainingCredits}</td>
               </tr>
             </tbody>
           </table>

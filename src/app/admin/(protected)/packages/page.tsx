@@ -85,11 +85,19 @@ export default async function AdminPackagesPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <form action={setPackageActiveAction.bind(null, pkg.id, !pkg.is_active)}>
-                      <button type="submit" className="text-xs underline underline-offset-2 hover:text-charcoal">
-                        {pkg.is_active ? "Deactivate" : "Activate"}
-                      </button>
-                    </form>
+                    <div className="flex items-center justify-end gap-3">
+                      <Link
+                        href={`/admin/packages/${pkg.id}`}
+                        className="text-xs underline underline-offset-2 hover:text-charcoal"
+                      >
+                        Edit
+                      </Link>
+                      <form action={setPackageActiveAction.bind(null, pkg.id, !pkg.is_active)}>
+                        <button type="submit" className="text-xs underline underline-offset-2 hover:text-charcoal">
+                          {pkg.is_active ? "Deactivate" : "Activate"}
+                        </button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -53,17 +53,23 @@ export default async function AccountBookPage({
                     selectedPackage?.id === pkg.id ? "bg-charcoal text-ivory" : "border border-charcoal/15 hover:bg-charcoal/5"
                   )}
                 >
-                  {pkg.packageName} ({pkg.remainingCredits} left)
+                  {pkg.packageName} ({pkg.remainingCredits} credit{pkg.remainingCredits === 1 ? "" : "s"} left)
                 </Link>
               ))}
             </div>
           )}
 
           <p className="mt-6 text-xs text-charcoal/45">
-            One session is deducted from your package the moment a reservation is confirmed. Bookings close
+            One credit is deducted from your package the moment a reservation is confirmed. Bookings close
             at 10:00 PM the evening before class. If Veora needs to cancel a class, your credit is
             automatically returned.
           </p>
+
+          {selectedPackage && (
+            <p className="mt-2 text-xs text-charcoal/45">
+              Showing classes your <strong>{selectedPackage.packageName}</strong> credits can be used on.
+            </p>
+          )}
 
           {sessions.length === 0 ? (
             <p className="mt-8 text-charcoal/60">
