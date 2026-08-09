@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { classSessionFormSchema, type ClassSessionFormValues } from "@/lib/validations";
-import { createClassSessionAction } from "@/app/admin/(protected)/classes/actions";
+import { createClassSessionAction, updateClassSessionAction } from "@/app/admin/(protected)/classes/actions";
 import { CLASS_DURATION_MINUTES, formatHourLabel } from "@/lib/studio-hours";
 import { Button } from "@/components/ui/Button";
 import { Field, fieldInputClasses } from "@/components/ui/Field";
@@ -13,6 +13,7 @@ import { Field, fieldInputClasses } from "@/components/ui/Field";
 type Option = { id: string; name: string };
 type ClassTypeOption = Option & { serviceSlug: string };
 type TimeSlot = { locationId: string; hour: number; isActive: boolean };
+type EditTarget = { id: string; bookedCount: number; initialValues: ClassSessionFormValues };
 
 const BALLET_SERVICE_SLUG = "ballet";
 
@@ -21,17 +22,22 @@ export function ClassSessionForm({
   locations,
   instructors,
   timeSlots,
+  editing,
 }: {
   classTypes: ClassTypeOption[];
   locations: Option[];
   instructors: Option[];
   timeSlots: TimeSlot[];
+  editing?: EditTarget;
 }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
-  const [date, setDate] = useState("");
-  const [hour, setHour] = useState<number | "">("");
+  const [date, setDate] = useState(() => editing?.initialValues.startAt.slice(0, 10) ?? "");
+  const [hour, setHour] = useState<number | "">(() => {
+    const startAt = editing?.initialValues.startAt;
+    return startAt ? Number(startAt.slice(11, 13)) : "";
+  });
 
   const {
     register,
@@ -41,7 +47,7 @@ export function ClassSessionForm({
     formState: { errors },
   } = useForm<ClassSessionFormValues>({
     resolver: zodResolver(classSessionFormSchema),
-    defaultValues: {
+    defaultValues: editing?.initialValues ?? {
       classTypeId: classTypes[0]?.id ?? "",
       locationId: locations[0]?.id ?? "",
       instructorId: "",
@@ -88,7 +94,9 @@ export function ClassSessionForm({
     setSubmitting(true);
     setServerError(null);
     try {
-      const result = await createClassSessionAction(values);
+      const result = editing
+        ? await updateClassSessionAction(editing.id, values)
+        : await createClassSessionAction(values);
       if ("error" in result) {
         setServerError(result.error);
         return;
@@ -104,6 +112,13 @@ export function ClassSessionForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5 sm:grid-cols-2">
+      {editing && editing.bookedCount > 0 && (
+        <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 sm:col-span-2">
+          {editing.bookedCount} customer{editing.bookedCount === 1 ? " is" : "s are"} already booked into this
+          class. Changing the coach or time here won&rsquo;t automatically notify them — capacity also can&rsquo;t
+          go below {editing.bookedCount}.
+        </p>
+      )}
       <Field label="Class" required error={errors.classTypeId?.message}>
         <select {...register("classTypeId")} className={`${fieldInputClasses} appearance-none`}>
           {classTypes.map((option) => (
@@ -198,7 +213,7 @@ export function ClassSessionForm({
 
       <div className="flex gap-3 sm:col-span-2">
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Scheduling…" : "Schedule Session"}
+          {submitting ? "Saving…" : editing ? "Save Changes" : "Schedule Session"}
         </Button>
         <Button type="button" variant="secondary" onClick={() => router.push("/admin/classes")}>
           Cancel

@@ -7,6 +7,7 @@ const BASE = {
   booked_count: 2,
   capacity: 8,
   minimum_participants: null as number | null,
+  booking_enabled: true,
 };
 
 describe("getDisplayStatus", () => {
@@ -44,5 +45,13 @@ describe("getDisplayStatus", () => {
       minimum_participants: 4,
     };
     expect(getDisplayStatus(metMinimum)).toBe("OPEN");
+  });
+
+  it("returns BOOKING CLOSED when booking_enabled is false, even with open spots", () => {
+    expect(getDisplayStatus({ ...BASE, booking_enabled: false })).toBe("BOOKING CLOSED");
+  });
+
+  it("returns CANCELLED over BOOKING CLOSED when both apply", () => {
+    expect(getDisplayStatus({ ...BASE, status: "cancelled", booking_enabled: false })).toBe("CANCELLED");
   });
 });

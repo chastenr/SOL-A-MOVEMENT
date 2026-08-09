@@ -6,6 +6,8 @@ import { isPhoneVerificationRequired } from "@/lib/feature-flags";
 import { bookClassSchema } from "@/lib/validations";
 import { isRateLimited } from "@/lib/rate-limit";
 import { centavosToPeso } from "@/lib/money";
+import { getArrivalTime } from "@/lib/studio-hours";
+import { formatBookingReference } from "@/lib/utils";
 import { sendClassBookingConfirmationEmail, sendClassBookingNotificationEmail } from "@/lib/email";
 
 const ERROR_MAP: Record<string, { status: number; message: string }> = {
@@ -17,6 +19,7 @@ const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0005: { status: 409, message: "You already have a booking for this class." },
   P0006: { status: 409, message: "Sorry, this class just filled up." },
   P0009: { status: 409, message: "Bookings close at 10:00 PM the evening before class." },
+  P0010: { status: 409, message: "Bookings are currently closed for this class." },
 };
 
 /**
@@ -90,6 +93,7 @@ type BookingNotificationRow = {
   user_id: string;
   class_session: {
     start_at: string;
+    end_at: string;
     class_type: { name: string } | null;
     instructor: { name: string } | null;
   } | null;
@@ -117,7 +121,7 @@ async function notifyBookingCreated(
     .from("class_bookings")
     .select(
       `user_id,
-       class_session:class_sessions(start_at, class_type:class_types(name), instructor:instructors(name)),
+       class_session:class_sessions(start_at, end_at, class_type:class_types(name), instructor:instructors(name)),
        customer_package:customer_packages(credit_count, package_name_snapshot, purchase:purchases(total_amount_centavos))`
     )
     .eq("id", bookingId)
@@ -135,8 +139,11 @@ async function notifyBookingCreated(
   const className = row.class_session?.class_type?.name ?? "Class";
   const coachName = row.class_session?.instructor?.name ?? "TBA";
   const startAt = row.class_session?.start_at ? new Date(row.class_session.start_at) : null;
+  const endAt = row.class_session?.end_at ? new Date(row.class_session.end_at) : null;
   const formattedDate = startAt ? format(startAt, "MMMM d, yyyy") : "—";
   const time = startAt ? format(startAt, "h:mm a") : "—";
+  const endTime = endAt ? format(endAt, "h:mm a") : "—";
+  const arrivalTime = startAt ? format(getArrivalTime(startAt), "h:mm a") : "—";
   const packageName = row.customer_package?.package_name_snapshot ?? "—";
   const originalSessions = row.customer_package?.credit_count ?? 0;
   const amountCentavos = row.customer_package?.purchase?.total_amount_centavos ?? 0;
@@ -149,6 +156,9 @@ async function notifyBookingCreated(
       coachName,
       formattedDate,
       time,
+      endTime,
+      arrivalTime,
+      bookingReference: formatBookingReference(bookingId),
       packageName,
       sessionsRemaining: remainingCredits,
     }),

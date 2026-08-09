@@ -2,12 +2,14 @@ import { NextResponse } from "next/server";
 import { format } from "date-fns";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase/admin";
 import { getManilaDayRange } from "@/lib/booking-cutoff";
+import { getArrivalTime } from "@/lib/studio-hours";
 import { sendClassCancelledByStudioEmail, sendClassConfirmedEmail } from "@/lib/email";
 import { isSmsConfigured, sendSms } from "@/lib/sms";
 
 type CandidateSession = {
   id: string;
   start_at: string;
+  end_at: string;
   booked_count: number;
   minimum_participants: number | null;
   class_type: { name: string } | null;
@@ -49,7 +51,7 @@ export async function GET(request: Request) {
   const { data, error } = await supabaseAdmin
     .from("class_sessions")
     .select(
-      "id, start_at, booked_count, minimum_participants, class_type:class_types(name), instructor:instructors(name)"
+      "id, start_at, end_at, booked_count, minimum_participants, class_type:class_types(name), instructor:instructors(name)"
     )
     .eq("status", "scheduled")
     .is("attendance_checked_at", null)
@@ -69,8 +71,11 @@ export async function GET(request: Request) {
     const className = session.class_type?.name ?? "Class";
     const coachName = session.instructor?.name ?? "TBA";
     const startAt = new Date(session.start_at);
+    const endAt = new Date(session.end_at);
     const formattedDate = format(startAt, "MMMM d, yyyy");
     const time = format(startAt, "h:mm a");
+    const endTime = format(endAt, "h:mm a");
+    const arrivalTime = format(getArrivalTime(startAt), "h:mm a");
 
     const belowMinimum = session.booked_count < (session.minimum_participants ?? 0);
 
@@ -145,6 +150,8 @@ export async function GET(request: Request) {
               coachName,
               formattedDate,
               time,
+              endTime,
+              arrivalTime,
               packageName: "",
             }),
           ];

@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { requireUser } from "@/lib/auth/require-role";
 import { getCustomerPackages, getEligibleSessions } from "@/lib/customer/account";
 import { isPastBookingCutoff } from "@/lib/booking-cutoff";
+import { getArrivalTime } from "@/lib/studio-hours";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -72,8 +73,11 @@ export default async function AccountBookPage({
             <div className="mt-4 divide-y divide-charcoal/10 rounded-2xl border border-charcoal/10 bg-ivory">
               {sessions.map((session) => {
                 const isFull = session.bookedCount >= session.capacity;
+                const isUnavailable = !session.bookingEnabled;
                 const cutoffPassed = isPastBookingCutoff(new Date(session.startAt));
                 const spotsLeft = session.capacity - session.bookedCount;
+                const canBook = !isFull && !isUnavailable && !cutoffPassed;
+                const arrivalTime = format(getArrivalTime(new Date(session.startAt)), "h:mm a");
                 return (
                   <div key={session.id} className="flex items-center justify-between gap-4 px-5 py-4">
                     <div>
@@ -95,20 +99,32 @@ export default async function AccountBookPage({
                         </p>
                       )}
                       <p className="mt-1 text-xs text-charcoal/40">
-                        {isFull ? "Full" : cutoffPassed ? "Booking closed" : `${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`}
+                        {isUnavailable
+                          ? "Unavailable"
+                          : isFull
+                            ? "Full"
+                            : cutoffPassed
+                              ? "Booking closed"
+                              : `${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`}
                       </p>
+                      {canBook && <p className="mt-1 text-xs text-charcoal/40">Please arrive by {arrivalTime}.</p>}
                     </div>
                     {selectedPackage &&
-                      (isFull || cutoffPassed ? (
+                      (!canBook ? (
                         <span className="shrink-0 rounded-full bg-charcoal/10 px-4 py-2 text-[0.68rem] uppercase tracking-[0.15em] text-charcoal/45">
-                          {isFull ? "Full" : "Closed"}
+                          {isUnavailable ? "Unavailable" : isFull ? "Full" : "Closed"}
                         </span>
                       ) : (
                         <BookSessionButton
                           classSessionId={session.id}
                           customerPackageId={selectedPackage.id}
                           sessionName={session.className}
+                          coachName={session.instructor ?? "TBA"}
                           scheduleLabel={`${format(new Date(session.startAt), "EEEE, MMMM d 'at' h:mm a")} · ${session.location}`}
+                          formattedDate={format(new Date(session.startAt), "EEEE, MMMM d, yyyy")}
+                          timeRange={`${format(new Date(session.startAt), "h:mm a")} – ${format(new Date(session.endAt), "h:mm a")}`}
+                          arrivalTime={arrivalTime}
+                          packageName={selectedPackage.packageName}
                         />
                       ))}
                   </div>

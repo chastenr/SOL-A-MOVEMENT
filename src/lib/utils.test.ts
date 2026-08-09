@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { sanitizeRedirectTo, safeJsonLd, isUuid } from "@/lib/utils";
+import { sanitizeRedirectTo, safeJsonLd, isUuid, formatBookingReference } from "@/lib/utils";
 
 describe("sanitizeRedirectTo", () => {
   it("allows a plain internal path", () => {
@@ -75,5 +75,16 @@ describe("isUuid", () => {
 
   it("rejects a UUID with SQL-injection-style payload appended", () => {
     expect(isUuid("3fa85f64-5717-4562-b3fc-2c963f66afa6; DROP TABLE bookings;")).toBe(false);
+  });
+});
+
+describe("formatBookingReference", () => {
+  it("derives a short, uppercase reference from a UUID", () => {
+    expect(formatBookingReference("3fa85f64-5717-4562-b3fc-2c963f66afa6")).toBe("VEO-3FA85F");
+  });
+
+  it("is deterministic for the same id", () => {
+    const id = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+    expect(formatBookingReference(id)).toBe(formatBookingReference(id));
   });
 });

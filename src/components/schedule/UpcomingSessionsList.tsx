@@ -1,5 +1,6 @@
 import { format, differenceInMinutes } from "date-fns";
 import type { UpcomingSessionRow } from "@/lib/catalog/sessions";
+import { getArrivalTime } from "@/lib/studio-hours";
 import { Button } from "@/components/ui/Button";
 
 /** Server component — no client state needed, this is a plain data list. */
@@ -14,8 +15,10 @@ export function UpcomingSessionsList({
     <div className="divide-y divide-charcoal/10 rounded-2xl border border-charcoal/10 bg-ivory">
       {sessions.map((session) => {
         const isFull = session.bookedCount >= session.capacity;
+        const isUnavailable = !session.bookingEnabled;
         const spotsLeft = session.capacity - session.bookedCount;
         const duration = differenceInMinutes(new Date(session.endAt), new Date(session.startAt));
+        const arrivalTime = format(getArrivalTime(new Date(session.startAt)), "h:mm a");
 
         return (
           <div key={session.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
@@ -33,14 +36,15 @@ export function UpcomingSessionsList({
                 )}
                 Coach {session.instructor ?? "TBA"} · {session.location}
               </p>
+              <p className="mt-1 text-xs text-charcoal/40">Please arrive by {arrivalTime}.</p>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-xs uppercase tracking-[0.1em] text-charcoal/45">
-                {isFull ? "Full" : `${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`}
+                {isUnavailable ? "Unavailable" : isFull ? "Full" : `${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`}
               </span>
-              {isFull ? (
+              {isUnavailable || isFull ? (
                 <span className="rounded-full bg-charcoal/10 px-5 py-2.5 text-[0.68rem] uppercase tracking-[0.2em] text-charcoal/40">
-                  Full
+                  {isUnavailable ? "Unavailable" : "Full"}
                 </span>
               ) : (
                 <Button href={bookHref} size="md">

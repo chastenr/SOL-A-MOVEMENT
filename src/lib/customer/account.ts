@@ -1,5 +1,7 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getArrivalTime } from "@/lib/studio-hours";
+import { formatBookingReference } from "@/lib/utils";
 
 export type CustomerPackageRow = {
   id: string;
@@ -32,12 +34,15 @@ export async function getCustomerPackages(userId: string): Promise<CustomerPacka
 
 export type CustomerBookingRow = {
   id: string;
+  reference: string;
   status: "booked" | "cancelled" | "completed" | "no_show";
   bookedAt: string;
   isUpcoming: boolean;
+  packageName: string | null;
   session: {
     startAt: string;
     endAt: string;
+    arrivalTime: string;
     className: string;
     location: string;
   } | null;
@@ -53,6 +58,7 @@ type RawCustomerBooking = {
     class_type: { name: string } | null;
     location: { name: string } | null;
   } | null;
+  customer_package: { package_name_snapshot: string } | null;
 };
 
 export async function getCustomerBookings(userId: string): Promise<CustomerBookingRow[]> {
@@ -60,7 +66,9 @@ export async function getCustomerBookings(userId: string): Promise<CustomerBooki
   const { data } = await supabase
     .from("class_bookings")
     .select(
-      "id, status, booked_at, class_session:class_sessions(start_at, end_at, class_type:class_types(name), location:locations(name))"
+      `id, status, booked_at,
+       class_session:class_sessions(start_at, end_at, class_type:class_types(name), location:locations(name)),
+       customer_package:customer_packages(package_name_snapshot)`
     )
     .eq("user_id", userId)
     .order("booked_at", { ascending: false });
@@ -69,13 +77,16 @@ export async function getCustomerBookings(userId: string): Promise<CustomerBooki
   const now = Date.now();
   return rows.map((row) => ({
     id: row.id,
+    reference: formatBookingReference(row.id),
     status: row.status,
     bookedAt: row.booked_at,
     isUpcoming: row.status === "booked" && !!row.class_session && new Date(row.class_session.start_at).getTime() > now,
+    packageName: row.customer_package?.package_name_snapshot ?? null,
     session: row.class_session
       ? {
           startAt: row.class_session.start_at,
           endAt: row.class_session.end_at,
+          arrivalTime: getArrivalTime(new Date(row.class_session.start_at)).toISOString(),
           className: row.class_session.class_type?.name ?? "—",
           location: row.class_session.location?.name ?? "—",
         }
@@ -121,6 +132,7 @@ export type EligibleSessionRow = {
   instructorPhotoUrl: string | null;
   capacity: number;
   bookedCount: number;
+  bookingEnabled: boolean;
 };
 
 const CLASSIC_SERVICE_SLUGS = ["mat-pilates", "yoga", "barre", "strength-hiit"];
@@ -145,7 +157,7 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
   const { data } = await supabase
     .from("class_sessions")
     .select(
-      "id, start_at, end_at, capacity, booked_count, class_type:class_types(name, service_slug), location:locations(name), instructor:instructors(name, photo_url)"
+      "id, start_at, end_at, capacity, booked_count, booking_enabled, class_type:class_types(name, service_slug), location:locations(name), instructor:instructors(name, photo_url)"
     )
     .eq("status", "scheduled")
     .gt("start_at", new Date().toISOString())
@@ -158,6 +170,7 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
     end_at: string;
     capacity: number;
     booked_count: number;
+    booking_enabled: boolean;
     class_type: { name: string; service_slug: string } | null;
     location: { name: string } | null;
     instructor: { name: string; photo_url: string | null } | null;
@@ -182,5 +195,6 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
       instructorPhotoUrl: row.instructor?.photo_url ?? null,
       capacity: row.capacity,
       bookedCount: row.booked_count,
+      bookingEnabled: row.booking_enabled,
     }));
 }

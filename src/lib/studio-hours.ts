@@ -49,3 +49,20 @@ export function isWithinStudioHours(datetimeLocal: string, durationMinutes: numb
 export function manilaLocalToUtc(datetimeLocal: string): Date {
   return new Date(`${datetimeLocal}+08:00`);
 }
+
+/**
+ * Inverse of manilaLocalToUtc — given a stored UTC instant, returns the
+ * Manila-wall-clock "YYYY-MM-DDTHH:mm" string an admin would have typed
+ * (e.g. to prefill an edit form's datetime-local input).
+ */
+export function utcToManilaLocal(isoUtc: string): string {
+  const shifted = new Date(new Date(isoUtc).getTime() + 8 * 60 * 60 * 1000);
+  return shifted.toISOString().slice(0, 16);
+}
+
+// Client-confirmed policy: arrive 10 minutes before class starts.
+export const ARRIVAL_BUFFER_MINUTES = 10;
+
+export function getArrivalTime(startAt: Date): Date {
+  return new Date(startAt.getTime() - ARRIVAL_BUFFER_MINUTES * 60 * 1000);
+}

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { formatHourLabel, isWithinStudioHours, manilaLocalToUtc } from "@/lib/studio-hours";
+import {
+  formatHourLabel,
+  getArrivalTime,
+  isWithinStudioHours,
+  manilaLocalToUtc,
+  utcToManilaLocal,
+} from "@/lib/studio-hours";
 
 describe("isWithinStudioHours", () => {
   it("accepts a class starting and ending inside 7 AM–8 PM", () => {
@@ -54,5 +60,22 @@ describe("formatHourLabel", () => {
 
   it("formats evening hours", () => {
     expect(formatHourLabel(19)).toBe("7:00 PM");
+  });
+});
+
+describe("utcToManilaLocal", () => {
+  it("is the exact inverse of manilaLocalToUtc", () => {
+    expect(utcToManilaLocal(manilaLocalToUtc("2026-08-10T07:00").toISOString())).toBe("2026-08-10T07:00");
+    expect(utcToManilaLocal(manilaLocalToUtc("2026-08-10T19:30").toISOString())).toBe("2026-08-10T19:30");
+  });
+});
+
+describe("getArrivalTime", () => {
+  it("subtracts 10 minutes from the class start time", () => {
+    expect(getArrivalTime(new Date("2026-08-10T07:00:00.000Z")).toISOString()).toBe("2026-08-10T06:50:00.000Z");
+  });
+
+  it("rolls back across a day boundary", () => {
+    expect(getArrivalTime(new Date("2026-08-10T00:05:00.000Z")).toISOString()).toBe("2026-08-09T23:55:00.000Z");
   });
 });

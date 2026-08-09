@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { CancelClassSessionButton } from "@/components/admin/CancelClassSessionButton";
 import { DuplicateWeekForm } from "@/components/admin/DuplicateWeekForm";
 import { getDisplayStatus, STATUS_STYLES } from "@/lib/class-session-status";
+import { setClassSessionBookingEnabledAction } from "./actions";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -20,6 +22,7 @@ type SessionRow = {
   capacity: number;
   booked_count: number;
   minimum_participants: number | null;
+  booking_enabled: boolean;
   status: "scheduled" | "cancelled" | "completed";
   class_type: { name: string } | null;
   location: { name: string } | null;
@@ -33,7 +36,7 @@ export default async function AdminClassesPage() {
   const { data } = await supabase
     .from("class_sessions")
     .select(
-      "id, start_at, end_at, capacity, booked_count, minimum_participants, status, class_type:class_types(name), location:locations(name), instructor:instructors(name)"
+      "id, start_at, end_at, capacity, booked_count, minimum_participants, booking_enabled, status, class_type:class_types(name), location:locations(name), instructor:instructors(name)"
     )
     .order("start_at", { ascending: true })
     .limit(100);
@@ -103,10 +106,31 @@ export default async function AdminClassesPage() {
                         {status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      {session.status === "scheduled" && (
-                        <CancelClassSessionButton sessionId={session.id} bookedCount={session.booked_count} />
-                      )}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-3 whitespace-nowrap">
+                        {session.status === "scheduled" && (
+                          <>
+                            <Link
+                              href={`/admin/classes/${session.id}`}
+                              className="text-xs underline underline-offset-2 hover:text-charcoal"
+                            >
+                              Edit
+                            </Link>
+                            <form
+                              action={setClassSessionBookingEnabledAction.bind(
+                                null,
+                                session.id,
+                                !session.booking_enabled
+                              )}
+                            >
+                              <button type="submit" className="text-xs underline underline-offset-2 hover:text-charcoal">
+                                {session.booking_enabled ? "Close Booking" : "Open Booking"}
+                              </button>
+                            </form>
+                            <CancelClassSessionButton sessionId={session.id} bookedCount={session.booked_count} />
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

@@ -48,3 +48,14 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 export function isUuid(value: string): boolean {
   return UUID_PATTERN.test(value);
 }
+
+/**
+ * Short, human-readable stand-in for a booking's UUID — shown to customers
+ * and admins as a reference number (e.g. in confirmation emails), not stored
+ * anywhere separately. Derived deterministically from the same UUID that's
+ * already the booking's primary key, so it never needs its own uniqueness
+ * check or migration.
+ */
+export function formatBookingReference(id: string): string {
+  return `VEO-${id.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
+}

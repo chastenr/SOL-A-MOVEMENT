@@ -45,6 +45,15 @@ export default async function AccountBookingsPage() {
                     {booking.session ? format(new Date(booking.session.startAt), "EEEE, MMMM d 'at' h:mm a") : "—"}
                     {booking.session ? ` · ${booking.session.location}` : ""}
                   </p>
+                  {isUpcoming && booking.session && (
+                    <p className="mt-1 text-xs text-charcoal/40">
+                      Arrive by {format(new Date(booking.session.arrivalTime), "h:mm a")}
+                    </p>
+                  )}
+                  <p className="mt-1 text-xs text-charcoal/40">
+                    {booking.reference}
+                    {booking.packageName ? ` · ${booking.packageName}` : ""}
+                  </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-xs uppercase tracking-[0.08em] text-charcoal/45">

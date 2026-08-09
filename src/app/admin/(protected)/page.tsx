@@ -19,6 +19,7 @@ type TodaySession = {
   capacity: number;
   booked_count: number;
   minimum_participants: number | null;
+  booking_enabled: boolean;
   status: "scheduled" | "cancelled" | "completed";
   class_type: { name: string } | null;
   instructor: { name: string } | null;
@@ -31,7 +32,7 @@ async function getTodayStats() {
   const { data } = await supabase
     .from("class_sessions")
     .select(
-      "id, start_at, end_at, capacity, booked_count, minimum_participants, status, class_type:class_types(name), instructor:instructors(name)"
+      "id, start_at, end_at, capacity, booked_count, minimum_participants, booking_enabled, status, class_type:class_types(name), instructor:instructors(name)"
     )
     .gte("start_at", start.toISOString())
     .lt("start_at", end.toISOString())

@@ -9,8 +9,51 @@ import { sendClassCancelledByStudioEmail } from "@/lib/email";
 import { CLASS_DURATION_MINUTES, getMinutesSinceMidnight, manilaLocalToUtc } from "@/lib/studio-hours";
 
 type ActionResult = { error: string } | { success: true };
+type SupabaseServerClient = Awaited<ReturnType<typeof createSupabaseServerClient>>;
 
 const BALLET_SERVICE_SLUG = "ballet";
+
+/**
+ * Every class type except Ballet is locked to the 50-minute, on-the-hour
+ * schedule managed at /admin/classes/time-slots — the client already
+ * enforces this in the form, but neither create nor update can trust that
+ * payload (same reasoning as the studio-hours/booking-cutoff checks
+ * elsewhere in this app), so this re-derives the duration and re-checks the
+ * hour against class_time_slots itself. Ballet keeps its free-typed start
+ * time + duration (60/90 min) untouched. Shared by create and update so the
+ * two paths can't drift apart.
+ */
+async function resolveDurationMinutes(
+  supabase: SupabaseServerClient,
+  classTypeId: string,
+  locationId: string,
+  startAt: string,
+  requestedDurationMinutes: number
+): Promise<{ durationMinutes: number } | { error: string }> {
+  const { data: classType } = await supabase
+    .from("class_types")
+    .select("service_slug")
+    .eq("id", classTypeId)
+    .single();
+
+  if (classType?.service_slug === BALLET_SERVICE_SLUG) {
+    return { durationMinutes: requestedDurationMinutes };
+  }
+
+  const minutesSinceMidnight = getMinutesSinceMidnight(startAt);
+  if (minutesSinceMidnight === null || minutesSinceMidnight % 60 !== 0) {
+    return { error: "Pick one of the open hourly time slots." };
+  }
+  const { data: slot } = await supabase
+    .from("class_time_slots")
+    .select("id")
+    .eq("location_id", locationId)
+    .eq("hour", Math.floor(minutesSinceMidnight / 60))
+    .eq("is_active", true)
+    .maybeSingle();
+  if (!slot) return { error: "That time isn't open for this location. Pick another hour." };
+  return { durationMinutes: CLASS_DURATION_MINUTES };
+}
 
 export async function createClassSessionAction(values: ClassSessionFormValues): Promise<ActionResult> {
   await requireAdmin();
@@ -18,35 +61,14 @@ export async function createClassSessionAction(values: ClassSessionFormValues): 
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
 
   const supabase = await createSupabaseServerClient();
-
-  const { data: classType } = await supabase
-    .from("class_types")
-    .select("service_slug")
-    .eq("id", parsed.data.classTypeId)
-    .single();
-
-  // Every class type except Ballet is locked to the 50-minute, on-the-hour
-  // schedule managed at /admin/classes/time-slots — the client already
-  // enforces this in the form, but the action can't trust that payload
-  // (same reasoning as the studio-hours check below), so it re-derives the
-  // duration and re-checks the hour against class_time_slots itself. Ballet
-  // keeps its free-typed start time + duration (60/90 min) untouched.
-  let durationMinutes = parsed.data.durationMinutes;
-  if (classType?.service_slug !== BALLET_SERVICE_SLUG) {
-    durationMinutes = CLASS_DURATION_MINUTES;
-    const minutesSinceMidnight = getMinutesSinceMidnight(parsed.data.startAt);
-    if (minutesSinceMidnight === null || minutesSinceMidnight % 60 !== 0) {
-      return { error: "Pick one of the open hourly time slots." };
-    }
-    const { data: slot } = await supabase
-      .from("class_time_slots")
-      .select("id")
-      .eq("location_id", parsed.data.locationId)
-      .eq("hour", Math.floor(minutesSinceMidnight / 60))
-      .eq("is_active", true)
-      .maybeSingle();
-    if (!slot) return { error: "That time isn't open for this location. Pick another hour." };
-  }
+  const resolved = await resolveDurationMinutes(
+    supabase,
+    parsed.data.classTypeId,
+    parsed.data.locationId,
+    parsed.data.startAt,
+    parsed.data.durationMinutes
+  );
+  if ("error" in resolved) return resolved;
 
   // manilaLocalToUtc, not `new Date(parsed.data.startAt)` — the input has
   // no timezone in it at all, and the admin types Manila wall-clock time.
@@ -55,7 +77,7 @@ export async function createClassSessionAction(values: ClassSessionFormValues): 
   // scheduled class 8 hours from what was actually typed.
   const startAt = manilaLocalToUtc(parsed.data.startAt);
   if (Number.isNaN(startAt.getTime())) return { error: "Enter a valid start time." };
-  const endAt = addMinutes(startAt, durationMinutes);
+  const endAt = addMinutes(startAt, resolved.durationMinutes);
 
   const { error } = await supabase.from("class_sessions").insert({
     class_type_id: parsed.data.classTypeId,
@@ -72,6 +94,85 @@ export async function createClassSessionAction(values: ClassSessionFormValues): 
   revalidatePath("/admin/classes");
   revalidatePath("/admin/calendar");
   return { success: true };
+}
+
+/**
+ * Edits an existing, still-scheduled session in place — coach, capacity,
+ * minimum, and (for fixed-schedule class types) date/hour. There's no
+ * customer notification here: unlike cancelling, editing doesn't refund or
+ * un-book anyone, so the admin UI surfaces a plain warning instead when
+ * people are already booked (see ClassSessionForm).
+ */
+export async function updateClassSessionAction(
+  sessionId: string,
+  values: ClassSessionFormValues
+): Promise<ActionResult> {
+  await requireAdmin();
+  const parsed = classSessionFormSchema.safeParse(values);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+
+  const supabase = await createSupabaseServerClient();
+
+  const { data: existing } = await supabase
+    .from("class_sessions")
+    .select("booked_count, status")
+    .eq("id", sessionId)
+    .single();
+  if (!existing) return { error: "That class session could not be found." };
+  if (existing.status !== "scheduled") return { error: "Only scheduled sessions can be edited." };
+  if (parsed.data.capacity < existing.booked_count) {
+    return { error: `Capacity can't be less than the ${existing.booked_count} customers already booked.` };
+  }
+
+  const resolved = await resolveDurationMinutes(
+    supabase,
+    parsed.data.classTypeId,
+    parsed.data.locationId,
+    parsed.data.startAt,
+    parsed.data.durationMinutes
+  );
+  if ("error" in resolved) return resolved;
+
+  const startAt = manilaLocalToUtc(parsed.data.startAt);
+  if (Number.isNaN(startAt.getTime())) return { error: "Enter a valid start time." };
+  const endAt = addMinutes(startAt, resolved.durationMinutes);
+
+  const { error } = await supabase
+    .from("class_sessions")
+    .update({
+      class_type_id: parsed.data.classTypeId,
+      location_id: parsed.data.locationId,
+      instructor_id: parsed.data.instructorId || null,
+      start_at: startAt.toISOString(),
+      end_at: endAt.toISOString(),
+      capacity: parsed.data.capacity,
+      minimum_participants: parsed.data.minimumParticipants || null,
+    })
+    .eq("id", sessionId);
+
+  if (error) return { error: "Something went wrong. Please try again." };
+
+  revalidatePath("/admin/classes");
+  revalidatePath(`/admin/classes/${sessionId}`);
+  revalidatePath("/admin/calendar");
+  return { success: true };
+}
+
+/**
+ * Pauses/resumes NEW bookings on a session without cancelling it — distinct
+ * from cancelClassSessionAction, which ends the class and refunds everyone.
+ * Existing bookings are untouched either way (migration 0013).
+ */
+export async function setClassSessionBookingEnabledAction(id: string, enabled: boolean): Promise<void> {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("class_sessions").update({ booking_enabled: enabled }).eq("id", id);
+  if (error) throw new Error("Something went wrong.");
+
+  revalidatePath("/admin/classes");
+  revalidatePath("/admin/calendar");
+  revalidatePath("/account/book");
+  revalidatePath("/schedule");
 }
 
 export type CancelClassSessionResult =
