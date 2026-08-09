@@ -69,17 +69,41 @@ export function Hero() {
               className="object-cover"
             />
           ) : (
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              poster="/videos/hero-poster.webp"
-              aria-hidden
-              className="h-full w-full object-cover"
-            >
-              <source src="/videos/hero-loop.mp4" type="video/mp4" />
-            </video>
+            <>
+              {/* Instant, correctly-cropped placeholder while the matching
+                  <source> below loads — a single `poster` attribute can't
+                  vary by breakpoint, so this is done as two CSS-media-gated
+                  background layers instead (resolved identically on the
+                  server and the client, unlike a JS viewport check, so
+                  there's no hydration mismatch to cause a flash). */}
+              <div
+                aria-hidden
+                className="absolute inset-0 h-full w-full bg-cover bg-center sm:hidden"
+                style={{ backgroundImage: "url(/videos/hero-poster-mobile.webp)" }}
+              />
+              <div
+                aria-hidden
+                className="absolute inset-0 hidden h-full w-full bg-cover bg-center sm:block"
+                style={{ backgroundImage: "url(/videos/hero-poster.webp)" }}
+              />
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                aria-hidden
+                className="relative h-full w-full object-cover"
+              >
+                {/* Below the sm breakpoint (640px): a version cropped
+                    in-file to a phone-friendly portrait aspect and re-encoded
+                    at a fraction of the size — object-cover on the full
+                    landscape source left mobile viewers seeing mostly the
+                    gap of window between the two women (see the crop math
+                    that led here), not a bandwidth problem CSS alone could fix. */}
+                <source src="/videos/hero-loop-mobile.mp4" media="(max-width: 639px)" type="video/mp4" />
+                <source src="/videos/hero-loop.mp4" type="video/mp4" />
+              </video>
+            </>
           )}
         </motion.div>
         <div className="absolute inset-0 bg-gradient-to-t from-walnut via-walnut/30 to-charcoal/10" />
