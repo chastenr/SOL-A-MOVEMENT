@@ -110,14 +110,3 @@ export async function verifyTotpEnrollmentAction(
   return { success: true };
 }
 
-export async function unenrollTotpAction(factorId: string): Promise<{ error: string } | { success: true }> {
-  const user = await getAuthedUser();
-  if (!user) return { error: "Please sign in." };
-
-  const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.mfa.unenroll({ factorId });
-  // Supabase requires an AAL2 session to unenroll a verified factor — surface
-  // its own message (e.g. "AAL2 required") rather than a generic one here.
-  if (error) return { error: error.message || GENERIC_ERROR };
-  return { success: true };
-}

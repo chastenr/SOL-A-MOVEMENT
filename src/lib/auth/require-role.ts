@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { sanitizeRedirectTo } from "@/lib/utils";
@@ -15,8 +16,16 @@ export type AuthedUser = {
  * out. Always uses `auth.getUser()` (server-revalidated), never
  * `getSession()` — identity for authorization decisions must never come
  * from a locally-decoded, unrevalidated JWT.
+ *
+ * Wrapped in React's `cache()`: every `/admin/**` page calls `requireAdmin()`
+ * a second time on top of the shared layout's own call (deliberate
+ * defense-in-depth), which previously meant two full `auth.getUser()`
+ * network round-trips plus two `profiles` queries per navigation. `cache()`
+ * dedupes repeated calls within the same request/render pass, so the second
+ * call reuses the first's result instead of hitting the network again — same
+ * security guarantee, half the latency. Never dedupes *across* requests.
  */
-export async function getAuthedUser(): Promise<AuthedUser | null> {
+export const getAuthedUser = cache(async (): Promise<AuthedUser | null> => {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -30,7 +39,7 @@ export async function getAuthedUser(): Promise<AuthedUser | null> {
     email: user.email ?? "",
     role: (profile?.role as AuthedUser["role"]) ?? "customer",
   };
-}
+});
 
 /** Use at the top of every `/account/**` server component/action. */
 export async function requireUser(): Promise<AuthedUser> {
@@ -75,11 +84,11 @@ export async function requireVerifiedCustomer(returnTo: string): Promise<AuthedU
   return user;
 }
 
-async function getCurrentAal(): Promise<string | null> {
+const getCurrentAal = cache(async (): Promise<string | null> => {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
   return data?.currentLevel ?? null;
-}
+});
 
 /**
  * Use at the top of every `/admin/**` server component/action and every
