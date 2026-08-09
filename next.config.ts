@@ -5,6 +5,7 @@ import path from "node:path";
 // the browser) so the CSP always matches whichever Supabase project is
 // actually configured, without a code change if it ever changes.
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const isDev = process.env.NODE_ENV === "development";
 
 // Static (non-nonce) CSP, per Next.js's own documented "Without Nonces"
 // approach (node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md).
@@ -28,9 +29,15 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 // interactivity (mobile menu, forms, auth state) works. This is exactly the
 // 'unsafe-inline' Next's own "Without Nonces" CSP guide includes on
 // script-src by default — matching it now instead of deviating from it.
+//
+// 'unsafe-eval' is added in development ONLY: React's dev-mode debugging
+// (reconstructing server error stacks in the browser, Fast Refresh) relies
+// on eval(), which this CSP otherwise blocks — also called out explicitly
+// in Next's own CSP docs. Production never uses eval() by default, so it
+// stays out of the production policy.
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: https://images.pexels.com https://ik.imagekit.io https://images.unsplash.com https://upload.wikimedia.org`,
   "font-src 'self'",
