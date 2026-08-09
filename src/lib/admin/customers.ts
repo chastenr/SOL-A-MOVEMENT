@@ -7,6 +7,7 @@ export type AdminCustomerRow = {
   email: string;
   mobileNumber: string;
   createdAt: string;
+  activeCredits: number;
 };
 
 export type AdminCustomerFilters = {
@@ -30,12 +31,28 @@ export async function getAdminCustomers(filters: AdminCustomerFilters = {}): Pro
   }
 
   const { data } = await query;
-  return (data ?? []).map((row) => ({
+  const rows = data ?? [];
+
+  // Summed in JS rather than a SQL aggregate — one extra query keeps this
+  // portable across PostgREST versions instead of depending on its
+  // aggregate-function support in `select`.
+  const userIds = rows.map((row) => row.id);
+  const { data: activePackages } = userIds.length
+    ? await supabase.from("customer_packages").select("user_id, remaining_credits").eq("status", "active").in("user_id", userIds)
+    : { data: [] as { user_id: string; remaining_credits: number }[] };
+
+  const creditsByUser = new Map<string, number>();
+  for (const pkg of activePackages ?? []) {
+    creditsByUser.set(pkg.user_id, (creditsByUser.get(pkg.user_id) ?? 0) + pkg.remaining_credits);
+  }
+
+  return rows.map((row) => ({
     id: row.id,
     name: `${row.first_name} ${row.last_name}`.trim() || row.email,
     email: row.email,
     mobileNumber: row.mobile_number,
     createdAt: row.created_at,
+    activeCredits: creditsByUser.get(row.id) ?? 0,
   }));
 }
 

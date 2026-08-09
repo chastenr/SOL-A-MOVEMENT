@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminCustomers } from "@/lib/admin/customers";
 import { fieldInputClasses } from "@/components/ui/Field";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Customers",
@@ -44,6 +45,7 @@ export default async function AdminCustomersPage({
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Phone</th>
+                <th className="px-4 py-3">Credits</th>
                 <th className="px-4 py-3">Joined</th>
               </tr>
             </thead>
@@ -57,6 +59,16 @@ export default async function AdminCustomersPage({
                   </td>
                   <td className="px-4 py-3 text-charcoal/70">{customer.email}</td>
                   <td className="px-4 py-3 text-charcoal/70">{customer.mobileNumber || "—"}</td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={cn(
+                        "rounded-full px-2.5 py-0.5 text-xs font-medium",
+                        customer.activeCredits > 0 ? "bg-clay/10 text-clay" : "bg-charcoal/10 text-charcoal/45"
+                      )}
+                    >
+                      {customer.activeCredits}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 text-charcoal/70">{format(new Date(customer.createdAt), "MMM d, yyyy")}</td>
                 </tr>
               ))}

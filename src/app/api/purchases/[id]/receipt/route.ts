@@ -101,7 +101,27 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   // Denormalized pointer to the latest receipt for quick admin-list display
   // — holds the private Storage PATH, never a public URL (the bucket has no
   // public access; admins view it via a short-lived signed URL).
-  await supabase.from("purchases").update({ receipt_url: path }).eq("id", purchaseId).eq("user_id", user.id);
+  //
+  // Checked for both an error AND a matching row (not just fire-and-forget):
+  // an RLS policy that rejects this update fails silently — zero rows
+  // updated, no error — which is exactly the bug that shipped here once
+  // already (see migration 0015). The file is already durably in Storage
+  // and payment_receipts by this point, so this failing doesn't lose the
+  // upload — but the customer must be told "I Have Paid" won't work yet
+  // rather than seeing a false "Uploaded".
+  const { data: updated, error: updateError } = await supabase
+    .from("purchases")
+    .update({ receipt_url: path })
+    .eq("id", purchaseId)
+    .eq("user_id", user.id)
+    .select("id");
+
+  if (updateError || !updated || updated.length === 0) {
+    return NextResponse.json(
+      { message: "Your file was saved, but couldn't be attached to this order. Please contact us with your reference number." },
+      { status: 500 }
+    );
+  }
 
   return NextResponse.json({ success: true });
 }
