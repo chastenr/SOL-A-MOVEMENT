@@ -26,7 +26,11 @@ export function UpcomingSessionsList({
                 {format(new Date(session.startAt), "h:mm a")}–{format(new Date(session.endAt), "h:mm a")} ·{" "}
                 {duration} minutes
               </p>
-              <p className="text-xs text-charcoal/40">
+              <p className="flex items-center gap-1.5 text-xs text-charcoal/40">
+                {session.instructorPhotoUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={session.instructorPhotoUrl} alt="" className="h-4 w-4 rounded-full object-cover" />
+                )}
                 Coach {session.instructor ?? "TBA"} · {session.location}
               </p>
             </div>

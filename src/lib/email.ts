@@ -306,14 +306,26 @@ export async function sendClassBookingConfirmationEmail(booking: ClassScheduleEm
   });
 }
 
-/** Sent to every affected customer when the studio cancels a class (single booking or a whole session). */
-export async function sendClassCancelledByStudioEmail(booking: ClassScheduleEmailPayload) {
+/**
+ * Sent to every affected customer when the studio cancels a class (a
+ * single booking, a whole manually-cancelled session, or the automatic
+ * below-minimum-attendance job — `reason` distinguishes the wording without
+ * needing three near-identical templates).
+ */
+export async function sendClassCancelledByStudioEmail(
+  booking: ClassScheduleEmailPayload & { reason?: "low_enrollment" | "studio" }
+) {
   if (!resend) return { skipped: true as const };
+
+  const reasonLine =
+    booking.reason === "low_enrollment"
+      ? "This class didn't reach the minimum number of reservations needed to run today."
+      : `Unfortunately, your ${booking.className} class has been cancelled.`;
 
   const html = wrapper(
     "Class Cancellation",
     `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${booking.customerFirstName},</p>
-     <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Unfortunately, your ${booking.className} class has been cancelled.</p>
+     <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">${reasonLine}</p>
      <table style="width:100%;border-collapse:collapse;margin:16px 0;">
        ${row("Class", booking.className)}
        ${row("Coach", booking.coachName)}
@@ -333,6 +345,32 @@ export async function sendClassCancelledByStudioEmail(booking: ClassScheduleEmai
     from: fromEmail,
     to: booking.customerEmail,
     subject: `Class Cancellation — ${booking.className} — ${booking.formattedDate}`,
+    html,
+  });
+}
+
+/** Sent once a class clears its minimum-attendance check at the 10 PM cutoff. */
+export async function sendClassConfirmedEmail(booking: ClassScheduleEmailPayload) {
+  if (!resend) return { skipped: true as const };
+
+  const html = wrapper(
+    "Your Class is Confirmed",
+    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${booking.customerFirstName},</p>
+     <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Good news — your class is confirmed and will run as scheduled.</p>
+     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+       ${row("Class", booking.className)}
+       ${row("Coach", booking.coachName)}
+       ${row("Date", booking.formattedDate)}
+       ${row("Time", booking.time)}
+     </table>
+     <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">We look forward to seeing you.</p>
+     <p style="margin:24px 0 0;font-size:15px;color:#221f1c;">Veora Wellness</p>`
+  );
+
+  return resend.emails.send({
+    from: fromEmail,
+    to: booking.customerEmail,
+    subject: `Class Confirmed — ${booking.className} — ${booking.formattedDate}`,
     html,
   });
 }

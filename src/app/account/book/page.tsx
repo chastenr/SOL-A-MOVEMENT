@@ -80,9 +80,21 @@ export default async function AccountBookPage({
                       <p className="text-charcoal">{session.className}</p>
                       <p className="text-sm text-charcoal/55">
                         {format(new Date(session.startAt), "EEEE, MMMM d 'at' h:mm a")} · {session.location}
-                        {session.instructor ? ` · ${session.instructor}` : ""}
                       </p>
-                      <p className="text-xs text-charcoal/40">
+                      {session.instructor && (
+                        <p className="mt-1 flex items-center gap-1.5 text-xs text-charcoal/50">
+                          {session.instructorPhotoUrl && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={session.instructorPhotoUrl}
+                              alt=""
+                              className="h-4 w-4 rounded-full object-cover"
+                            />
+                          )}
+                          Coach {session.instructor}
+                        </p>
+                      )}
+                      <p className="mt-1 text-xs text-charcoal/40">
                         {isFull ? "Full" : cutoffPassed ? "Booking closed" : `${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`}
                       </p>
                     </div>
@@ -92,7 +104,12 @@ export default async function AccountBookPage({
                           {isFull ? "Full" : "Closed"}
                         </span>
                       ) : (
-                        <BookSessionButton classSessionId={session.id} customerPackageId={selectedPackage.id} />
+                        <BookSessionButton
+                          classSessionId={session.id}
+                          customerPackageId={selectedPackage.id}
+                          sessionName={session.className}
+                          scheduleLabel={`${format(new Date(session.startAt), "EEEE, MMMM d 'at' h:mm a")} · ${session.location}`}
+                        />
                       ))}
                   </div>
                 );
