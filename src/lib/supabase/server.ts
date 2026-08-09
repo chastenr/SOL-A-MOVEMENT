@@ -5,10 +5,10 @@ import { createServerClient } from "@supabase/ssr";
 /**
  * Cookie-bound Supabase client for Server Components / Server Actions /
  * Route Handlers — carries the signed-in user's session via cookies, still
- * subject to RLS (unlike `@/lib/supabase/admin`). Always derive identity
- * from `(await client.auth.getUser())` on this client, never `getSession()`
- * for an authorization decision — `getSession()` only decodes the cookie's
- * JWT locally and does not revalidate it with the Auth server.
+ * subject to RLS (unlike `@/lib/supabase/admin`). Always derive identity via
+ * `@/lib/auth/require-role`'s `getAuthedUser()` (backed by `auth.getClaims()`),
+ * never this client's raw `getSession()` for an authorization decision —
+ * `getSession()` only decodes the cookie's JWT locally without verifying it.
  */
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();

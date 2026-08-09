@@ -72,10 +72,20 @@ export async function updateSession(request: NextRequest) {
       },
     });
 
-    // Nothing may run between createServerClient() and getUser() — anything
+    // Nothing may run between createServerClient() and getClaims() — anything
     // in between can desync the cookie-refresh logic and randomly log users out.
-    const result = await supabase.auth.getUser();
-    user = result.data.user;
+    //
+    // getClaims(), not getUser(): this project's Supabase JWTs are signed
+    // with an asymmetric key (confirmed via the project's own public JWKS
+    // endpoint), so getClaims() verifies the JWT locally via WebCrypto
+    // instead of making a network round-trip to the Auth server on every
+    // single request — Supabase's own current guidance is to use getClaims()
+    // in middleware for exactly this reason. This is still just the UX
+    // redirect check, not the security boundary (see the function doc
+    // comment) — every protected page/action independently re-verifies via
+    // requireAdmin()/requireUser(), which also uses getClaims() now.
+    const { data, error } = await supabase.auth.getClaims();
+    user = error ? null : (data?.claims ?? null);
   } catch {
     return NextResponse.next({ request });
   }

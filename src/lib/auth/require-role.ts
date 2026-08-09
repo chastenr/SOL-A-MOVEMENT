@@ -12,31 +12,48 @@ export type AuthedUser = {
 };
 
 /**
- * Resolves the signed-in user + their `profiles.role`, or null if signed
- * out. Always uses `auth.getUser()` (server-revalidated), never
- * `getSession()` — identity for authorization decisions must never come
- * from a locally-decoded, unrevalidated JWT.
+ * Verifies the current session's JWT and returns its claims, or null if
+ * signed out — the one place that ever calls a Supabase Auth verification
+ * method, so every consumer below shares the same cached result instead of
+ * re-verifying independently.
+ *
+ * Uses `auth.getClaims()`, not `auth.getUser()` or `getSession()`:
+ * `getSession()` reads the JWT locally with no verification at all — never
+ * safe for an authorization decision. `getClaims()` IS safe for that (it
+ * cryptographically verifies the JWT signature), and unlike `getUser()` it
+ * does so locally via WebCrypto against this project's asymmetric signing
+ * key (confirmed live at /auth/v1/.well-known/jwks.json) instead of a
+ * network round-trip to the Auth server on every call — Supabase's own
+ * current guidance for Next.js middleware/server code is to use `getClaims()`
+ * for exactly this reason. (On a project still using a legacy symmetric
+ * secret, the SDK falls back to `getUser()` internally either way, so this
+ * is never less correct than before, only sometimes faster.)
  *
  * Wrapped in React's `cache()`: every `/admin/**` page calls `requireAdmin()`
  * a second time on top of the shared layout's own call (deliberate
  * defense-in-depth), which previously meant two full `auth.getUser()`
  * network round-trips plus two `profiles` queries per navigation. `cache()`
  * dedupes repeated calls within the same request/render pass, so the second
- * call reuses the first's result instead of hitting the network again — same
- * security guarantee, half the latency. Never dedupes *across* requests.
+ * call reuses the first's result instead of re-verifying again — same
+ * security guarantee, less latency. Never dedupes *across* requests.
  */
-export const getAuthedUser = cache(async (): Promise<AuthedUser | null> => {
+const getVerifiedClaims = cache(async () => {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  const { data, error } = await supabase.auth.getClaims();
+  if (error || !data) return null;
+  return data.claims;
+});
 
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+export const getAuthedUser = cache(async (): Promise<AuthedUser | null> => {
+  const claims = await getVerifiedClaims();
+  if (!claims) return null;
+
+  const supabase = await createSupabaseServerClient();
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", claims.sub).single();
 
   return {
-    id: user.id,
-    email: user.email ?? "",
+    id: claims.sub,
+    email: claims.email ?? "",
     role: (profile?.role as AuthedUser["role"]) ?? "customer",
   };
 });
@@ -84,11 +101,18 @@ export async function requireVerifiedCustomer(returnTo: string): Promise<AuthedU
   return user;
 }
 
-const getCurrentAal = cache(async (): Promise<string | null> => {
-  const supabase = await createSupabaseServerClient();
-  const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-  return data?.currentLevel ?? null;
-});
+/**
+ * The `aal` claim is already sitting in the JWT `getVerifiedClaims()` just
+ * verified — `supabase.auth.mfa.getAuthenticatorAssuranceLevel()` would
+ * derive the exact same current-level value, but only after ANOTHER
+ * `getUser()` network round-trip internally (it needs the full factors list
+ * too, for a `nextLevel` this call site never uses). Reading the claim
+ * directly skips that.
+ */
+async function getCurrentAal(): Promise<string | null> {
+  const claims = await getVerifiedClaims();
+  return claims?.aal ?? null;
+}
 
 /**
  * Use at the top of every `/admin/**` server component/action and every
