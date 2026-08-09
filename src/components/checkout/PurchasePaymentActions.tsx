@@ -63,9 +63,7 @@ export function PurchasePaymentActions({
   return (
     <div className="mt-6 space-y-4">
       <div>
-        <p className="text-xs uppercase tracking-[0.1em] text-charcoal/45">
-          Upload Payment Receipt <span className="normal-case text-charcoal/35">(optional)</span>
-        </p>
+        <p className="text-xs uppercase tracking-[0.1em] text-charcoal/45">Upload Payment Receipt</p>
         <div className="mt-2 flex items-center gap-3">
           <input
             ref={fileInputRef}
@@ -81,13 +79,15 @@ export function PurchasePaymentActions({
             </span>
           )}
         </div>
-        <p className="mt-1 text-xs text-charcoal/40">JPEG, PNG or PDF, up to 4MB.</p>
+        <p className="mt-1 text-xs text-charcoal/40">
+          {uploaded ? "JPEG, PNG or PDF, up to 4MB." : "Required before you can confirm payment — JPEG, PNG or PDF, up to 4MB."}
+        </p>
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <Button type="button" size="lg" onClick={handleMarkPaid} disabled={submitting} className="w-full">
-        {submitting ? "Submitting…" : "I Have Paid"}
+      <Button type="button" size="lg" onClick={handleMarkPaid} disabled={submitting || !uploaded} className="w-full">
+        {submitting ? "Submitting…" : uploaded ? "I Have Paid" : "Upload a receipt to continue"}
       </Button>
     </div>
   );

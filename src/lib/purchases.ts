@@ -12,7 +12,7 @@ function randomSuffix(length = 5): string {
   return Array.from(bytes, (byte) => REF_ALPHABET[byte % REF_ALPHABET.length]).join("");
 }
 
-function buildReferenceNumber(now: Date): string {
+export function buildReferenceNumber(now: Date): string {
   return `VEO-${format(now, "yyyyMMdd")}-${randomSuffix()}`;
 }
 

@@ -7,10 +7,12 @@ const NAV = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/calendar", label: "Calendar" },
   { href: "/admin/bookings", label: "Bookings" },
+  { href: "/admin/customers", label: "Customers" },
   { href: "/admin/payments", label: "Payments" },
   { href: "/admin/classes", label: "Classes" },
   { href: "/admin/packages", label: "Packages" },
   { href: "/admin/services", label: "Services" },
+  { href: "/admin/settings/payments", label: "Payment Settings" },
   { href: "/admin/security", label: "Security" },
 ] as const;
 

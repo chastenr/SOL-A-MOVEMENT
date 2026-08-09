@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { isMaintenanceMode } from "@/lib/feature-flags";
+import { SITE_LOCKED, SITE_LOCK_COOKIE, SITE_LOCK_PATH, getSitePassword } from "@/lib/site-lock";
 
 const PROTECTED_PREFIXES = ["/account", "/admin"];
 // /admin/login: pre-auth admin sign-in. /admin/mfa: reached by an admin who
@@ -10,45 +10,27 @@ const PROTECTED_PREFIXES = ["/account", "/admin"];
 const PUBLIC_EXCEPTIONS = ["/admin/login", "/admin/mfa"];
 const AUTH_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password"];
 
-// Stays reachable even while MAINTENANCE_MODE is on — admin needs the whole
-// dashboard, /auth/callback covers an admin's own password-reset link, and
-// the rest are cheap/SEO-neutral static routes with nothing to hide.
-const MAINTENANCE_ALLOWED_PREFIXES = ["/admin", "/maintenance", "/auth/callback"];
-const MAINTENANCE_ALLOWED_EXACT = ["/robots.txt", "/sitemap.xml", "/opengraph-image", "/icon"];
-const MAINTENANCE_BYPASS_COOKIE = "veora_bypass";
-
-function isMaintenanceAllowed(path: string): boolean {
-  return (
-    MAINTENANCE_ALLOWED_PREFIXES.some((prefix) => path.startsWith(prefix)) ||
-    MAINTENANCE_ALLOWED_EXACT.includes(path)
-  );
-}
-
 /**
- * Lets the site owner preview the real, live site while MAINTENANCE_MODE
- * is on for everyone else — visit any page with ?bypass=<MAINTENANCE_
- * BYPASS_KEY> once, and a cookie remembers it for that browser from then on.
- * Never logged, never stored server-side — just a cookie equality check.
+ * Whole-site password gate for pre-launch — a plain on-brand password page
+ * (with a show/hide toggle, since a native browser Basic-Auth prompt can't
+ * have one) rather than the browser's built-in login dialog. Skipped in
+ * local development (`next dev`) so building isn't interrupted by a
+ * password prompt on every reload; Vercel Preview and Production builds
+ * both set NODE_ENV=production, so both stay locked. See src/lib/site-lock.ts
+ * to turn this off or change the password.
  */
-function checkMaintenanceBypass(request: NextRequest): NextResponse | null {
-  const bypassKey = process.env.MAINTENANCE_BYPASS_KEY;
-  if (!bypassKey) return null;
+function checkSiteLock(request: NextRequest): NextResponse | null {
+  if (!SITE_LOCKED || process.env.NODE_ENV === "development") return null;
+  if (request.nextUrl.pathname === SITE_LOCK_PATH) return null;
 
-  const queryKey = request.nextUrl.searchParams.get("bypass");
-  if (queryKey && queryKey === bypassKey) {
-    const cleanUrl = request.nextUrl.clone();
-    cleanUrl.searchParams.delete("bypass");
-    const response = NextResponse.redirect(cleanUrl);
-    response.cookies.set(MAINTENANCE_BYPASS_COOKIE, bypassKey, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 30,
-    });
-    return response;
-  }
+  const cookie = request.cookies.get(SITE_LOCK_COOKIE)?.value;
+  if (cookie === getSitePassword()) return null;
 
-  return null;
+  const url = request.nextUrl.clone();
+  url.pathname = SITE_LOCK_PATH;
+  url.search = "";
+  url.searchParams.set("redirectTo", request.nextUrl.pathname + request.nextUrl.search);
+  return NextResponse.redirect(url);
 }
 
 /**
@@ -64,18 +46,8 @@ function checkMaintenanceBypass(request: NextRequest): NextResponse | null {
  * response — every protected route still re-checks auth server-side anyway.
  */
 export async function updateSession(request: NextRequest) {
-  if (isMaintenanceMode()) {
-    const bypassResponse = checkMaintenanceBypass(request);
-    if (bypassResponse) return bypassResponse;
-
-    const path = request.nextUrl.pathname;
-    const bypassKey = process.env.MAINTENANCE_BYPASS_KEY;
-    const hasBypassCookie = Boolean(bypassKey) && request.cookies.get(MAINTENANCE_BYPASS_COOKIE)?.value === bypassKey;
-
-    if (!hasBypassCookie && !isMaintenanceAllowed(path)) {
-      return NextResponse.rewrite(new URL("/maintenance", request.url), { status: 503 });
-    }
-  }
+  const lockResponse = checkSiteLock(request);
+  if (lockResponse) return lockResponse;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

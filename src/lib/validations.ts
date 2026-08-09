@@ -189,3 +189,33 @@ export const inviteStaffSchema = z.object({
 });
 
 export type InviteStaffFormValues = z.infer<typeof inviteStaffSchema>;
+
+export const paymentSettingFormSchema = z.object({
+  method: z.enum(["bank_transfer", "gcash_qr", "paymongo_card", "cash", "other"]),
+  label: z.string().trim().min(1, "Label is required.").max(80),
+  bankName: z.string().trim().max(120).optional().or(z.literal("")),
+  accountName: z.string().trim().max(120).optional().or(z.literal("")),
+  accountNumber: z.string().trim().max(60).optional().or(z.literal("")),
+  qrImageUrl: z.string().trim().max(500).optional().or(z.literal("")),
+  instructions: z.string().trim().max(500).optional().or(z.literal("")),
+  isActive: z.boolean(),
+  sortOrder: z.coerce.number().int().min(0).max(999),
+});
+
+export type PaymentSettingFormValues = z.infer<typeof paymentSettingFormSchema>;
+
+export const grantPackageSchema = z.object({
+  userId: z.string().uuid("Please select a customer."),
+  packageId: z.string().uuid("Please select a package."),
+  reason: z.string().trim().max(300).optional().or(z.literal("")),
+});
+
+export type GrantPackageValues = z.infer<typeof grantPackageSchema>;
+
+export const adjustCreditsSchema = z.object({
+  customerPackageId: z.string().uuid(),
+  delta: z.coerce.number().int().refine((value) => value !== 0, "Enter a non-zero amount."),
+  reason: z.string().trim().min(1, "A reason is required.").max(300),
+});
+
+export type AdjustCreditsValues = z.infer<typeof adjustCreditsSchema>;

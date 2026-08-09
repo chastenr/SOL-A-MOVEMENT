@@ -138,8 +138,8 @@ export type PurchaseEmailPayload = {
   amountFormatted: string;
 };
 
-export async function sendPaymentProofSubmittedEmail(purchase: PurchaseEmailPayload) {
-  if (!resend || !ownerEmail) return { skipped: true as const };
+export async function sendPaymentProofSubmittedEmail(purchase: PurchaseEmailPayload & { reviewUrl?: string }) {
+  if (!resend || bookingNotificationRecipients.length === 0) return { skipped: true as const };
 
   const html = wrapper(
     "Payment Proof Submitted",
@@ -149,12 +149,16 @@ export async function sendPaymentProofSubmittedEmail(purchase: PurchaseEmailPayl
       ${row("Reference", purchase.referenceNumber)}
       ${row("Amount", purchase.amountFormatted)}
     </table>
-    <p style="margin:20px 0 0;font-size:15px;color:#221f1c;">Review and approve in the admin dashboard.</p>`
+    ${
+      purchase.reviewUrl
+        ? `<p style="margin:20px 0 0;"><a href="${purchase.reviewUrl}" style="color:#a97456;font-size:15px;">Review and approve this payment →</a></p>`
+        : `<p style="margin:20px 0 0;font-size:15px;color:#221f1c;">Review and approve in the admin dashboard.</p>`
+    }`
   );
 
   return resend.emails.send({
     from: fromEmail,
-    to: ownerEmail,
+    to: bookingNotificationRecipients,
     subject: `Payment Proof Submitted — ${purchase.referenceNumber}`,
     html,
   });

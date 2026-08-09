@@ -6,6 +6,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRateLimited, getActionClientKey } from "@/lib/rate-limit";
 import { centavosToPeso } from "@/lib/money";
 import { sendPaymentProofSubmittedEmail } from "@/lib/email";
+import { siteConfig } from "@/data/site";
 
 type ActionResult = { error: string } | { success: true };
 
@@ -18,6 +19,11 @@ type ActionResult = { error: string } | { success: true };
  *
  * Deliberately does NOT grant credits — only an admin's approve_purchase()
  * does that.
+ *
+ * Requires a receipt to already be on file — the client disables this
+ * button until one's uploaded, but that's a UX nicety, not the boundary:
+ * re-checked here so a direct call can't skip straight to "paid" with
+ * nothing for the studio to actually verify against.
  */
 export async function markPaidAction(purchaseId: string): Promise<ActionResult> {
   const user = await requireUser();
@@ -28,6 +34,17 @@ export async function markPaidAction(purchaseId: string): Promise<ActionResult> 
   }
 
   const supabase = await createSupabaseServerClient();
+
+  const { data: existing } = await supabase
+    .from("purchases")
+    .select("receipt_url")
+    .eq("id", purchaseId)
+    .eq("user_id", user.id)
+    .single();
+  if (!existing?.receipt_url) {
+    return { error: "Please upload a payment receipt before confirming." };
+  }
+
   const { data, error, count } = await supabase
     .from("purchases")
     .update({ purchase_status: "proof_submitted" }, { count: "exact" })
@@ -51,6 +68,7 @@ export async function markPaidAction(purchaseId: string): Promise<ActionResult> 
     packageName: data.package_name_snapshot,
     referenceNumber: data.reference_number,
     amountFormatted: centavosToPeso(data.total_amount_centavos),
+    reviewUrl: `${siteConfig.url}/admin/payments/${purchaseId}`,
   });
 
   return { success: true };
