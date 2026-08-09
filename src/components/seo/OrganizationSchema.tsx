@@ -1,4 +1,5 @@
 import { siteConfig } from "@/data/site";
+import { safeJsonLd } from "@/lib/utils";
 
 export function OrganizationSchema() {
   const schema = {
@@ -37,7 +38,7 @@ export function OrganizationSchema() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }}
     />
   );
 }

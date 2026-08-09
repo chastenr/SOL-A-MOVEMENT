@@ -47,6 +47,11 @@ export async function startTotpEnrollmentAction(): Promise<StartResult> {
   const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
     factorType: "totp",
     friendlyName: "Authenticator App",
+    // Without this, Supabase falls back to deriving a name from the request
+    // context (e.g. "localhost" during local dev) — this is what actually
+    // shows up as the entry name in Google Authenticator / 1Password, not a
+    // dashboard setting.
+    issuer: "Veora Wellness",
   });
   if (enrollError || !enrollData) return { error: GENERIC_ERROR };
 

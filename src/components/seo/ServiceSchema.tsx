@@ -1,5 +1,6 @@
 import { siteConfig } from "@/data/site";
 import { getServices } from "@/lib/catalog/services";
+import { safeJsonLd } from "@/lib/utils";
 
 export async function ServiceSchema() {
   const services = await getServices();
@@ -21,7 +22,7 @@ export async function ServiceSchema() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }}
     />
   );
 }

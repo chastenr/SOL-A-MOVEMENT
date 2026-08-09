@@ -3,10 +3,15 @@ import { format } from "date-fns";
 import { contactSchema } from "@/lib/validations";
 import { sendContactEmail } from "@/lib/email";
 import { getClientKey, isRateLimited } from "@/lib/rate-limit";
+import { isRateLimitedDb } from "@/lib/rate-limit-db";
 
 export async function POST(request: Request) {
   const rateLimitKey = getClientKey(request, "contact");
-  if (isRateLimited(rateLimitKey)) {
+  // In-memory check first (cheap, catches a burst on one warm instance);
+  // DB-backed check second (authoritative across instances — see migration
+  // 0007). Anonymous and email-triggering, so this is the one that actually
+  // needs the cross-instance guarantee, not just a UX nicety.
+  if (isRateLimited(rateLimitKey) || (await isRateLimitedDb(rateLimitKey, 600, 5))) {
     return NextResponse.json(
       { message: "Too many messages sent. Please try again in a few minutes." },
       { status: 429 }

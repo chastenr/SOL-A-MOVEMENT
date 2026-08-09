@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ServiceFormValues } from "@/lib/validations";
 import { ServiceForm } from "@/components/admin/ServiceForm";
@@ -29,6 +30,7 @@ type ServiceDetailRow = {
 };
 
 export default async function EditServicePage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin();
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.from("services").select("*").eq("id", id).single();

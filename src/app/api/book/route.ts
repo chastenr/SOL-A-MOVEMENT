@@ -5,10 +5,13 @@ import { getServiceBySlug } from "@/lib/catalog/services";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase/admin";
 import { sendCustomerBookingEmail, sendOwnerBookingEmail } from "@/lib/email";
 import { getClientKey, isRateLimited } from "@/lib/rate-limit";
+import { isRateLimitedDb } from "@/lib/rate-limit-db";
 
 export async function POST(request: Request) {
   const rateLimitKey = getClientKey(request, "book");
-  if (isRateLimited(rateLimitKey)) {
+  // Same layered in-memory + DB-backed check as /api/contact — this is the
+  // other anonymous, email-triggering route (see migration 0007).
+  if (isRateLimited(rateLimitKey) || (await isRateLimitedDb(rateLimitKey, 600, 5))) {
     return NextResponse.json(
       { message: "Too many booking attempts. Please try again in a few minutes." },
       { status: 429 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireUserApi, AuthError } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getClientKey, isRateLimited } from "@/lib/rate-limit";
+import { isUuid } from "@/lib/utils";
 
 // Vercel serverless functions cap request bodies well under 4.5MB — stay
 // comfortably below that rather than an arbitrary "8MB is fine" guess.
@@ -30,6 +31,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   const { id: purchaseId } = await params;
+  if (!isUuid(purchaseId)) {
+    return NextResponse.json({ message: "Order not found." }, { status: 404 });
+  }
 
   const rateLimitKey = `${getClientKey(request, "receipt-upload")}:${user.id}`;
   if (isRateLimited(rateLimitKey, { windowMs: 15 * 60 * 1000, max: 5 })) {

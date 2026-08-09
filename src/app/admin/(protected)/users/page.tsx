@@ -4,6 +4,8 @@ import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminUsers, type AdminUserRole } from "@/lib/admin/users";
 import { fieldInputClasses } from "@/components/ui/Field";
 import { RoleSelect } from "@/components/admin/RoleSelect";
+import { InviteStaffForm } from "@/components/admin/InviteStaffForm";
+import { isSupabaseConfigured } from "@/lib/supabase/admin";
 
 export const metadata: Metadata = {
   title: "Users",
@@ -54,7 +56,22 @@ export default async function AdminUsersPage({
         Every account in the system. Changing a role takes effect immediately and is written to the audit log.
       </p>
 
-      <form method="GET" className="mt-6 flex flex-wrap gap-3">
+      <div className="mt-8 rounded-2xl border border-charcoal/10 bg-ivory p-6">
+        <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">Invite Staff</p>
+        {isSupabaseConfigured ? (
+          <div className="mt-4">
+            <InviteStaffForm />
+          </div>
+        ) : (
+          <p className="mt-2 text-sm text-charcoal/60">
+            Not available yet — this needs <code className="text-charcoal">SUPABASE_SERVICE_ROLE_KEY</code>{" "}
+            configured. Until then, ask staff to sign up at <code className="text-charcoal">/signup</code> and set
+            their role in the table below.
+          </p>
+        )}
+      </div>
+
+      <form method="GET" className="mt-8 flex flex-wrap gap-3">
         <input
           type="text"
           name="search"

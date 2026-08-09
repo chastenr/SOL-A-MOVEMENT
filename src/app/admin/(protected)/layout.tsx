@@ -14,7 +14,10 @@ const NAV = [
   { href: "/admin/security", label: "Security" },
 ] as const;
 
-const SUPER_ADMIN_NAV = [{ href: "/admin/users", label: "Users" }] as const;
+const SUPER_ADMIN_NAV = [
+  { href: "/admin/users", label: "Users" },
+  { href: "/admin/logs", label: "Activity Log" },
+] as const;
 
 const ROLE_BADGE: Record<string, string> = {
   super_admin: "bg-clay text-ivory",

@@ -74,7 +74,7 @@ export function Hero() {
               muted
               loop
               playsInline
-              poster="/videos/hero-poster.jpg"
+              poster="/videos/hero-poster.webp"
               aria-hidden
               className="h-full w-full object-cover"
             >

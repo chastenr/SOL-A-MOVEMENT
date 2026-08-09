@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { PackageFormValues } from "@/lib/validations";
 import { PackageForm } from "@/components/admin/PackageForm";
@@ -33,6 +34,7 @@ type PackageDetailRow = {
 };
 
 export default async function EditPackagePage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin();
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.from("packages").select("*").eq("id", id).single();

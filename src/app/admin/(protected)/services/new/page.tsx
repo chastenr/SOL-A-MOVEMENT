@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdmin } from "@/lib/auth/require-role";
 import type { ServiceFormValues } from "@/lib/validations";
 import { ServiceForm } from "@/components/admin/ServiceForm";
 
@@ -25,7 +26,8 @@ const DEFAULT_VALUES: ServiceFormValues = {
   sortOrder: 0,
 };
 
-export default function NewServicePage() {
+export default async function NewServicePage() {
+  await requireAdmin();
   return (
     <div>
       <h1 className="font-display text-2xl text-charcoal">Create Service</h1>

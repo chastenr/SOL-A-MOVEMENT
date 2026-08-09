@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdmin } from "@/lib/auth/require-role";
 import type { PackageFormValues } from "@/lib/validations";
 import { PackageForm } from "@/components/admin/PackageForm";
 
@@ -29,7 +30,8 @@ const DEFAULT_VALUES: PackageFormValues = {
   sortOrder: 0,
 };
 
-export default function NewPackagePage() {
+export default async function NewPackagePage() {
+  await requireAdmin();
   return (
     <div>
       <h1 className="font-display text-2xl text-charcoal">Create Package</h1>

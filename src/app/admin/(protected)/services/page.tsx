@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/Button";
 import { setServiceActiveAction } from "./actions";
@@ -20,6 +21,7 @@ type ServiceRow = {
 };
 
 export default async function AdminServicesPage() {
+  await requireAdmin();
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("services")

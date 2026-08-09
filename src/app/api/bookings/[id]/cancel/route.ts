@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireUserApi, AuthError } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRateLimited } from "@/lib/rate-limit";
+import { isUuid } from "@/lib/utils";
 
 const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0000: { status: 401, message: "Please sign in." },
@@ -19,6 +20,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   const { id: bookingId } = await params;
+  if (!isUuid(bookingId)) {
+    return NextResponse.json(
+      { message: "That booking could not be found or is no longer cancellable." },
+      { status: 404 }
+    );
+  }
 
   const rateLimitKey = `booking-cancel:${user.id}`;
   if (isRateLimited(rateLimitKey, { windowMs: 60 * 1000, max: 10 })) {

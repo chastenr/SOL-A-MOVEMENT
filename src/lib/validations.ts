@@ -180,3 +180,10 @@ export const classSessionFormSchema = z.object({
 });
 
 export type ClassSessionFormValues = z.infer<typeof classSessionFormSchema>;
+
+export const inviteStaffSchema = z.object({
+  email: z.string().trim().min(1, "Email is required.").email("Enter a valid email address."),
+  role: z.enum(["admin", "super_admin"]),
+});
+
+export type InviteStaffFormValues = z.infer<typeof inviteStaffSchema>;

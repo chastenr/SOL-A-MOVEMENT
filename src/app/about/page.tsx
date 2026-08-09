@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { images } from "@/data/images";
 import { siteConfig } from "@/data/site";
+import { founder } from "@/data/team";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { ImageReveal } from "@/components/ui/ImageReveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -86,34 +87,31 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-cream/40 py-14 sm:py-16">
-        <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
-          <AnimatedSection>
-            <SectionHeading
-              align="center"
-              eyebrow="Founder"
-              heading="Led with care and attention to detail."
-              className="mx-auto"
-            />
-          </AnimatedSection>
+      {founder && (
+        <section className="bg-cream/40 py-14 sm:py-16">
+          <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
+            <AnimatedSection>
+              <SectionHeading
+                align="center"
+                eyebrow="Founder"
+                heading="Led with care and attention to detail."
+                className="mx-auto"
+              />
+            </AnimatedSection>
 
-          <AnimatedSection className="mt-10 grid items-center gap-8 rounded-2xl bg-ivory p-6 sm:grid-cols-[200px_1fr] sm:p-10">
-            <div className="flex aspect-square items-center justify-center rounded-2xl bg-sand/60">
-              <span className="font-display text-5xl text-charcoal/40">V</span>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-clay">Founder photo to be added</p>
-              <p className="font-display mt-3 text-2xl text-charcoal">
-                [Founder name to be provided]
-              </p>
-              <p className="mt-4 max-w-xl text-charcoal/70">
-                [Founder biography provided by client] — this space is reserved for the Veora
-                founder&apos;s story, background and approach to movement, to be added once provided.
-              </p>
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
+            <AnimatedSection className="mt-10 grid items-center gap-8 rounded-2xl bg-ivory p-6 sm:grid-cols-[200px_1fr] sm:p-10">
+              <div className="flex aspect-square items-center justify-center rounded-2xl bg-sand/60">
+                <span className="font-display text-5xl text-charcoal/40">V</span>
+              </div>
+              <div>
+                <p className="font-display text-2xl text-charcoal">{founder.name}</p>
+                <p className="mt-1 text-sm uppercase tracking-[0.14em] text-clay">{founder.role}</p>
+                <p className="mt-4 max-w-xl text-charcoal/70">{founder.bio}</p>
+              </div>
+            </AnimatedSection>
+          </div>
+        </section>
+      )}
 
       <section className="mx-auto max-w-4xl px-6 py-14 text-center sm:px-8 sm:py-16">
         <AnimatedSection>

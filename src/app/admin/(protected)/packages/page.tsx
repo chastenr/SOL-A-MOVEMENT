@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/Button";
 import { setPackageActiveAction } from "./actions";
@@ -21,6 +22,7 @@ type PackageRow = {
 };
 
 export default async function AdminPackagesPage() {
+  await requireAdmin();
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("packages")
