@@ -100,11 +100,10 @@ body {
    progressive enhancement and accessibility fallbacks. */
 .text-reveal-target {
   opacity: 0;
-  translate: 0 18px;
+  translate: 0 14px;
   transition:
-    opacity 700ms var(--ease-veora),
-    translate 700ms var(--ease-veora);
-  transition-delay: var(--text-reveal-delay, 0ms);
+    opacity 1000ms var(--ease-veora),
+    translate 1000ms var(--ease-veora);
   will-change: opacity, translate;
 }
 
@@ -132,11 +131,11 @@ body {
    direction language as the rest of the site's scroll-reveal motion. */
 ::view-transition-old(page-enter),
 ::view-transition-old(page-exit) {
-  animation: 120ms ease-in both veora-page-out;
+  animation: 80ms ease-in both veora-page-out;
 }
 ::view-transition-new(page-enter),
 ::view-transition-new(page-exit) {
-  animation: 180ms ease-out 60ms both veora-page-in;
+  animation: 120ms ease-out both veora-page-in;
 }
 
 @keyframes veora-page-out {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname } from "next/navigation";
 
 const TEXT_ELEMENT_SELECTOR = [
   "h1",
@@ -50,13 +49,10 @@ function shouldReveal(element: Element): element is HTMLElement {
  * dialogs and other conditional UI.
  */
 export function TextRevealController() {
-  const pathname = usePathname();
-
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const targets = new Set<HTMLElement>();
-    let revealIndex = 0;
 
     const intersectionObserver = new IntersectionObserver(
       (entries) => {
@@ -67,7 +63,7 @@ export function TextRevealController() {
           intersectionObserver.unobserve(target);
         }
       },
-      { threshold: 0.08, rootMargin: "0px 0px -6%" }
+      { threshold: 0.05, rootMargin: "0px" }
     );
 
     function register(root: ParentNode) {
@@ -79,11 +75,21 @@ export function TextRevealController() {
         if (!shouldReveal(element) || element.dataset.textRevealReady === "true") continue;
 
         element.dataset.textRevealReady = "true";
-        element.style.setProperty("--text-reveal-delay", `${(revealIndex % 5) * 45}ms`);
         element.classList.add("text-reveal-target");
         targets.add(element);
         intersectionObserver.observe(element);
-        revealIndex += 1;
+      }
+    }
+
+    function unregister(root: ParentNode) {
+      const candidates: Element[] = [];
+      if (root instanceof HTMLElement && root.dataset.textRevealReady === "true") candidates.push(root);
+      candidates.push(...root.querySelectorAll("[data-text-reveal-ready='true']"));
+
+      for (const element of candidates) {
+        if (!(element instanceof HTMLElement)) continue;
+        intersectionObserver.unobserve(element);
+        targets.delete(element);
       }
     }
 
@@ -93,6 +99,9 @@ export function TextRevealController() {
       for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
           if (node instanceof Element) register(node);
+        }
+        for (const node of mutation.removedNodes) {
+          if (node instanceof Element) unregister(node);
         }
       }
     });
@@ -104,11 +113,10 @@ export function TextRevealController() {
       intersectionObserver.disconnect();
       for (const target of targets) {
         target.classList.remove("text-reveal-target", "text-reveal-visible");
-        target.style.removeProperty("--text-reveal-delay");
         delete target.dataset.textRevealReady;
       }
     };
-  }, [pathname]);
+  }, []);
 
   return null;
 }

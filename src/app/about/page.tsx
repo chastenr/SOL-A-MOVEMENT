@@ -29,12 +29,15 @@ export default function AboutPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-walnut via-walnut/40 to-walnut/10" />
         </div>
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-12 pt-28 sm:px-8 lg:px-12">
+        <AnimatedSection
+          y={18}
+          className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-12 pt-28 sm:px-8 lg:px-12"
+        >
           <p className="text-xs font-medium uppercase tracking-[0.3em] text-ivory/70">About Us</p>
           <h1 className="font-display balance mt-6 max-w-3xl text-4xl leading-[1.1] text-ivory sm:text-5xl md:text-6xl">
             A studio built around how movement should feel.
           </h1>
-        </div>
+        </AnimatedSection>
       </section>
 
       <section className="mx-auto max-w-3xl px-6 py-14 text-center sm:px-8 sm:py-16">
