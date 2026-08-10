@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { changePasswordSchema, type ChangePasswordFormValues } from "@/lib/validations";
@@ -9,6 +10,8 @@ import { Button } from "@/components/ui/Button";
 import { PasswordField } from "@/components/ui/PasswordField";
 
 export function ChangePasswordForm() {
+  const pathname = usePathname();
+  const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -29,6 +32,10 @@ export function ChangePasswordForm() {
     setSaved(false);
     try {
       const result = await changePasswordAction(values);
+      if ("requiresMfa" in result) {
+        router.push(`/admin/mfa?redirectTo=${encodeURIComponent(pathname)}`);
+        return;
+      }
       if ("error" in result) {
         setError(result.error);
         return;

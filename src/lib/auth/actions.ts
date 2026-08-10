@@ -1,7 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import {
   signUpSchema,
   loginSchema,
@@ -16,27 +15,12 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRateLimited, getActionClientKey } from "@/lib/rate-limit";
 import { normalizePhoneE164 } from "@/lib/phone";
 import { sanitizeRedirectTo } from "@/lib/utils";
+import { getAuthRedirectOrigin } from "@/lib/auth/request-origin";
 
 type ActionResult = { error: string } | { success: true };
 type SignUpResult = { error: string } | { success: true; needsEmailConfirmation: boolean };
 
 const GENERIC_ERROR = "Something went wrong. Please try again.";
-
-async function getAuthRedirectOrigin(): Promise<string> {
-  const requestHeaders = await headers();
-  const requestOrigin = requestHeaders.get("origin");
-  if (requestOrigin?.startsWith("http://") || requestOrigin?.startsWith("https://")) {
-    return requestOrigin;
-  }
-
-  const forwardedHost = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
-  if (forwardedHost) {
-    const protocol = requestHeaders.get("x-forwarded-proto") ?? (forwardedHost.includes("localhost") ? "http" : "https");
-    return `${protocol}://${forwardedHost}`;
-  }
-
-  return process.env.NEXT_PUBLIC_SITE_URL || "https://www.veorawellnessph.com";
-}
 
 export async function signUpAction(values: SignUpFormValues, redirectTo?: string): Promise<SignUpResult> {
   const parsed = signUpSchema.safeParse(values);

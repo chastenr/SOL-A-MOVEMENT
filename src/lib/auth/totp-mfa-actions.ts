@@ -8,7 +8,7 @@ const GENERIC_ERROR = "Something went wrong. Please try again.";
 
 type StartResult =
   | { error: string }
-  | { alreadyEnrolled: true }
+  | { alreadyEnrolled: true; factorId: string; challengeId: string }
   | { factorId: string; challengeId: string; qrCode: string; secret: string };
 
 /**
@@ -32,8 +32,18 @@ export async function startTotpEnrollmentAction(): Promise<StartResult> {
   const { data: factorsData, error: listError } = await supabase.auth.mfa.listFactors();
   if (listError) return { error: GENERIC_ERROR };
 
-  const alreadyEnrolled = (factorsData?.totp ?? []).some((f) => f.status === "verified");
-  if (alreadyEnrolled) return { alreadyEnrolled: true };
+  const alreadyEnrolled = (factorsData?.totp ?? []).find((f) => f.status === "verified");
+  if (alreadyEnrolled) {
+    const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+      factorId: alreadyEnrolled.id,
+    });
+    if (challengeError || !challengeData) return { error: GENERIC_ERROR };
+    return {
+      alreadyEnrolled: true,
+      factorId: alreadyEnrolled.id,
+      challengeId: challengeData.id,
+    };
+  }
 
   // Start clean on every attempt so a retry doesn't pile up dead unverified
   // factors from an earlier abandoned enrollment.
@@ -114,4 +124,3 @@ export async function verifyTotpEnrollmentAction(
 
   return { success: true };
 }
-

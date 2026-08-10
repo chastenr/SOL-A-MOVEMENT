@@ -5,8 +5,15 @@ import { requireUser } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { changePasswordSchema, changeEmailSchema, type ChangePasswordFormValues, type ChangeEmailFormValues } from "@/lib/validations";
 import { isRateLimited, getActionClientKey } from "@/lib/rate-limit";
+import { getAuthRedirectOrigin } from "@/lib/auth/request-origin";
 
-type ActionResult = { error: string } | { success: true };
+type ActionResult = { error: string } | { requiresMfa: true } | { success: true };
+
+async function requiresMfaStepUp() {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  return data?.currentLevel !== "aal2" && data?.nextLevel === "aal2";
+}
 
 export async function changePasswordAction(values: ChangePasswordFormValues): Promise<ActionResult> {
   const user = await requireUser();
@@ -17,6 +24,8 @@ export async function changePasswordAction(values: ChangePasswordFormValues): Pr
   if (isRateLimited(rateLimitKey, { windowMs: 15 * 60 * 1000, max: 5 })) {
     return { error: "Too many attempts. Please try again in a few minutes." };
   }
+
+  if (await requiresMfaStepUp()) return { requiresMfa: true };
 
   // Confirm the current password on a throwaway, session-less client rather
   // than the cookie-bound one — signing in there would persist a fresh
@@ -38,7 +47,7 @@ export async function changePasswordAction(values: ChangePasswordFormValues): Pr
   return { success: true };
 }
 
-type ChangeEmailResult = { error: string } | { success: true };
+type ChangeEmailResult = { error: string } | { requiresMfa: true } | { success: true };
 
 /**
  * Requests an email change via Supabase Auth's own flow — it sends a
@@ -57,10 +66,13 @@ export async function changeEmailAction(values: ChangeEmailFormValues): Promise<
     return { error: "Too many attempts. Please try again in a few minutes." };
   }
 
+  if (await requiresMfaStepUp()) return { requiresMfa: true };
+
   const supabase = await createSupabaseServerClient();
+  const authRedirectOrigin = await getAuthRedirectOrigin();
   const { error } = await supabase.auth.updateUser(
     { email: parsed.data.email },
-    { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/account/security` }
+    { emailRedirectTo: `${authRedirectOrigin}/auth/callback?next=/account/security` }
   );
   if (error) return { error: error.message || "Something went wrong. Please try again." };
 

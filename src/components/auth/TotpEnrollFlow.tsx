@@ -21,6 +21,7 @@ export function TotpEnrollFlow({ redirectTo }: { redirectTo: string }) {
   const [challengeId, setChallengeId] = useState<string | null>(null);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
+  const [isStepUp, setIsStepUp] = useState(false);
   const [code, setCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +36,10 @@ export function TotpEnrollFlow({ redirectTo }: { redirectTo: string }) {
         return;
       }
       if ("alreadyEnrolled" in result) {
-        setStep("success");
+        setIsStepUp(true);
+        setFactorId(result.factorId);
+        setChallengeId(result.challengeId);
+        setStep("scan");
         return;
       }
       setFactorId(result.factorId);
@@ -98,7 +102,9 @@ export function TotpEnrollFlow({ redirectTo }: { redirectTo: string }) {
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-charcoal text-ivory">
             <Check size={22} />
           </span>
-          <p className="font-display mt-6 text-2xl text-charcoal">Authenticator app connected.</p>
+          <p className="font-display mt-6 text-2xl text-charcoal">
+            {isStepUp ? "Identity verified." : "Authenticator app connected."}
+          </p>
           <p className="mt-2 max-w-sm text-charcoal/65">Taking you back now…</p>
         </motion.div>
       ) : step === "scan" ? (
@@ -106,10 +112,13 @@ export function TotpEnrollFlow({ redirectTo }: { redirectTo: string }) {
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-cream text-clay">
             <KeyRound size={20} aria-hidden />
           </span>
-          <p className="font-display mt-6 text-2xl text-charcoal">Scan with your authenticator app</p>
+          <p className="font-display mt-6 text-2xl text-charcoal">
+            {isStepUp ? "Enter your authenticator code" : "Scan with your authenticator app"}
+          </p>
           <p className="mt-2 max-w-sm text-center text-charcoal/65">
-            Use Google Authenticator, 1Password or a similar app to scan this code, then enter the 6-digit code
-            it generates.
+            {isStepUp
+              ? "Open your authenticator app and enter the current 6-digit code to continue."
+              : "Use Google Authenticator, 1Password or a similar app to scan this code, then enter the 6-digit code it generates."}
           </p>
 
           {qrCode && (
@@ -133,7 +142,7 @@ export function TotpEnrollFlow({ redirectTo }: { redirectTo: string }) {
           {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
           <Button type="submit" size="lg" disabled={submitting || code.length !== 6} className="mt-8 w-full max-w-xs">
-            {submitting ? "Verifying…" : "Verify & Enable"}
+            {submitting ? "Verifying…" : isStepUp ? "Verify & Continue" : "Verify & Enable"}
           </Button>
         </motion.form>
       ) : (
