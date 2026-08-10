@@ -100,9 +100,6 @@ export function Navbar() {
               <span className="font-display text-lg tracking-[0.06em] sm:text-xl">
                 {siteConfig.shortName}
               </span>
-              <span className="ml-1 hidden text-[10px] font-sans font-normal uppercase tracking-[0.22em] text-ivory/55 sm:inline">
-                Wellness Studio
-              </span>
             </Link>
           </motion.div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/data/site";
@@ -42,10 +43,14 @@ export function Footer() {
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-16 sm:px-8 sm:py-20 lg:px-12">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <p className="font-display text-2xl tracking-[0.06em]">{siteConfig.shortName}</p>
-            <p className="mt-1.5 text-[10px] uppercase tracking-[0.22em] text-ivory/50">
-              Wellness Studio
-            </p>
+            <div className="flex items-center gap-2.5">
+              {/* Natural brown reads fine here — unlike the navbar's
+                  semi-transparent pill, the footer's solid walnut background
+                  is dark enough on its own that the mark doesn't need to be
+                  inverted to ivory for contrast. */}
+              <Image src="/veora-mark.png" alt="" width={608} height={676} className="h-8 w-auto" />
+              <p className="font-display text-2xl tracking-[0.06em]">{siteConfig.shortName}</p>
+            </div>
             <p className="font-display mt-6 max-w-xs text-xl italic leading-snug text-ivory/80">
               {siteConfig.tagline}
             </p>
