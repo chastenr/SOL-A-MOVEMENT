@@ -3,16 +3,25 @@ import { siteConfig } from "@/data/site";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const fromEmail = process.env.RESEND_FROM_EMAIL || "Veora Wellness <onboarding@resend.dev>";
+
+// Legacy catch-all — kept only as a last-resort fallback below so a blank
+// env var during setup never means an email silently goes nowhere.
 const ownerEmail = process.env.OWNER_BOOKING_EMAIL;
 
-// Operational recipients for the credit-based booking system specifically
-// (distinct from ownerEmail above, which the older guest /api/book flow and
-// the contact form use). Configured via env so real staff addresses never
-// need to be hardcoded here — see .env.example. Falls back to ownerEmail so
-// nothing silently stops emailing if these two are never set.
+// Routine booking traffic (new reservations, guest booking requests) — goes
+// to the bookings inbox, not Bianca/Ashley's inboxes, so it doesn't compete
+// with the judgment calls below for attention.
 const bookingNotificationRecipients = [
   ...new Set(
-    [process.env.BOOKING_NOTIFICATION_EMAIL, process.env.OWNER_NOTIFICATION_EMAIL, ownerEmail].filter(
+    [process.env.BOOKING_NOTIFICATION_EMAIL, ownerEmail].filter((value): value is string => Boolean(value))
+  ),
+];
+
+// Anything that needs an owner's judgment call — a payment to approve or
+// reject, a contact-form inquiry — goes to both Bianca and Ashley.
+const ownerDecisionRecipients = [
+  ...new Set(
+    [process.env.OWNER_NOTIFICATION_EMAIL, process.env.ASHLEY_NOTIFICATION_EMAIL, ownerEmail].filter(
       (value): value is string => Boolean(value)
     )
   ),
@@ -62,7 +71,7 @@ export type BookingEmailPayload = {
 };
 
 export async function sendOwnerBookingEmail(booking: BookingEmailPayload) {
-  if (!resend || !ownerEmail) return { skipped: true as const };
+  if (!resend || bookingNotificationRecipients.length === 0) return { skipped: true as const };
 
   const fullName = `${booking.firstName} ${booking.lastName}`;
   const html = wrapper(
@@ -82,7 +91,7 @@ export async function sendOwnerBookingEmail(booking: BookingEmailPayload) {
 
   return resend.emails.send({
     from: fromEmail,
-    to: ownerEmail,
+    to: bookingNotificationRecipients,
     replyTo: booking.email,
     subject: `New Veora Booking — ${fullName} — ${booking.formattedDate}`,
     html,
@@ -139,7 +148,7 @@ export type PurchaseEmailPayload = {
 };
 
 export async function sendPaymentProofSubmittedEmail(purchase: PurchaseEmailPayload & { reviewUrl?: string }) {
-  if (!resend || bookingNotificationRecipients.length === 0) return { skipped: true as const };
+  if (!resend || ownerDecisionRecipients.length === 0) return { skipped: true as const };
 
   const html = wrapper(
     "Payment Proof Submitted",
@@ -158,7 +167,7 @@ export async function sendPaymentProofSubmittedEmail(purchase: PurchaseEmailPayl
 
   return resend.emails.send({
     from: fromEmail,
-    to: bookingNotificationRecipients,
+    to: ownerDecisionRecipients,
     subject: `Payment Proof Submitted — ${purchase.referenceNumber}`,
     html,
   });
@@ -390,7 +399,7 @@ export async function sendClassConfirmedEmail(booking: ClassScheduleEmailPayload
 }
 
 export async function sendContactEmail(contact: ContactEmailPayload) {
-  if (!resend || !ownerEmail) return { skipped: true as const };
+  if (!resend || ownerDecisionRecipients.length === 0) return { skipped: true as const };
 
   const fullName = `${contact.firstName} ${contact.lastName}`;
   const html = wrapper(
@@ -408,7 +417,7 @@ export async function sendContactEmail(contact: ContactEmailPayload) {
 
   return resend.emails.send({
     from: fromEmail,
-    to: ownerEmail,
+    to: ownerDecisionRecipients,
     replyTo: contact.email,
     subject: `New Veora Contact Message — ${fullName}`,
     html,

@@ -5,7 +5,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export const metadata: Metadata = {
   title: "Policies",
-  description: "Veora Wellness studio policies, booking terms and studio rental terms & conditions.",
+  description: "Veora Wellness studio policies, booking terms, privacy notice and cookie information.",
   alternates: { canonical: "/policies" },
 };
 
@@ -16,7 +16,7 @@ export default function PoliciesPage() {
         <SectionHeading
           eyebrow="Studio Policies"
           heading="Terms & conditions."
-          body="The policies below govern bookings, classes and studio rentals at Veora."
+          body="The policies below govern bookings, classes, studio rentals, privacy and website cookies at Veora."
         />
       </AnimatedSection>
 

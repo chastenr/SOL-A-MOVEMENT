@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/data/site";
+import { COOKIE_SETTINGS_EVENT } from "@/components/privacy/CookieConsent";
 
 function InstagramIcon({ size = 18 }: { size?: number }) {
   return (
@@ -100,7 +101,16 @@ export function Footer() {
         </div>
 
         <div className="mt-10 grid gap-2 border-t border-ivory/10 pt-6 text-[11px] text-ivory/45 sm:grid-cols-2">
-          <p>© 2026 {siteConfig.name}. All rights reserved.</p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <p>© 2026 {siteConfig.name}. All rights reserved.</p>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event(COOKIE_SETTINGS_EVENT))}
+              className="underline decoration-ivory/20 underline-offset-4 transition-colors hover:text-ivory/75"
+            >
+              Cookie settings
+            </button>
+          </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:justify-end sm:text-right">
             {siteConfig.hours.length > 0 ? (
               siteConfig.hours.map((entry, index) => (

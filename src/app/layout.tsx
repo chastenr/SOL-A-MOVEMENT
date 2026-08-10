@@ -5,6 +5,7 @@ import { siteConfig } from "@/data/site";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { TextRevealController } from "@/components/layout/TextRevealController";
+import { CookieConsent } from "@/components/privacy/CookieConsent";
 import { OrganizationSchema } from "@/components/seo/OrganizationSchema";
 
 const fraunces = Fraunces({
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
+        <CookieConsent />
       </body>
     </html>
   );

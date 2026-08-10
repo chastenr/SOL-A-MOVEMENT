@@ -148,4 +148,41 @@ export const policyDocuments: PolicyDocument[] = [
       },
     ],
   },
+  {
+    slug: "privacy-cookies",
+    title: "Privacy & Cookie Notice",
+    sections: [
+      {
+        heading: "Information We Process",
+        paragraphs: [
+          "When you create an account, purchase a package, make a booking or contact Veora Wellness, we process the information needed to provide that service, such as your name, contact details, account information, bookings, package credits and payment-confirmation records.",
+          "Veora uses reasonable administrative and technical safeguards and limits access to personal information to authorized personnel and service providers involved in operating the platform.",
+        ],
+      },
+      {
+        heading: "Essential Cookies",
+        paragraphs: [
+          "Essential cookies support secure sign-in, account sessions, booking functionality, site security, pre-launch access and your saved cookie preference. The website cannot provide all account and booking features without these cookies.",
+        ],
+      },
+      {
+        heading: "Optional Cookies",
+        paragraphs: [
+          "Optional analytics or experience cookies will be used only when they are introduced and the visitor has selected Accept cookies. Veora does not currently use advertising cookies or sell personal information through this website.",
+        ],
+      },
+      {
+        heading: "Your Choice",
+        paragraphs: [
+          "You may accept optional cookies or continue with necessary cookies only. The website saves this preference for up to one year. You can review or change your choice at any time through Cookie settings in the footer, and you can also delete cookies through your browser settings.",
+        ],
+      },
+      {
+        heading: "Contact",
+        paragraphs: [
+          "For questions about privacy, cookies or personal information handled through the website, contact biance.bookings@veorawellnessph.com.",
+        ],
+      },
+    ],
+  },
 ];

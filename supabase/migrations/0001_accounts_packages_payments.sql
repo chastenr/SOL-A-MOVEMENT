@@ -254,7 +254,7 @@ insert into public.locations
 values (
   'bacoor', 'Veora Wellness — Bacoor',
   '2nd Floor, EMRADEE Building, Daang Hari Road', 'Molino IV, Bacoor, Cavite, 4102, Philippines',
-  '+63 917 319 4772', 'hello@veorawellness.com', 'hello@veorawellness.com',
+  '+63 917 319 4772', 'biance.bookings@veorawellnessph.com', 'biance.bookings@veorawellnessph.com',
   'https://www.google.com/maps/search/?api=1&query=14.4108087,120.9503414',
   14.4108087, 120.9503414,
   'Studio hours will be announced closer to opening. Contact us for current availability.',
