@@ -18,6 +18,7 @@ async function callBookingRpc(fnName: string, bookingId: string): Promise<void> 
   revalidatePath("/admin/bookings");
   revalidatePath(`/admin/bookings/${bookingId}`);
   revalidatePath("/admin/calendar");
+  revalidatePath("/admin");
 }
 
 // Refunds the credit and frees the session slot — see

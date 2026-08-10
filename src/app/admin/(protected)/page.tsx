@@ -1,11 +1,28 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getManilaDayRange } from "@/lib/booking-cutoff";
 import { getDisplayStatus, STATUS_STYLES } from "@/lib/class-session-status";
+import { getAdminBookings, type AdminBookingRow } from "@/lib/admin/bookings";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { cancelBookingAction, completeBookingAction, noShowBookingAction } from "./bookings/actions";
+
+const BOOKING_STATUS_LABEL: Record<AdminBookingRow["status"], string> = {
+  booked: "Confirmed",
+  completed: "Completed",
+  cancelled: "Cancelled",
+  no_show: "No Show",
+};
+
+const BOOKING_STATUS_BADGE: Record<AdminBookingRow["status"], string> = {
+  booked: "bg-clay/10 text-clay",
+  completed: "bg-emerald-100 text-emerald-700",
+  cancelled: "bg-charcoal/10 text-charcoal/50",
+  no_show: "bg-red-100 text-red-700",
+};
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",
@@ -48,8 +65,16 @@ async function getTodayStats() {
   const rows = bookings ?? [];
   const now = new Date();
 
+  // Same [start, end) Manila-day window as the query above, so "who's
+  // booked today" always matches the counts above it — not two independently
+  // -computed ideas of "today" drifting apart near midnight.
+  const todayBookings = (await getAdminBookings({ from: start.toISOString(), to: end.toISOString() })).sort(
+    (a, b) => new Date(a.session?.startAt ?? 0).getTime() - new Date(b.session?.startAt ?? 0).getTime()
+  );
+
   return {
     sessions,
+    todayBookings,
     classesToday: sessions.filter((s) => s.status !== "cancelled").length,
     peopleBooked: rows.filter((b) => b.status !== "cancelled").length,
     checkedIn: rows.filter((b) => b.status === "completed").length,
@@ -127,6 +152,78 @@ export default async function AdminDashboardPage() {
           </div>
         )}
       </div>
+
+      <div className="mt-10 flex items-center justify-between gap-4">
+        <p className="text-xs uppercase tracking-[0.15em] text-charcoal/45">Today&rsquo;s Bookings</p>
+        <Link href="/admin/bookings" className="text-xs underline underline-offset-2 hover:text-charcoal">
+          View all bookings
+        </Link>
+      </div>
+
+      {today.todayBookings.length === 0 ? (
+        <p className="mt-3 text-sm text-charcoal/55">No one is booked into a class today yet.</p>
+      ) : (
+        <div className="mt-3 overflow-x-auto rounded-xl border border-charcoal/10 bg-ivory">
+          <table className="w-full min-w-[900px] text-left text-sm">
+            <thead className="border-b border-charcoal/10 text-xs uppercase tracking-[0.08em] text-charcoal/45">
+              <tr>
+                <th className="px-4 py-3">Time</th>
+                <th className="px-4 py-3">Customer</th>
+                <th className="px-4 py-3">Class</th>
+                <th className="px-4 py-3">Coach</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {today.todayBookings.map((booking) => (
+                <tr key={booking.id} className="border-b border-charcoal/5 last:border-0">
+                  <td className="px-4 py-3 text-charcoal/70">
+                    {booking.session ? format(new Date(booking.session.startAt), "h:mm a") : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <p className="text-charcoal">{booking.customer.name}</p>
+                    <p className="text-xs text-charcoal/45">{booking.customer.email}</p>
+                  </td>
+                  <td className="px-4 py-3 text-charcoal/70">{booking.session?.className ?? "—"}</td>
+                  <td className="px-4 py-3 text-charcoal/70">{booking.session?.instructor ?? "TBA"}</td>
+                  <td className="px-4 py-3">
+                    <span className={`rounded-full px-2.5 py-1 text-xs ${BOOKING_STATUS_BADGE[booking.status]}`}>
+                      {BOOKING_STATUS_LABEL[booking.status]}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-3 whitespace-nowrap">
+                      {booking.status === "booked" && (
+                        <>
+                          <form action={completeBookingAction.bind(null, booking.id)}>
+                            <button type="submit" className="text-xs underline underline-offset-2 hover:text-charcoal">
+                              Complete
+                            </button>
+                          </form>
+                          <form action={noShowBookingAction.bind(null, booking.id)}>
+                            <button type="submit" className="text-xs text-charcoal/50 underline underline-offset-2 hover:text-red-600">
+                              No Show
+                            </button>
+                          </form>
+                          <form action={cancelBookingAction.bind(null, booking.id)}>
+                            <button type="submit" className="text-xs text-red-600 underline underline-offset-2 hover:text-red-700">
+                              Cancel
+                            </button>
+                          </form>
+                        </>
+                      )}
+                      <Link href={`/admin/bookings/${booking.id}`} className="text-xs underline underline-offset-2 hover:text-charcoal">
+                        View
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-charcoal/10 bg-ivory p-6">
