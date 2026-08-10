@@ -44,12 +44,18 @@ export function Footer() {
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2.5">
-              {/* Natural brown reads fine here — unlike the navbar's
-                  semi-transparent pill, the footer's solid walnut background
-                  is dark enough on its own that the mark doesn't need to be
-                  inverted to ivory for contrast. */}
-              <Image src="/veora-mark.png" alt="" width={608} height={676} className="h-8 w-auto" />
-              <p className="font-display text-2xl tracking-[0.06em]">{siteConfig.shortName}</p>
+              {/* Same brightness-0 invert as the navbar mark — the source art
+                  is brown, which turned out too close to this footer's own
+                  walnut background to read clearly; forcing it to ivory
+                  matches the navbar treatment and actually shows up here. */}
+              <Image
+                src="/veora-mark.png"
+                alt=""
+                width={608}
+                height={676}
+                className="h-8 w-auto brightness-0 invert"
+              />
+              <p className="font-display text-2xl uppercase tracking-[0.06em]">{siteConfig.shortName}</p>
             </div>
             <p className="font-display mt-6 max-w-xs text-xl italic leading-snug text-ivory/80">
               {siteConfig.tagline}

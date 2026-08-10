@@ -97,7 +97,7 @@ export function Navbar() {
                 // deliberately light-colored for the same reason.
                 className="h-7 w-auto brightness-0 invert drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)] sm:h-8"
               />
-              <span className="font-display text-lg tracking-[0.06em] sm:text-xl">
+              <span className="font-display text-lg uppercase tracking-[0.06em] sm:text-xl">
                 {siteConfig.shortName}
               </span>
             </Link>
