@@ -19,15 +19,28 @@ type InstructorRow = {
   active: boolean;
 };
 
-export default async function AdminCoachesPage() {
+export default async function AdminCoachesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ added?: string; updated?: string; deleted?: string }>;
+}) {
   await requireAdmin();
   const supabase = await createSupabaseServerClient();
+  const params = await searchParams;
 
   const { data } = await supabase
     .from("instructors")
     .select("id, name, bio, photo_url, active")
     .order("name");
   const coaches = (data as InstructorRow[] | null) ?? [];
+
+  const successMessage = params.added
+    ? "Coach added."
+    : params.updated
+      ? "Coach updated."
+      : params.deleted
+        ? "Coach deleted."
+        : null;
 
   return (
     <div>
@@ -39,6 +52,12 @@ export default async function AdminCoachesPage() {
         Real coach profiles — active coaches appear in the dropdown on <code>/admin/classes/new</code>{" "}
         when scheduling a session, and their name shows to customers on the schedule and booking pages.
       </p>
+
+      {successMessage && (
+        <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-700">
+          {successMessage}
+        </p>
+      )}
 
       {coaches.length === 0 ? (
         <p className="mt-8 text-charcoal/60">No coaches yet. Add one above.</p>

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isHeic, convertHeicToJpeg } from "@/lib/heic";
@@ -105,4 +106,5 @@ export async function deleteCoachAction(id: string): Promise<void> {
 
   revalidatePath("/admin/coaches");
   revalidatePath("/admin/classes");
+  redirect("/admin/coaches?deleted=1");
 }

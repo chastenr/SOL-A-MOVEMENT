@@ -54,7 +54,7 @@ export function CoachForm({ coach }: { coach?: Coach }) {
         setError(result.error);
         return;
       }
-      router.push("/admin/coaches");
+      router.push(`/admin/coaches?${coach ? "updated" : "added"}=1`);
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
