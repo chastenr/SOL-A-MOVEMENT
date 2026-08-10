@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/Button";
+import { CoachAvatar } from "@/components/admin/CoachAvatar";
 import { deleteCoachAction } from "./actions";
 
 export const metadata: Metadata = {
@@ -45,14 +46,7 @@ export default async function AdminCoachesPage() {
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {coaches.map((coach) => (
             <div key={coach.id} className="flex gap-4 rounded-2xl border border-charcoal/10 bg-ivory p-5">
-              {coach.photo_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={coach.photo_url} alt="" className="h-14 w-14 shrink-0 rounded-full object-cover" />
-              ) : (
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-charcoal/10 text-lg text-charcoal/40">
-                  {coach.name.charAt(0)}
-                </div>
-              )}
+              <CoachAvatar name={coach.name} photoUrl={coach.photo_url} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <Link href={`/admin/coaches/${coach.id}`} className="font-medium text-charcoal hover:underline">

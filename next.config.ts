@@ -39,7 +39,12 @@ const cspDirectives = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: https://images.pexels.com https://ik.imagekit.io https://images.unsplash.com https://upload.wikimedia.org`,
+  // Supabase Storage host included so admin-uploaded images (coach photos,
+  // payment QR codes, receipts) actually render — these are plain <img>
+  // tags pointing at runtime URLs, not next/image, so Next's own
+  // remotePatterns config below doesn't cover them; CSP is a separate gate
+  // that blocks the browser's image *request* regardless of that.
+  `img-src 'self' data: https://images.pexels.com https://ik.imagekit.io https://images.unsplash.com https://upload.wikimedia.org${supabaseUrl ? ` ${supabaseUrl}` : ""}`,
   "font-src 'self'",
   `connect-src 'self'${supabaseUrl ? ` ${supabaseUrl}` : ""}`,
   "frame-src 'none'",
