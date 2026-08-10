@@ -21,6 +21,7 @@ export function CoachForm({ coach }: { coach?: Coach }) {
   const [active, setActive] = useState(coach?.active ?? true);
   const [photoPreview, setPhotoPreview] = useState<string | null>(coach?.photoUrl ?? null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [previewError, setPreviewError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,6 +30,7 @@ export function CoachForm({ coach }: { coach?: Coach }) {
     if (!file) return;
     setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
+    setPreviewError(false);
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -78,10 +80,15 @@ export function CoachForm({ coach }: { coach?: Coach }) {
 
       <Field label="Photo (optional)">
         <div className="flex items-center gap-4">
-          {photoPreview && (
+          {photoPreview && !previewError && (
             // Admin-uploaded, runtime URL — same reasoning as payment_settings.qr_image_url
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={photoPreview} alt="" className="h-16 w-16 rounded-full object-cover" />
+            <img
+              src={photoPreview}
+              alt=""
+              className="h-16 w-16 rounded-full object-cover"
+              onError={() => setPreviewError(true)}
+            />
           )}
           <input
             type="file"
@@ -90,7 +97,14 @@ export function CoachForm({ coach }: { coach?: Coach }) {
             className="text-sm text-charcoal/70 file:mr-3 file:rounded-full file:border-0 file:bg-cream file:px-4 file:py-2 file:text-xs file:font-medium file:uppercase file:tracking-[0.1em] file:text-charcoal hover:file:bg-sand"
           />
         </div>
-        <p className="mt-1 text-xs text-charcoal/40">JPEG, PNG or WebP, up to 4MB.</p>
+        {previewError ? (
+          <p className="mt-1 text-xs text-red-600">
+            Couldn&rsquo;t load that as an image. A common cause: an iPhone photo saved with a .png/.jpg name
+            that&rsquo;s still actually in HEIC format — re-save or export it as a JPEG/PNG first, then try again.
+          </p>
+        ) : (
+          <p className="mt-1 text-xs text-charcoal/40">JPEG, PNG or WebP, up to 4MB.</p>
+        )}
       </Field>
 
       <label className="flex items-center gap-2 text-sm text-charcoal/70">

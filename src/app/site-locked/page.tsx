@@ -23,7 +23,7 @@ export default async function SiteLockedPage({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-ivory px-6 text-center">
-      <Image src="/veora-mark.png" alt="" width={342} height={360} priority className="h-12 w-auto" />
+      <Image src="/veora-mark.png" alt="" width={608} height={676} priority className="h-12 w-auto" />
       <p className="mt-6 text-xs uppercase tracking-[0.3em] text-charcoal/45">{siteConfig.name}</p>
       <h1 className="font-display balance mt-5 max-w-md text-2xl text-charcoal sm:text-3xl">
         This site is under construction.

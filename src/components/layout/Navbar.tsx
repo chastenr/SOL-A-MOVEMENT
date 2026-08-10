@@ -88,10 +88,14 @@ export function Navbar() {
               <Image
                 src="/veora-mark.png"
                 alt=""
-                width={342}
-                height={360}
+                width={608}
+                height={676}
                 priority
-                className="h-7 w-auto drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)] sm:h-8"
+                // The source art is brown (matches the logo everywhere it sits
+                // on a light background) — this pill is dark, so it's forced
+                // to ivory here the same way the taupe mark it replaced was
+                // deliberately light-colored for the same reason.
+                className="h-7 w-auto brightness-0 invert drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)] sm:h-8"
               />
               <span className="font-display text-lg tracking-[0.06em] sm:text-xl">
                 {siteConfig.shortName}
