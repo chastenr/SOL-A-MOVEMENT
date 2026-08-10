@@ -84,7 +84,7 @@ export function Navbar() {
           className="pointer-events-auto mx-auto flex h-[3.75rem] max-w-7xl items-center justify-between gap-3 rounded-full border border-ivory/10 bg-walnut/55 px-4 shadow-[0_10px_40px_-18px_rgba(20,14,10,0.55)] backdrop-blur-xl sm:h-[4.25rem] sm:px-6"
         >
           <motion.div variants={leftMotion} className="min-w-0">
-            <Link href="/" className="flex shrink-0 items-center gap-2 text-ivory">
+            <Link href="/" className="flex shrink-0 items-center gap-3 text-ivory">
               <Image
                 src="/veora-mark.png"
                 alt=""
@@ -97,9 +97,14 @@ export function Navbar() {
                 // deliberately light-colored for the same reason.
                 className="h-7 w-auto brightness-0 invert drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)] sm:h-8"
               />
-              <span className="font-display text-lg uppercase tracking-[0.06em] sm:text-xl">
-                {siteConfig.shortName}
-              </span>
+              <Image
+                src="/veora-wordmark.png"
+                alt={siteConfig.shortName}
+                width={1218}
+                height={189}
+                priority
+                className="h-5 w-auto brightness-0 invert drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)] sm:h-6"
+              />
             </Link>
           </motion.div>
 

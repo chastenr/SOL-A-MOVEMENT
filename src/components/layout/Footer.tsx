@@ -43,7 +43,7 @@ export function Footer() {
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-16 sm:px-8 sm:py-20 lg:px-12">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-3.5">
               {/* Same brightness-0 invert as the navbar mark — the source art
                   is brown, which turned out too close to this footer's own
                   walnut background to read clearly; forcing it to ivory
@@ -55,7 +55,13 @@ export function Footer() {
                 height={676}
                 className="h-8 w-auto brightness-0 invert"
               />
-              <p className="font-display text-2xl uppercase tracking-[0.06em]">{siteConfig.shortName}</p>
+              <Image
+                src="/veora-wordmark.png"
+                alt={siteConfig.shortName}
+                width={1218}
+                height={189}
+                className="h-6 w-auto brightness-0 invert"
+              />
             </div>
             <p className="font-display mt-6 max-w-xs text-xl italic leading-snug text-ivory/80">
               {siteConfig.tagline}
