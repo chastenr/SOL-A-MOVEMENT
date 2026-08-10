@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminBookings, type AdminBookingStatus } from "@/lib/admin/bookings";
 import { fieldInputClasses } from "@/components/ui/Field";
+import { cancelBookingAction, completeBookingAction, noShowBookingAction } from "./actions";
 
 export const metadata: Metadata = {
   title: "Bookings",
@@ -100,7 +101,7 @@ export default async function AdminBookingsPage({
         </p>
       ) : (
         <div className="mt-6 overflow-x-auto rounded-xl border border-charcoal/10 bg-ivory">
-          <table className="w-full min-w-[960px] text-left text-sm">
+          <table className="w-full min-w-[1080px] text-left text-sm">
             <thead className="border-b border-charcoal/10 text-xs uppercase tracking-[0.08em] text-charcoal/45">
               <tr>
                 <th className="px-4 py-3">Reference</th>
@@ -136,10 +137,31 @@ export default async function AdminBookingsPage({
                       {STATUS_LABEL[booking.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link href={`/admin/bookings/${booking.id}`} className="text-xs underline underline-offset-2 hover:text-charcoal">
-                      View
-                    </Link>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-3 whitespace-nowrap">
+                      {booking.status === "booked" && (
+                        <>
+                          <form action={completeBookingAction.bind(null, booking.id)}>
+                            <button type="submit" className="text-xs underline underline-offset-2 hover:text-charcoal">
+                              Complete
+                            </button>
+                          </form>
+                          <form action={noShowBookingAction.bind(null, booking.id)}>
+                            <button type="submit" className="text-xs text-charcoal/50 underline underline-offset-2 hover:text-red-600">
+                              No Show
+                            </button>
+                          </form>
+                          <form action={cancelBookingAction.bind(null, booking.id)}>
+                            <button type="submit" className="text-xs text-red-600 underline underline-offset-2 hover:text-red-700">
+                              Cancel
+                            </button>
+                          </form>
+                        </>
+                      )}
+                      <Link href={`/admin/bookings/${booking.id}`} className="text-xs underline underline-offset-2 hover:text-charcoal">
+                        View
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}
