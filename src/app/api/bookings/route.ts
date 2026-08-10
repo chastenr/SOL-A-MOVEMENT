@@ -20,6 +20,16 @@ const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0006: { status: 409, message: "Sorry, this class just filled up." },
   P0009: { status: 409, message: "Bookings close at 10:00 PM the evening before class." },
   P0010: { status: 409, message: "Bookings are currently closed for this class." },
+  // book_class_session() takes row locks on the package and session (see
+  // migration 0013) so two overlapping requests for the same booking
+  // normally just serialize and the second gets a proper P0005 above — but
+  // under real contention Postgres/the pooler can still time out the wait
+  // instead of granting it. These codes are that "briefly busy," not a real
+  // failure, so they get a retry-friendly message instead of the generic one.
+  "55P03": { status: 409, message: "That's taking longer than expected — please try again." },
+  "40001": { status: 409, message: "That's taking longer than expected — please try again." },
+  "40P01": { status: 409, message: "That's taking longer than expected — please try again." },
+  "57014": { status: 409, message: "That's taking longer than expected — please try again." },
 };
 
 /**
@@ -35,7 +45,14 @@ export async function POST(request: Request) {
     user = await requireUserApi();
   } catch (error) {
     if (error instanceof AuthError) return NextResponse.json({ message: error.message }, { status: error.status });
-    throw error;
+    // Same reasoning as the big try below: getAuthedUser() normally just
+    // returns null on a failed check, but a genuine exception here (e.g. a
+    // JWKS fetch hiccup inside getClaims()) used to be rethrown past this
+    // function entirely, so Next.js rendered its own non-JSON error page and
+    // the customer saw a contentless "Something went wrong" with no log line
+    // to explain why.
+    console.error("[/api/bookings] requireUserApi threw unexpectedly", { error });
+    return NextResponse.json({ message: "Something went wrong. Please try again." }, { status: 500 });
   }
 
   // Everything below can hit the network (Postgres, the pooler) — a
