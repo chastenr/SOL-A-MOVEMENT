@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { classSessionFormSchema, type ClassSessionFormValues } from "@/lib/validations";
 import { sendClassCancelledByStudioEmail } from "@/lib/email";
+import { isSmsConfigured, sendSms } from "@/lib/sms";
 import { CLASS_DURATION_MINUTES, getMinutesSinceMidnight, manilaLocalToUtc } from "@/lib/studio-hours";
 
 type ActionResult = { error: string } | { success: true };
@@ -218,26 +219,37 @@ export async function cancelClassSessionAction(sessionId: string): Promise<Cance
     const userIds = [...new Set(rows.map((row) => row.user_id))];
     const packageIds = [...new Set(rows.map((row) => row.customer_package_id))];
     const [{ data: profiles }, { data: packages }] = await Promise.all([
-      supabase.from("profiles").select("id, first_name, email").in("id", userIds),
+      supabase.from("profiles").select("id, first_name, email, mobile_number").in("id", userIds),
       supabase.from("customer_packages").select("id, package_name_snapshot").in("id", packageIds),
     ]);
     const profileById = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
     const packageNameById = new Map((packages ?? []).map((pkg) => [pkg.id, pkg.package_name_snapshot]));
 
     await Promise.allSettled(
-      rows.map((row) => {
+      rows.flatMap((row) => {
         const profile = profileById.get(row.user_id);
-        if (!profile) return Promise.resolve();
-        return sendClassCancelledByStudioEmail({
-          customerFirstName: profile.first_name || "there",
-          customerEmail: profile.email,
-          className,
-          coachName,
-          formattedDate,
-          time,
-          packageName: packageNameById.get(row.customer_package_id) ?? "your package",
-          sessionsRemaining: row.remaining_credits,
-        });
+        if (!profile) return [];
+        const notifications: Promise<unknown>[] = [
+          sendClassCancelledByStudioEmail({
+            customerFirstName: profile.first_name || "there",
+            customerEmail: profile.email,
+            className,
+            coachName,
+            formattedDate,
+            time,
+            packageName: packageNameById.get(row.customer_package_id) ?? "your package",
+            sessionsRemaining: row.remaining_credits,
+          }),
+        ];
+        if (isSmsConfigured && profile.mobile_number) {
+          notifications.push(
+            sendSms({
+              to: profile.mobile_number,
+              body: `Veora Wellness: Your ${className} class on ${formattedDate} at ${time} was cancelled. Your credit has been returned.`,
+            })
+          );
+        }
+        return notifications;
       })
     );
   }

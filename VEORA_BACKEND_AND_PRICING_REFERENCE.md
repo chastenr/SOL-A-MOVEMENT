@@ -106,8 +106,8 @@ Current technical size and verification:
 Important current limitation:
 
 - Authenticator-app MFA works without SMS.
-- Phone/SMS verification requires an external SMS provider to be configured in Supabase.
-- The custom Twilio notification sender is scaffolded but not implemented.
+- Phone/SMS verification still requires an external SMS provider or custom Send SMS hook to be configured in Supabase Auth; it is separate from transactional notifications.
+- Semaphore transactional SMS delivery is implemented for booking receipts and class confirmation/cancellation notices. Production delivery remains disabled until Veora has an approved sender name and the server-side deployment variables are configured.
 - Mandatory phone verification and mandatory administrator MFA are disabled by default until the required provider and launch configuration are confirmed.
 
 ## 5. Currently Built — Customer Portal
@@ -254,7 +254,7 @@ Important current limitation:
 - If enrollment meets the minimum, the system records the attendance check and confirms the class
 - Confirmation email to booked customers
 - Idempotent backend functions to prevent repeated cancellation/refund processing
-- SMS notification hooks are present, but SMS is only attempted when a future provider is fully configured
+- Semaphore SMS notifications for booking receipts and class confirmation/cancellation, enabled only when both the server-side API key and approved sender name are configured
 
 Current Vercel schedules:
 
@@ -508,7 +508,7 @@ Do not describe the following as completed:
 - Automatic GCash payment confirmation
 - Payment-provider webhooks
 - Automatic bank/payment-provider refunds
-- Production Twilio SMS delivery
+- Production Semaphore SMS activation (code is complete; approved sender name and deployment secrets are still required)
 - SMS booking reminders
 - Mandatory phone verification in production
 - Membership subscriptions with automatic recurring billing
@@ -620,7 +620,7 @@ Approximate production services as of August 2026:
 - Resend: free tier may be sufficient initially; Pro starts at USD 20 per month
 - Google Workspace Business Starter: approximately USD 6.30 per user per month with an annual commitment, depending on current regional billing
 - Domain registration/renewal: depends on registrar and domain extension
-- SMS/Twilio: provider account and per-message usage charges if added
+- Semaphore SMS: prepaid credits and per-message usage charges
 - PayMongo/payment gateway: transaction fees if added
 
 Expected initial production-provider budget: approximately PHP 3,000–PHP 6,000 per month, depending on exchange rates, number of email users, email volume, traffic, storage, and paid add-ons.
@@ -631,7 +631,7 @@ Each item below is additional scope:
 
 - PayMongo automatic payments and secure webhooks: PHP 40,000–PHP 70,000
 - Automatic refund workflow through the payment provider: PHP 20,000–PHP 40,000 in addition to payment integration
-- Twilio/SMS notifications and production phone verification: PHP 20,000–PHP 35,000 plus usage
+- Supabase Auth phone-verification hook/provider setup: separately scoped, plus SMS usage
 - Automated booking reminders: PHP 15,000–PHP 30,000 plus email/SMS usage
 - Memberships and recurring billing: PHP 40,000–PHP 80,000
 - Customer waitlist and automatic promotion: PHP 20,000–PHP 35,000

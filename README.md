@@ -18,6 +18,9 @@ See `.env.example`. Everything is optional except what you intend to use:
 
 - **Email (Resend)** — set `RESEND_API_KEY`, `RESEND_FROM_EMAIL` and `OWNER_BOOKING_EMAIL` to send real booking/contact emails. Without these, the booking and contact flows still work end-to-end (validation, success screens) but emails are silently skipped.
 - **Supabase** — set `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to persist bookings and enforce double-booking protection. Run `supabase/schema.sql` in the Supabase SQL editor first. Without these, booking storage and the availability check are skipped.
+- **SMS (Semaphore)** — set the server-only `SEMAPHORE_API_KEY` and an approved `SEMAPHORE_SENDER_NAME` to send booking and class-status texts. If either value is missing, SMS is safely skipped and email remains the fallback. Never expose the key with a `NEXT_PUBLIC_` prefix.
+
+Semaphore transactional messages do not configure Supabase Auth phone verification by themselves. Customer/admin SMS verification stays disabled until a supported Supabase phone provider or custom Send SMS hook is configured and tested.
 
 ## Editing content
 

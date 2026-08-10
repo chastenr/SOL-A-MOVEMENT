@@ -9,6 +9,7 @@ import { centavosToPeso } from "@/lib/money";
 import { getArrivalTime } from "@/lib/studio-hours";
 import { formatBookingReference } from "@/lib/utils";
 import { sendClassBookingConfirmationEmail, sendClassBookingNotificationEmail } from "@/lib/email";
+import { isSmsConfigured, sendSms } from "@/lib/sms";
 
 const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0000: { status: 401, message: "Please sign in." },
@@ -230,5 +231,13 @@ async function notifyBookingCreated(
       sessionsRemaining: remainingCredits,
       status: "Confirmed",
     }),
+    ...(isSmsConfigured && user?.mobile_number
+      ? [
+          sendSms({
+            to: user.mobile_number,
+            body: `Veora Wellness: Your ${className} class is booked for ${formattedDate} at ${time}. Ref ${formatBookingReference(bookingId)}. Credits left: ${remainingCredits}.`,
+          }),
+        ]
+      : []),
   ]);
 }

@@ -6,6 +6,7 @@ import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase/admin";
 import { sendCustomerBookingEmail, sendOwnerBookingEmail } from "@/lib/email";
 import { getClientKey, isRateLimited } from "@/lib/rate-limit";
 import { isRateLimitedDb } from "@/lib/rate-limit-db";
+import { isSmsConfigured, sendSms } from "@/lib/sms";
 
 export async function POST(request: Request) {
   const rateLimitKey = getClientKey(request, "book");
@@ -109,6 +110,14 @@ export async function POST(request: Request) {
   await Promise.allSettled([
     sendOwnerBookingEmail(emailPayload),
     sendCustomerBookingEmail(emailPayload),
+    ...(isSmsConfigured
+      ? [
+          sendSms({
+            to: booking.phone,
+            body: `Veora Wellness: We've received your ${service.name} reservation for ${formattedDate} at ${booking.time}.`,
+          }),
+        ]
+      : []),
   ]);
 
   return NextResponse.json({ success: true });
