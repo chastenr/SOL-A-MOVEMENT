@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
+import { requireUser } from "@/lib/auth/require-role";
 
 export const metadata: Metadata = {
   title: "Reset Password",
@@ -14,6 +15,7 @@ type ResetPasswordPageProps = {
 };
 
 export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
+  await requireUser();
   const params = await searchParams;
 
   return (

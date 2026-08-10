@@ -14,6 +14,9 @@ const PUBLIC_EXCEPTIONS = ["/admin/login", "/admin/mfa"];
 // /account (like the other auth routes below) skipped the "set a password"
 // step entirely.
 const AUTH_ROUTES = ["/login", "/signup", "/forgot-password"];
+// Recovery still requires a valid single-use token. These routes bypass only
+// the temporary marketing-site password so the email can open the form.
+const SITE_LOCK_PUBLIC_AUTH_PATHS = ["/auth/confirm", "/auth/callback", "/reset-password"];
 
 /**
  * Whole-site password gate for pre-launch — a plain on-brand password page
@@ -27,6 +30,7 @@ const AUTH_ROUTES = ["/login", "/signup", "/forgot-password"];
 function checkSiteLock(request: NextRequest): NextResponse | null {
   if (!SITE_LOCKED || process.env.NODE_ENV === "development") return null;
   if (request.nextUrl.pathname === SITE_LOCK_PATH) return null;
+  if (SITE_LOCK_PUBLIC_AUTH_PATHS.some((path) => request.nextUrl.pathname.startsWith(path))) return null;
 
   const cookie = request.cookies.get(SITE_LOCK_COOKIE)?.value;
   if (cookie === getSitePassword()) return null;

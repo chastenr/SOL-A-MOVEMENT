@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import {
   signUpSchema,
   loginSchema,
@@ -20,6 +21,22 @@ type ActionResult = { error: string } | { success: true };
 type SignUpResult = { error: string } | { success: true; needsEmailConfirmation: boolean };
 
 const GENERIC_ERROR = "Something went wrong. Please try again.";
+
+async function getAuthRedirectOrigin(): Promise<string> {
+  const requestHeaders = await headers();
+  const requestOrigin = requestHeaders.get("origin");
+  if (requestOrigin?.startsWith("http://") || requestOrigin?.startsWith("https://")) {
+    return requestOrigin;
+  }
+
+  const forwardedHost = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
+  if (forwardedHost) {
+    const protocol = requestHeaders.get("x-forwarded-proto") ?? (forwardedHost.includes("localhost") ? "http" : "https");
+    return `${protocol}://${forwardedHost}`;
+  }
+
+  return process.env.NEXT_PUBLIC_SITE_URL || "https://www.veorawellnessph.com";
+}
 
 export async function signUpAction(values: SignUpFormValues, redirectTo?: string): Promise<SignUpResult> {
   const parsed = signUpSchema.safeParse(values);
@@ -42,6 +59,7 @@ export async function signUpAction(values: SignUpFormValues, redirectTo?: string
   const supabase = await createSupabaseServerClient();
   const { data } = parsed;
   const safeRedirectTo = sanitizeRedirectTo(redirectTo, "/account");
+  const authRedirectOrigin = await getAuthRedirectOrigin();
 
   const { data: signUpData, error } = await supabase.auth.signUp({
     email: data.email,
@@ -55,7 +73,7 @@ export async function signUpAction(values: SignUpFormValues, redirectTo?: string
         mobile_number: mobileNumber,
         birthday: data.birthday || null,
       },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(safeRedirectTo)}`,
+      emailRedirectTo: `${authRedirectOrigin}/auth/callback?next=${encodeURIComponent(safeRedirectTo)}`,
     },
   });
 
@@ -108,11 +126,19 @@ export async function forgotPasswordAction(values: ForgotPasswordFormValues): Pr
   }
 
   const supabase = await createSupabaseServerClient();
-  // Deliberately ignore the result — never reveal whether an email exists
-  // in the system via response timing/content differences.
-  await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/reset-password`,
+  const authRedirectOrigin = await getAuthRedirectOrigin();
+  // Supabase deliberately returns success for unknown addresses, so handling
+  // delivery/configuration errors here does not reveal whether an account exists.
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+    // The default hosted template follows Supabase's ConfirmationURL and
+    // returns here with a PKCE code. The branded Veora template uses the
+    // direct /auth/confirm token-hash endpoint instead, so both paths work.
+    redirectTo: `${authRedirectOrigin}/auth/callback?next=/reset-password`,
   });
+
+  if (error) {
+    return { error: "We couldn't send the reset email. Please try again shortly." };
+  }
 
   return { success: true };
 }

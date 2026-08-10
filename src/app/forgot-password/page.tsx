@@ -9,7 +9,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/forgot-password" },
 };
 
-export default function ForgotPasswordPage() {
+type ForgotPasswordPageProps = {
+  searchParams: Promise<{ error?: string }>;
+};
+
+export default async function ForgotPasswordPage({ searchParams }: ForgotPasswordPageProps) {
+  const params = await searchParams;
+
   return (
     <section className="mx-auto max-w-md px-6 pt-28 pb-16 sm:px-8 sm:pb-20">
       <AnimatedSection>
@@ -21,6 +27,12 @@ export default function ForgotPasswordPage() {
           className="mx-auto"
         />
       </AnimatedSection>
+
+      {params.error === "invalid_or_expired_link" && (
+        <p role="alert" className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700">
+          That reset link is invalid or has expired. Request a new one below.
+        </p>
+      )}
 
       <AnimatedSection delay={0.1} className="mt-10">
         <ForgotPasswordForm />
