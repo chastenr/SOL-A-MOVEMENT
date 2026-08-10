@@ -103,7 +103,7 @@ export function Navbar() {
                 width={1218}
                 height={189}
                 priority
-                className="h-5 w-auto brightness-0 invert drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)] sm:h-6"
+                className="h-3.5 w-auto brightness-0 invert drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)] sm:h-4"
               />
             </Link>
           </motion.div>

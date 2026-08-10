@@ -60,7 +60,7 @@ export function Footer() {
                 alt={siteConfig.shortName}
                 width={1218}
                 height={189}
-                className="h-6 w-auto brightness-0 invert"
+                className="h-4 w-auto brightness-0 invert"
               />
             </div>
             <p className="font-display mt-6 max-w-xs text-xl italic leading-snug text-ivory/80">
