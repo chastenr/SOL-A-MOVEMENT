@@ -26,11 +26,17 @@ export async function getAdminCustomers(filters: AdminCustomerFilters = {}): Pro
     .limit(500);
 
   if (filters.search) {
-    const term = filters.search.trim();
-    query = query.or(`email.ilike.%${term}%,first_name.ilike.%${term}%,last_name.ilike.%${term}%`);
+    // `,` and `%` are syntax in PostgREST's .or() filter grammar (condition
+    // separator and ilike wildcard) — an unescaped one in the search term
+    // (e.g. a name pasted as "Dela Cruz, Maria") breaks the filter, which
+    // fails the query rather than matching too much. Same guard as
+    // getAdminUsers() in ./users.ts.
+    const term = `%${filters.search.replace(/[%,]/g, "")}%`;
+    query = query.or(`email.ilike.${term},first_name.ilike.${term},last_name.ilike.${term}`);
   }
 
-  const { data } = await query;
+  const { data, error } = await query;
+  if (error) console.error("[getAdminCustomers] query failed", { filters, error });
   const rows = data ?? [];
 
   // Summed in JS rather than a SQL aggregate — one extra query keeps this

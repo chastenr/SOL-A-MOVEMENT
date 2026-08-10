@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { inviteStaffSchema, type InviteStaffFormValues } from "@/lib/validations";
 import { inviteStaffAction } from "@/app/admin/(protected)/users/actions";
+import { ROLE_LABEL } from "@/lib/admin/role-labels";
 import { Button } from "@/components/ui/Button";
 import { Field, fieldInputClasses } from "@/components/ui/Field";
 
@@ -49,8 +50,8 @@ export function InviteStaffForm() {
       </Field>
       <Field label="Role" className="w-40">
         <select {...register("role")} className={`${fieldInputClasses} appearance-none`}>
-          <option value="admin">Admin</option>
-          <option value="super_admin">Super Admin</option>
+          <option value="admin">{ROLE_LABEL.admin}</option>
+          <option value="super_admin">{ROLE_LABEL.super_admin}</option>
         </select>
       </Field>
       <Button type="submit" disabled={submitting}>

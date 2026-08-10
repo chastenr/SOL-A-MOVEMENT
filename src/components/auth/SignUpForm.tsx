@@ -13,7 +13,7 @@ import { Field, fieldInputClasses } from "@/components/ui/Field";
 import { PasswordField } from "@/components/ui/PasswordField";
 import { PoliciesModal } from "@/components/auth/PoliciesModal";
 
-export function SignUpForm() {
+export function SignUpForm({ redirectTo }: { redirectTo?: string }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export function SignUpForm() {
     setSubmitting(true);
     setServerError(null);
     try {
-      const result = await signUpAction(values);
+      const result = await signUpAction(values, redirectTo);
       if ("error" in result) {
         setServerError(result.error);
         return;
@@ -50,7 +50,7 @@ export function SignUpForm() {
       if (result.needsEmailConfirmation) {
         setAwaitingVerification(values.email);
       } else {
-        router.push("/account");
+        router.push(redirectTo && redirectTo.startsWith("/") ? redirectTo : "/account");
         router.refresh();
       }
     } catch {
@@ -78,7 +78,11 @@ export function SignUpForm() {
               We sent a verification link to <span className="text-charcoal">{awaitingVerification}</span>. Click
               it to activate your account, then sign in.
             </p>
-            <Button href="/login" variant="secondary" className="mt-8">
+            <Button
+              href={redirectTo ? `/login?redirectTo=${encodeURIComponent(redirectTo)}` : "/login"}
+              variant="secondary"
+              className="mt-8"
+            >
               Go to Sign In
             </Button>
           </motion.div>

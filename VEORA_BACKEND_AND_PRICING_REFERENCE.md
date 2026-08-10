@@ -394,7 +394,7 @@ Email failures are designed not to reverse a booking or payment transaction that
 - Administrator and super-administrator permission helpers
 - Database authorization functions
 - Atomic security-definer database operations with explicit authenticated-user and administrator checks
-- Rate limiting for contact submissions, guest bookings, authenticated bookings, cancellations, receipt uploads, password changes, email changes, role changes, and account deletion
+- Rate limiting for contact submissions, authenticated bookings, cancellations, receipt uploads, password changes, email changes, role changes, and account deletion
 - Database-backed rate limiter for public forms
 - File magic-byte inspection for uploaded images and receipts
 - Private payment-receipt storage

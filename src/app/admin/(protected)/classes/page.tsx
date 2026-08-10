@@ -35,6 +35,7 @@ type SessionRow = {
 
 type SlotRow = {
   id: string;
+  weekday: number;
   hour: number;
   is_active: boolean;
   class_type_id: string | null;
@@ -43,6 +44,8 @@ type SlotRow = {
   minimum_participants: number | null;
   location: { name: string } | null;
 };
+
+const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default async function AdminClassesPage() {
   await requireAdmin();
@@ -61,7 +64,8 @@ export default async function AdminClassesPage() {
       .limit(100),
     supabase
       .from("class_time_slots")
-      .select("id, hour, is_active, class_type_id, instructor_id, capacity, minimum_participants, location:locations(name)")
+      .select("id, weekday, hour, is_active, class_type_id, instructor_id, capacity, minimum_participants, location:locations(name)")
+      .order("weekday")
       .order("hour"),
     // Ballet excluded — it isn't part of the hourly recurring grid (see
     // migration 0012), so it's not a valid choice for a Class Times slot.
@@ -84,7 +88,7 @@ export default async function AdminClassesPage() {
     <div>
       <div className="flex items-center justify-between gap-4">
         <h1 className="font-display text-2xl text-charcoal">Classes</h1>
-        <Button href="/admin/classes/new">Schedule Session</Button>
+        <Button href="/admin/classes/new">Add One-off Session</Button>
       </div>
       <p className="mt-1 text-sm text-charcoal/55">
         Real, bookable class sessions — customers redeem package credits against these on{" "}
@@ -110,12 +114,10 @@ export default async function AdminClassesPage() {
         </summary>
         <div className="border-t border-charcoal/10 px-4 py-4">
           <p className="text-xs text-charcoal/50">
-            Hourly start times for Mat Pilates, Yoga, Barre and Strength &amp; HIIT — each fixed at 50
-            minutes. Assign a class (and optionally a coach, capacity, minimum) to an hour and it repeats
-            automatically every day — a nightly job keeps the next 14 days generated, so no one has to
-            hand-schedule the same hour over and over. Leave it &ldquo;— None —&rdquo; for an hour you only
-            want to schedule into one-off. Ballet isn&rsquo;t affected — those classes are 60/90 minutes with
-            their own start time, set individually via Schedule Session.
+            Set the weekly timetable once: choose the class, coach, capacity and minimum for each weekday
+            and time. A nightly job keeps the next 14 days generated automatically, so staff do not have to
+            schedule the same classes every day. Leave a time as &ldquo;— None —&rdquo; when no recurring class
+            runs then. Ballet remains individually scheduled because its sessions can run 60 or 90 minutes.
           </p>
 
           <div className="mt-3">
@@ -130,38 +132,56 @@ export default async function AdminClassesPage() {
                 <div className="border-b border-charcoal/10 bg-cream/40 px-3 py-2">
                   <p className="text-xs font-medium text-charcoal">{locationName}</p>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[720px] text-left text-sm">
-                    <thead className="border-b border-charcoal/10 text-xs uppercase tracking-[0.06em] text-charcoal/40">
-                      <tr>
-                        <th className="px-3 py-2">Hour</th>
-                        <th className="px-3 py-2">Status</th>
-                        <th className="px-3 py-2">Class</th>
-                        <th className="px-3 py-2">Coach</th>
-                        <th className="px-3 py-2">Capacity</th>
-                        <th className="px-3 py-2">Min</th>
-                        <th className="px-3 py-2" />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {locationSlots.map((slot) => (
-                        <ClassTimeSlotRow
-                          key={slot.id}
-                          slot={{
-                            id: slot.id,
-                            hour: slot.hour,
-                            isActive: slot.is_active,
-                            classTypeId: slot.class_type_id,
-                            instructorId: slot.instructor_id,
-                            capacity: slot.capacity,
-                            minimumParticipants: slot.minimum_participants,
-                          }}
-                          classTypes={classTypeOptions}
-                          instructors={instructorOptions}
-                        />
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="divide-y divide-charcoal/10">
+                  {WEEKDAY_NAMES.map((weekdayName, weekday) => {
+                    const weekdaySlots = locationSlots.filter((slot) => slot.weekday === weekday);
+                    const assignedCount = weekdaySlots.filter((slot) => slot.class_type_id && slot.is_active).length;
+                    return (
+                      <details key={weekdayName} className="group" open={weekday === new Date().getDay()}>
+                        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 text-sm text-charcoal marker:content-none hover:bg-cream/30">
+                          <span className="font-medium">{weekdayName}</span>
+                          <span className="text-xs text-charcoal/45">
+                            {assignedCount} recurring class{assignedCount === 1 ? "" : "es"}
+                            <span className="ml-2 group-open:hidden">＋</span>
+                            <span className="ml-2 hidden group-open:inline">−</span>
+                          </span>
+                        </summary>
+                        <div className="overflow-x-auto border-t border-charcoal/10">
+                          <table className="w-full min-w-[720px] text-left text-sm">
+                            <thead className="border-b border-charcoal/10 bg-cream/20 text-xs uppercase tracking-[0.06em] text-charcoal/40">
+                              <tr>
+                                <th className="px-3 py-2">Time</th>
+                                <th className="px-3 py-2">Status</th>
+                                <th className="px-3 py-2">Class</th>
+                                <th className="px-3 py-2">Coach</th>
+                                <th className="px-3 py-2">Capacity</th>
+                                <th className="px-3 py-2">Min</th>
+                                <th className="px-3 py-2" />
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {weekdaySlots.map((slot) => (
+                                <ClassTimeSlotRow
+                                  key={slot.id}
+                                  slot={{
+                                    id: slot.id,
+                                    hour: slot.hour,
+                                    isActive: slot.is_active,
+                                    classTypeId: slot.class_type_id,
+                                    instructorId: slot.instructor_id,
+                                    capacity: slot.capacity,
+                                    minimumParticipants: slot.minimum_participants,
+                                  }}
+                                  classTypes={classTypeOptions}
+                                  instructors={instructorOptions}
+                                />
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </details>
+                    );
+                  })}
                 </div>
               </div>
             ))

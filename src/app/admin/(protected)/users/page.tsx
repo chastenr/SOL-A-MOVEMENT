@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminUsers, type AdminUserRole } from "@/lib/admin/users";
+import { ROLE_LABEL } from "@/lib/admin/role-labels";
 import { fieldInputClasses } from "@/components/ui/Field";
 import { RoleSelect } from "@/components/admin/RoleSelect";
 import { DeleteUserButton } from "@/components/admin/DeleteUserButton";
@@ -15,9 +16,9 @@ export const metadata: Metadata = {
 
 const ROLE_OPTIONS: { value: AdminUserRole | ""; label: string }[] = [
   { value: "", label: "All Roles" },
-  { value: "customer", label: "Customer" },
-  { value: "admin", label: "Admin" },
-  { value: "super_admin", label: "Super Admin" },
+  { value: "customer", label: ROLE_LABEL.customer },
+  { value: "admin", label: ROLE_LABEL.admin },
+  { value: "super_admin", label: ROLE_LABEL.super_admin },
 ];
 
 const ROLE_BADGE: Record<AdminUserRole, string> = {
@@ -120,7 +121,7 @@ export default async function AdminUsersPage({
                   <td className="px-4 py-3 text-charcoal/70">{format(new Date(user.createdAt), "MMM d, yyyy")}</td>
                   <td className="px-4 py-3">
                     <span className={`rounded-full px-2.5 py-1 text-xs uppercase tracking-[0.06em] ${ROLE_BADGE[user.role]}`}>
-                      {user.role.replace("_", " ")}
+                      {ROLE_LABEL[user.role]}
                     </span>
                   </td>
                   <td className="px-4 py-3">

@@ -29,6 +29,10 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   keywords: ["Pilates", "mat pilates", "yoga", "barre", "ballet", "wellness studio", "movement studio", "Bacoor Cavite"],
+  icons: {
+    icon: [{ url: "/veora-mark.png", type: "image/png" }],
+    apple: [{ url: "/veora-mark.png", type: "image/png" }],
+  },
   openGraph: {
     type: "website",
     url: siteConfig.url,

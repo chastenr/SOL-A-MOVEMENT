@@ -12,8 +12,8 @@ type PricingCardProps = {
 
 export function PricingCard({ option, ctaType, className }: PricingCardProps) {
   // "book" options are real credit packages — availing one goes through
-  // checkout (auth + phone verification gated there), not straight into the
-  // guest booking form. "inquire" (studio rentals) still routes to contact.
+  // checkout (auth + phone verification gated there). "inquire" (studio
+  // rentals) still routes to contact.
   const ctaHref = ctaType === "book" ? `/checkout/${option.slug}` : `/contact?topic=Studio+Rental`;
 
   return (

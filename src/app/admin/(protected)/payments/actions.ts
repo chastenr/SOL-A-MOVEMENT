@@ -8,6 +8,21 @@ import { sendPurchaseApprovedEmail, sendPurchaseRejectedEmail } from "@/lib/emai
 
 type ActionResult = { error: string } | { success: true; alreadyProcessed: boolean };
 
+// approve_purchase()/reject_purchase() only return an idempotent
+// already_processed:true for a repeat of the SAME action — re-approving
+// something that's since been rejected (or vice versa, e.g. two admins
+// reviewing the same payment on stale pages) still raises this raw Postgres
+// message. Map it to something a non-technical admin can act on.
+function friendlyPurchaseActionError(message: string): string {
+  if (message.includes("is not awaiting approval")) {
+    return "This payment has already been reviewed by someone else — refresh the page to see its current status.";
+  }
+  if (message.includes("not found")) {
+    return "This payment could not be found — it may have been removed.";
+  }
+  return message || "Something went wrong. Please try again.";
+}
+
 /**
  * Approval is atomic (see approve_purchase() in migration 0001): it can only
  * move a purchase out of `proof_submitted` once, so a double-click or two
@@ -21,7 +36,7 @@ export async function approvePurchaseAction(purchaseId: string): Promise<ActionR
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase.rpc("approve_purchase", { p_purchase_id: purchaseId }).single();
-  if (error) return { error: error.message || "Something went wrong. Please try again." };
+  if (error) return { error: friendlyPurchaseActionError(error.message) };
 
   const result = data as { purchase_id: string; customer_package_id: string; already_processed: boolean };
 
@@ -62,7 +77,7 @@ export async function rejectPurchaseAction(purchaseId: string, reason: string): 
   const { data, error } = await supabase
     .rpc("reject_purchase", { p_purchase_id: purchaseId, p_reason: reason || null })
     .single();
-  if (error) return { error: error.message || "Something went wrong. Please try again." };
+  if (error) return { error: friendlyPurchaseActionError(error.message) };
 
   const result = data as { purchase_id: string; already_processed: boolean };
 

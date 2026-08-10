@@ -24,7 +24,7 @@ export default async function ServicesPage() {
           <SectionHeading
             eyebrow="Our Classes"
             heading="Find the movement that moves you."
-            body="Every Veora class is designed with intention. Explore our offerings below, then request your booking — no memberships or online payment required."
+            body="Every Veora class is designed with intention. Explore the options below, then sign in to choose an available date, time and coach using your class package."
           />
           <Button href="/pricing" variant="secondary" className="shrink-0">
             View Pricing

@@ -8,9 +8,8 @@ const fromEmail = process.env.RESEND_FROM_EMAIL || "Veora Wellness <onboarding@r
 // env var during setup never means an email silently goes nowhere.
 const ownerEmail = process.env.OWNER_BOOKING_EMAIL;
 
-// Routine booking traffic (new reservations, guest booking requests) — goes
-// to the bookings inbox, not Bianca/Ashley's inboxes, so it doesn't compete
-// with the judgment calls below for attention.
+// Routine class-booking traffic goes to the bookings inbox, not
+// Bianca/Ashley's inboxes, so it doesn't compete with judgment calls.
 const bookingNotificationRecipients = [
   ...new Set(
     [process.env.BOOKING_NOTIFICATION_EMAIL, ownerEmail].filter((value): value is string => Boolean(value))
@@ -55,78 +54,6 @@ function row(label: string, value: string) {
       <td style="padding:6px 0;font-size:13px;color:#8f8375;text-transform:uppercase;letter-spacing:0.08em;vertical-align:top;width:120px;">${label}</td>
       <td style="padding:6px 0;font-size:15px;color:#221f1c;">${value}</td>
     </tr>`;
-}
-
-export type BookingEmailPayload = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  serviceName: string;
-  packageName?: string;
-  formattedDate: string;
-  time: string;
-  notes?: string;
-  submittedAt: string;
-};
-
-export async function sendOwnerBookingEmail(booking: BookingEmailPayload) {
-  if (!resend || bookingNotificationRecipients.length === 0) return { skipped: true as const };
-
-  const fullName = `${booking.firstName} ${booking.lastName}`;
-  const html = wrapper(
-    "New Veora Booking",
-    `<table style="width:100%;border-collapse:collapse;">
-      ${row("Client", fullName)}
-      ${row("Email", booking.email)}
-      ${row("Phone", booking.phone)}
-      ${row("Service", booking.serviceName)}
-      ${booking.packageName ? row("Package", booking.packageName) : ""}
-      ${row("Date", booking.formattedDate)}
-      ${row("Time", booking.time)}
-      ${row("Notes", booking.notes ? booking.notes : "—")}
-      ${row("Submitted", booking.submittedAt)}
-    </table>`
-  );
-
-  return resend.emails.send({
-    from: fromEmail,
-    to: bookingNotificationRecipients,
-    replyTo: booking.email,
-    subject: `New Veora Booking — ${fullName} — ${booking.formattedDate}`,
-    html,
-  });
-}
-
-export async function sendCustomerBookingEmail(booking: BookingEmailPayload) {
-  if (!resend) return { skipped: true as const };
-
-  const statusLine =
-    siteConfig.bookingStatusWording === "confirmed"
-      ? "Your session is confirmed."
-      : "We've received your reservation.";
-
-  const html = wrapper(
-    "Your Veora Session",
-    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${booking.firstName},</p>
-     <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Thank you for booking with Veora Wellness. ${statusLine}</p>
-     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-       ${row("Service", booking.serviceName)}
-       ${booking.packageName ? row("Package", booking.packageName) : ""}
-       ${row("Date", booking.formattedDate)}
-       ${row("Time", booking.time)}
-     </table>
-     <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">We'll be in touch if there are any additional details you need before your session.</p>
-     <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">We look forward to welcoming you.</p>
-     <p style="margin:24px 0 0;font-size:15px;color:#221f1c;">Veora Wellness</p>`
-  );
-
-  return resend.emails.send({
-    from: fromEmail,
-    to: booking.email,
-    subject: "Your Veora Session is Reserved",
-    html,
-  });
 }
 
 export type ContactEmailPayload = {
@@ -238,9 +165,8 @@ export type ClassBookingEmailPayload = {
 };
 
 /**
- * Internal "new reservation" notice for the credit-based booking engine —
- * distinct from sendOwnerBookingEmail (the older guest /api/book flow).
- * Field set matches the studio's own requested format exactly (client,
+ * Internal "new reservation" notice for the member booking engine. The
+ * field set matches the studio's requested format exactly (client,
  * class, coach, date, time, package, amount, original/used/remaining
  * sessions, status) so Bianca/Ashley can act on the email alone.
  */

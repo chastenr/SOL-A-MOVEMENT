@@ -28,10 +28,11 @@ export default async function AdminCoachesPage({
   const supabase = await createSupabaseServerClient();
   const params = await searchParams;
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("instructors")
     .select("id, name, bio, photo_url, active")
     .order("name");
+  if (error) console.error("[AdminCoachesPage] query failed", error);
   const coaches = (data as InstructorRow[] | null) ?? [];
 
   const successMessage = params.added

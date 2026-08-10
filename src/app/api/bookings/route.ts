@@ -34,8 +34,8 @@ const ERROR_MAP: Record<string, { status: number; message: string }> = {
 };
 
 /**
- * The real, credit-based authenticated booking engine — distinct from the
- * guest /api/book flow. Auth + phone-verification + ownership + capacity +
+ * The credit-based, authenticated member booking engine. Auth,
+ * phone-verification, ownership, capacity and
  * credit checks all happen server-side; the actual booking + credit
  * deduction is one atomic Postgres transaction (book_class_session() in
  * migration 0001), never two separate client/server calls.
@@ -158,7 +158,7 @@ type BookingNotificationRow = {
 };
 
 /**
- * Fire-and-forget (errors swallowed via allSettled, matching /api/book) —
+ * Fire-and-forget (errors swallowed via allSettled) —
  * an email hiccup should never fail a booking that already succeeded and
  * already deducted a real credit. Two separate queries because
  * class_bookings.user_id references auth.users, not public.profiles —

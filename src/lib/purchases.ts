@@ -22,8 +22,7 @@ export type CreatePurchaseResult = { error: string } | { purchaseId: string };
  * Creates the order/payment record BEFORE any payment instructions are
  * shown — the purchase row (status `pending_payment`) IS the payment
  * record; nothing here grants credits. Retries on a reference-number
- * collision (vanishingly rare, same defensive pattern as the existing
- * guest-booking unique-slot handling in /api/book).
+ * collision (vanishingly rare) so a random duplicate never blocks checkout.
  */
 export async function createPendingPurchase(userId: string, pkg: PackageDbRow): Promise<CreatePurchaseResult> {
   const supabase = await createSupabaseServerClient();
@@ -57,4 +56,3 @@ export async function createPendingPurchase(userId: string, pkg: PackageDbRow): 
 
   return { error: "Something went wrong creating your order. Please try again." };
 }
-

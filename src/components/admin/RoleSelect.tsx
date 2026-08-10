@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateUserRoleAction } from "@/app/admin/(protected)/users/actions";
 import type { AdminUserRole } from "@/lib/admin/users";
+import { ROLE_LABEL } from "@/lib/admin/role-labels";
 import { Button } from "@/components/ui/Button";
 import { fieldInputClasses } from "@/components/ui/Field";
 
 const ROLE_OPTIONS: { value: AdminUserRole; label: string }[] = [
-  { value: "customer", label: "Customer" },
-  { value: "admin", label: "Admin" },
-  { value: "super_admin", label: "Super Admin" },
+  { value: "customer", label: ROLE_LABEL.customer },
+  { value: "admin", label: ROLE_LABEL.admin },
+  { value: "super_admin", label: ROLE_LABEL.super_admin },
 ];
 
 export function RoleSelect({
@@ -94,8 +95,8 @@ export function RoleSelect({
               Confirm role change
             </h2>
             <p className="mt-2 text-sm text-charcoal/70">
-              Change this account&rsquo;s role from <strong>{role.replace("_", " ")}</strong> to{" "}
-              <strong>{pendingRole.replace("_", " ")}</strong>? This takes effect immediately. Enter your own
+              Change this account&rsquo;s role from <strong>{ROLE_LABEL[role]}</strong> to{" "}
+              <strong>{ROLE_LABEL[pendingRole]}</strong>? This takes effect immediately. Enter your own
               password to confirm.
             </p>
             <div className="mt-4">

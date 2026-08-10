@@ -273,6 +273,7 @@ export async function setClassTimeSlotActiveAction(id: string, isActive: boolean
 
   revalidatePath("/admin/classes");
   revalidatePath("/admin/classes/new");
+  revalidatePath("/admin/calendar");
 }
 
 export type ClassTimeSlotTemplateValues = {
@@ -321,6 +322,7 @@ export async function setClassTimeSlotTemplateAction(
 
   revalidatePath("/admin/classes");
   revalidatePath("/admin/classes/new");
+  revalidatePath("/admin/calendar");
   revalidatePath("/account/book");
   revalidatePath("/schedule");
   return { success: true };

@@ -4,7 +4,7 @@ export type ClassDirectoryEntry = {
   id: string;
   name: string;
   category: ServiceCategory;
-  /** Slug of the umbrella service this class books under in the /book flow. */
+  /** Slug of the umbrella service used to match packages and scheduled sessions. */
   serviceSlug: string;
   duration: string;
   level: string;
@@ -14,8 +14,8 @@ export type ClassDirectoryEntry = {
 // Veora does not yet have a published weekly class timetable (no specific
 // dates, times or instructors have been confirmed). Rather than invent a
 // fake recurring schedule, this is the real class directory — every class
-// type currently offered — so clients can browse and request a booking.
-// Update this list once a live timetable and instructor roster exist.
+// type currently offered, while real dates, times and coaches come from the
+// member schedule generated in Supabase.
 export const classDirectory: ClassDirectoryEntry[] = [
   {
     id: "mat-pilates",

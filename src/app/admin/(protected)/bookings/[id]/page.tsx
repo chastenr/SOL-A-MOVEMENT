@@ -5,13 +5,21 @@ import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminBookingById } from "@/lib/admin/bookings";
 import { centavosToPeso } from "@/lib/money";
-import { Button } from "@/components/ui/Button";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { cancelBookingAction, completeBookingAction, noShowBookingAction } from "../actions";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Booking Detail",
   robots: { index: false, follow: false },
 };
+
+// Matches Button's variant="secondary" size="md" exactly — SubmitButton is a
+// plain <button> (it needs to read useFormStatus from the surrounding form,
+// which the polymorphic Button component doesn't expose), so the pill look
+// is replicated here rather than pulled from Button's internals.
+const PILL_BUTTON =
+  "inline-flex items-center justify-center gap-2 rounded-full font-medium uppercase tracking-[0.2em] transition-colors duration-300 ease-out disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay bg-transparent text-charcoal border border-charcoal/30 hover:border-charcoal px-5 py-2.5 text-[0.72rem]";
 
 export default async function AdminBookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
@@ -32,19 +40,22 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
         {canAct && (
           <div className="flex gap-2">
             <form action={completeBookingAction.bind(null, booking.id)}>
-              <Button type="submit" variant="secondary" size="md">
+              <SubmitButton pendingLabel="Completing…" className={PILL_BUTTON}>
                 Mark Completed
-              </Button>
+              </SubmitButton>
             </form>
             <form action={noShowBookingAction.bind(null, booking.id)}>
-              <Button type="submit" variant="secondary" size="md">
+              <SubmitButton pendingLabel="Saving…" className={PILL_BUTTON}>
                 Mark No Show
-              </Button>
+              </SubmitButton>
             </form>
             <form action={cancelBookingAction.bind(null, booking.id)}>
-              <Button type="submit" variant="secondary" size="md" className="border-red-300 text-red-600 hover:border-red-500 hover:bg-red-500 hover:text-ivory">
+              <SubmitButton
+                pendingLabel="Cancelling…"
+                className={cn(PILL_BUTTON, "border-red-300 text-red-600 hover:border-red-500 hover:bg-red-500 hover:text-ivory")}
+              >
                 Cancel &amp; Refund Credit
-              </Button>
+              </SubmitButton>
             </form>
           </div>
         )}

@@ -125,7 +125,14 @@ export async function getAdminBookings(filters: AdminBookingFilters = {}): Promi
   if (filters.status) query = query.eq("status", filters.status);
 
   const { data, error } = await query;
-  if (error || !data) return [];
+  if (error || !data) {
+    // A failed fetch here renders as "No bookings match these filters yet"
+    // to the admin — indistinguishable from a genuinely empty result unless
+    // this is logged, so a real outage (RLS misconfig, timeout, network
+    // blip) looks identical to a slow-but-normal day.
+    if (error) console.error("[getAdminBookings] query failed", { filters, error });
+    return [];
+  }
 
   const rows = data as unknown as RawBookingRow[];
   const userIds = [...new Set(rows.map((row) => row.user_id))];

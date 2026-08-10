@@ -10,7 +10,7 @@ import { UpcomingSessionsList } from "@/components/schedule/UpcomingSessionsList
 export const metadata: Metadata = {
   title: "Schedule",
   description:
-    "Browse every class Veora Wellness offers — Pilates, yoga, barre, strength, recovery and ballet — and request your booking.",
+    "Browse Veora Wellness classes, available session times, coaches and remaining capacity.",
   alternates: { canonical: "/schedule" },
 };
 
@@ -27,7 +27,7 @@ export default async function SchedulePage() {
           body={
             sessions.length > 0
               ? "Reserve a spot in an upcoming session below, or browse everything we offer by category. Bookings close at 10:00 PM the evening before class."
-              : "Veora is preparing to open, so a live weekly timetable isn't published yet. Browse every class we offer below, filter by category, and request your booking — we'll follow up to confirm your date and time."
+              : "The next class times are being prepared. Browse every class below, then sign in once the member timetable is available to choose your date, time and coach."
           }
         />
       </AnimatedSection>

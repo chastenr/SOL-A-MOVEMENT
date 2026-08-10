@@ -16,6 +16,9 @@ type LoginPageProps = {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
+  const signUpHref = params.redirectTo
+    ? `/signup?redirectTo=${encodeURIComponent(params.redirectTo)}`
+    : "/signup";
 
   return (
     <section className="mx-auto max-w-md px-6 pt-28 pb-16 sm:px-8 sm:pb-20">
@@ -29,7 +32,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
       <p className="mt-8 text-center text-sm text-charcoal/60">
         New to Veora?{" "}
-        <Link href="/signup" className="underline underline-offset-2 hover:text-charcoal">
+        <Link href={signUpHref} className="underline underline-offset-2 hover:text-charcoal">
           Create an account
         </Link>
       </p>

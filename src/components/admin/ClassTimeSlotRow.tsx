@@ -42,9 +42,15 @@ export function ClassTimeSlotRow({
 
   async function handleToggleOpen() {
     setTogglingOpen(true);
+    setError(null);
     try {
       await setClassTimeSlotActiveAction(slot.id, !slot.isActive);
       router.refresh();
+    } catch {
+      // Without this, a failed toggle was a silent unhandled rejection: the
+      // button just re-enabled with the label unchanged and no indication
+      // anything went wrong — indistinguishable from "nothing happened."
+      setError("Something went wrong. Please try again.");
     } finally {
       setTogglingOpen(false);
     }

@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/auth/require-role";
 import { logoutAction } from "@/lib/auth/actions";
 import { AdminSidebarNav } from "@/components/admin/AdminSidebarNav";
+import { ROLE_LABEL } from "@/lib/admin/role-labels";
 import { cn } from "@/lib/utils";
 
 // Kept short on purpose — the owner using this day to day shouldn't have to
@@ -55,7 +56,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
                   ROLE_BADGE[admin.role] ?? "bg-charcoal/10 text-charcoal/70"
                 )}
               >
-                {admin.role.replace("_", " ")}
+                {ROLE_LABEL[admin.role]}
               </span>
             </span>
             <form action={logoutAction}>

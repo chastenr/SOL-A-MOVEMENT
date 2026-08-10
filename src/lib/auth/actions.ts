@@ -14,13 +14,14 @@ import {
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRateLimited, getActionClientKey } from "@/lib/rate-limit";
 import { normalizePhoneE164 } from "@/lib/phone";
+import { sanitizeRedirectTo } from "@/lib/utils";
 
 type ActionResult = { error: string } | { success: true };
 type SignUpResult = { error: string } | { success: true; needsEmailConfirmation: boolean };
 
 const GENERIC_ERROR = "Something went wrong. Please try again.";
 
-export async function signUpAction(values: SignUpFormValues): Promise<SignUpResult> {
+export async function signUpAction(values: SignUpFormValues, redirectTo?: string): Promise<SignUpResult> {
   const parsed = signUpSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? GENERIC_ERROR };
@@ -40,6 +41,7 @@ export async function signUpAction(values: SignUpFormValues): Promise<SignUpResu
 
   const supabase = await createSupabaseServerClient();
   const { data } = parsed;
+  const safeRedirectTo = sanitizeRedirectTo(redirectTo, "/account");
 
   const { data: signUpData, error } = await supabase.auth.signUp({
     email: data.email,
@@ -53,7 +55,7 @@ export async function signUpAction(values: SignUpFormValues): Promise<SignUpResu
         mobile_number: mobileNumber,
         birthday: data.birthday || null,
       },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/account`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(safeRedirectTo)}`,
     },
   });
 

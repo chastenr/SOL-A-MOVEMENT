@@ -5,7 +5,6 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
   changePasswordSchema,
-  bookingSchema,
 } from "@/lib/validations";
 
 const validSignUp = {
@@ -118,25 +117,5 @@ describe("changePasswordSchema", () => {
         confirmPassword: "password2",
       }).success
     ).toBe(false);
-  });
-});
-
-// Guards against accidental regressions to the existing guest booking flow
-// while this batch of work is in progress.
-describe("bookingSchema (existing, unchanged)", () => {
-  it("still accepts a valid guest booking payload", () => {
-    const result = bookingSchema.safeParse({
-      service: "mat-pilates",
-      date: "2026-09-01",
-      time: "9:00 AM",
-      packageName: "",
-      firstName: "Jane",
-      lastName: "Dela Cruz",
-      email: "jane@example.com",
-      phone: "0917 000 0000",
-      notes: "",
-      consent: true,
-    });
-    expect(result.success).toBe(true);
   });
 });

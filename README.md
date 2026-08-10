@@ -1,6 +1,6 @@
 # Veora Wellness
 
-A production-ready marketing and booking site for Veora Wellness, built with Next.js (App Router), TypeScript, Tailwind CSS and Framer Motion. There is no checkout, cart or payment flow anywhere on the site — the booking flow collects a session request and emails it to the studio owner and the client.
+A production-ready marketing, package-purchase and member booking system for Veora Wellness, built with Next.js App Router, TypeScript, Tailwind CSS, Supabase and Resend. Customers create an account, purchase a package, and use their credits to reserve a scheduled class with a specific time and coach.
 
 ## Getting started
 
@@ -14,10 +14,10 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Environment variables
 
-See `.env.example`. Everything is optional except what you intend to use:
+See `.env.example` for the complete list:
 
-- **Email (Resend)** — set `RESEND_API_KEY`, `RESEND_FROM_EMAIL` and `OWNER_BOOKING_EMAIL` to send real booking/contact emails. Without these, the booking and contact flows still work end-to-end (validation, success screens) but emails are silently skipped.
-- **Supabase** — set `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to persist bookings and enforce double-booking protection. Run `supabase/schema.sql` in the Supabase SQL editor first. Without these, booking storage and the availability check are skipped.
+- **Email (Resend)** — set `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `BOOKING_NOTIFICATION_EMAIL` and the owner notification addresses for transactional mail.
+- **Supabase** — `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` power authentication, packages, payments, schedules and bookings. Apply the migrations in `supabase/migrations/` in order.
 - **SMS (Semaphore)** — set the server-only `SEMAPHORE_API_KEY` and an approved `SEMAPHORE_SENDER_NAME` to send booking and class-status texts. If either value is missing, SMS is safely skipped and email remains the fallback. Never expose the key with a `NEXT_PUBLIC_` prefix.
 
 Semaphore transactional messages do not configure Supabase Auth phone verification by themselves. Customer/admin SMS verification stays disabled until a supported Supabase phone provider or custom Send SMS hook is configured and tested.
@@ -26,9 +26,9 @@ Semaphore transactional messages do not configure Supabase Auth phone verificati
 
 All studio-specific content lives in `src/data/`:
 
-- `site.ts` — brand name, real contact info, nav, booking CTA wording, time slots. Business hours are intentionally empty (`hours: []`) because the studio hasn't published them yet — see `hoursNote`.
-- `services.ts` — the six real class categories (Mat Pilates, Yoga, Barre, Strength & HIIT, Recovery & Restore, Ballet) shown across the homepage, `/services` and the booking flow.
-- `schedule.ts` — the real class directory shown on `/schedule`. There is no live weekly timetable yet (no confirmed dates/times/instructors), so this lists class types rather than fabricated recurring sessions.
+- `site.ts` — brand name, contact information, navigation and booking CTA wording.
+- `services.ts` — the six class categories shown across the homepage and `/services`.
+- `schedule.ts` — the class directory shown on `/schedule`; live dates, times, coaches and availability come from Supabase sessions.
 - `faq.ts` / `policies.ts` — real FAQ and Terms & Conditions content, shown on `/faq` and `/policies` (footer-linked).
 - `images.ts` — image sources for every section (see licensing below).
 
@@ -50,4 +50,4 @@ npm run typecheck
 npm run build
 ```
 
-Manually verify: full booking flow (Home → Book → Service → Date/Time → Details → Confirm → Success), that no payment step exists anywhere, that past/closed dates are disabled on the calendar, and that booking/contact emails arrive when Resend is configured.
+Manually verify: public Book CTA → sign in/create account → package-backed member schedule → select a dated time and coach → confirm → booking appears in the admin dashboard/calendar and customer account. Also verify closed/full sessions cannot be booked and email/SMS notifications arrive when configured.

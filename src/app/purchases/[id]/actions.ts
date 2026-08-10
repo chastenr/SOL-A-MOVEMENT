@@ -59,8 +59,7 @@ export async function markPaidAction(purchaseId: string): Promise<ActionResult> 
   revalidatePath(`/purchases/${purchaseId}`);
   revalidatePath("/admin/payments");
 
-  // Fire-and-forget, same convention as the existing /api/book route —
-  // email delivery never blocks or fails the customer-facing response.
+  // Email delivery never blocks or fails the customer-facing response.
   const { data: profile } = await supabase.from("profiles").select("first_name").eq("id", user.id).single();
   void sendPaymentProofSubmittedEmail({
     customerEmail: user.email,

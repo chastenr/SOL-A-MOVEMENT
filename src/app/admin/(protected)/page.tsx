@@ -7,6 +7,7 @@ import { getManilaDayRange } from "@/lib/booking-cutoff";
 import { getDisplayStatus, STATUS_STYLES } from "@/lib/class-session-status";
 import { getAdminBookings, type AdminBookingRow } from "@/lib/admin/bookings";
 import { Button } from "@/components/ui/Button";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { cn } from "@/lib/utils";
 import { cancelBookingAction, completeBookingAction, noShowBookingAction } from "./bookings/actions";
 
@@ -46,7 +47,7 @@ async function getTodayStats() {
   const supabase = await createSupabaseServerClient();
   const { start, end } = getManilaDayRange();
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("class_sessions")
     .select(
       "id, start_at, end_at, capacity, booked_count, minimum_participants, booking_enabled, status, class_type:class_types(name), instructor:instructors(name)"
@@ -54,13 +55,15 @@ async function getTodayStats() {
     .gte("start_at", start.toISOString())
     .lt("start_at", end.toISOString())
     .order("start_at", { ascending: true });
+  if (error) console.error("[getTodayStats] class_sessions query failed", error);
 
   const sessions = (data as unknown as TodaySession[]) ?? [];
   const sessionIds = sessions.map((session) => session.id);
 
-  const { data: bookings } = sessionIds.length
+  const { data: bookings, error: bookingsError } = sessionIds.length
     ? await supabase.from("class_bookings").select("status").in("class_session_id", sessionIds)
-    : { data: [] as { status: string }[] };
+    : { data: [] as { status: string }[], error: null };
+  if (bookingsError) console.error("[getTodayStats] class_bookings query failed", bookingsError);
 
   const rows = bookings ?? [];
   const now = new Date();
@@ -146,6 +149,12 @@ export default async function AdminDashboardPage() {
                       <span className="text-charcoal/45"> · Minimum: {session.minimum_participants}</span>
                     )}
                   </p>
+                  <Link
+                    href={`/admin/classes/${session.id}`}
+                    className="mt-3 inline-block text-xs underline underline-offset-2 hover:text-charcoal"
+                  >
+                    View session &amp; roster
+                  </Link>
                 </div>
               );
             })}
@@ -197,19 +206,22 @@ export default async function AdminDashboardPage() {
                       {booking.status === "booked" && (
                         <>
                           <form action={completeBookingAction.bind(null, booking.id)}>
-                            <button type="submit" className="text-xs underline underline-offset-2 hover:text-charcoal">
+                            <SubmitButton pendingLabel="…" className="text-xs underline underline-offset-2 hover:text-charcoal">
                               Complete
-                            </button>
+                            </SubmitButton>
                           </form>
                           <form action={noShowBookingAction.bind(null, booking.id)}>
-                            <button type="submit" className="text-xs text-charcoal/50 underline underline-offset-2 hover:text-red-600">
+                            <SubmitButton
+                              pendingLabel="…"
+                              className="text-xs text-charcoal/50 underline underline-offset-2 hover:text-red-600"
+                            >
                               No Show
-                            </button>
+                            </SubmitButton>
                           </form>
                           <form action={cancelBookingAction.bind(null, booking.id)}>
-                            <button type="submit" className="text-xs text-red-600 underline underline-offset-2 hover:text-red-700">
+                            <SubmitButton pendingLabel="…" className="text-xs text-red-600 underline underline-offset-2 hover:text-red-700">
                               Cancel
-                            </button>
+                            </SubmitButton>
                           </form>
                         </>
                       )}

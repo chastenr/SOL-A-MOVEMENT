@@ -12,10 +12,10 @@
 -- grid (see migration 0012) and still isn't.
 
 alter table public.class_time_slots
-  add column class_type_id uuid references public.class_types(id) on delete set null,
-  add column instructor_id uuid references public.instructors(id) on delete set null,
-  add column capacity integer not null default 10 check (capacity > 0),
-  add column minimum_participants integer check (minimum_participants > 0);
+  add column if not exists class_type_id uuid references public.class_types(id) on delete set null,
+  add column if not exists instructor_id uuid references public.instructors(id) on delete set null,
+  add column if not exists capacity integer not null default 10 check (capacity > 0),
+  add column if not exists minimum_participants integer check (minimum_participants > 0);
 
 -- Generates real class_sessions rows for every active, class-type-assigned
 -- slot, for the next p_days_ahead Manila-calendar days — skipping any

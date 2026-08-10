@@ -10,7 +10,16 @@ export const metadata: Metadata = {
   alternates: { canonical: "/signup" },
 };
 
-export default function SignUpPage() {
+export default async function SignUpPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirectTo?: string }>;
+}) {
+  const params = await searchParams;
+  const loginHref = params.redirectTo
+    ? `/login?redirectTo=${encodeURIComponent(params.redirectTo)}`
+    : "/login";
+
   return (
     <section className="mx-auto max-w-2xl px-6 pt-28 pb-16 sm:px-8 sm:pb-20">
       <AnimatedSection>
@@ -22,12 +31,12 @@ export default function SignUpPage() {
       </AnimatedSection>
 
       <AnimatedSection delay={0.1} className="mt-10">
-        <SignUpForm />
+        <SignUpForm redirectTo={params.redirectTo} />
       </AnimatedSection>
 
       <p className="mt-8 text-center text-sm text-charcoal/60">
         Already have an account?{" "}
-        <Link href="/login" className="underline underline-offset-2 hover:text-charcoal">
+        <Link href={loginHref} className="underline underline-offset-2 hover:text-charcoal">
           Sign in
         </Link>
       </p>

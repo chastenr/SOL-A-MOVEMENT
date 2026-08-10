@@ -73,7 +73,6 @@ export const siteConfig = {
 
   // Toggle the wording used in booking confirmation emails and the success screen.
   // "received" = studio will manually confirm; "confirmed" = treated as final.
-  bookingStatusWording: "received" as "received" | "confirmed",
 
   social: {
     instagram: "https://www.instagram.com/spacioblnc/",

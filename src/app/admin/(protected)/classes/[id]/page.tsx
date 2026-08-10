@@ -6,6 +6,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { utcToManilaLocal } from "@/lib/studio-hours";
 import { ClassSessionForm } from "@/components/admin/ClassSessionForm";
 import { getClassSessionRoster } from "@/lib/admin/bookings";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { completeBookingAction, noShowBookingAction } from "../../bookings/actions";
 import type { ClassSessionFormValues } from "@/lib/validations";
 
@@ -79,7 +80,7 @@ export default async function EditClassSessionPage({ params }: { params: Promise
         <h2 className="font-display text-lg text-charcoal">Attendance</h2>
         <p className="mt-1 text-sm text-charcoal/55">
           Who&rsquo;s booked into this specific class — check them in as Attended or No Show once it&rsquo;s
-          run. This is per session, so it&rsquo;s recorded separately for every hour, every day.
+          run. This is recorded separately for every scheduled date and time.
         </p>
 
         {roster.length === 0 ? (
@@ -114,14 +115,17 @@ export default async function EditClassSessionPage({ params }: { params: Promise
                       {booking.status === "booked" && (
                         <div className="flex justify-end gap-3">
                           <form action={completeBookingAction.bind(null, booking.id)}>
-                            <button type="submit" className="text-xs underline underline-offset-2 hover:text-charcoal">
+                            <SubmitButton pendingLabel="…" className="text-xs underline underline-offset-2 hover:text-charcoal">
                               Mark Attended
-                            </button>
+                            </SubmitButton>
                           </form>
                           <form action={noShowBookingAction.bind(null, booking.id)}>
-                            <button type="submit" className="text-xs text-charcoal/50 underline underline-offset-2 hover:text-red-600">
+                            <SubmitButton
+                              pendingLabel="…"
+                              className="text-xs text-charcoal/50 underline underline-offset-2 hover:text-red-600"
+                            >
                               Mark No Show
-                            </button>
+                            </SubmitButton>
                           </form>
                         </div>
                       )}

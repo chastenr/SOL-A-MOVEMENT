@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminBookings, type AdminBookingStatus } from "@/lib/admin/bookings";
 import { fieldInputClasses } from "@/components/ui/Field";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { cancelBookingAction, completeBookingAction, noShowBookingAction } from "./actions";
 
 export const metadata: Metadata = {
@@ -142,19 +143,22 @@ export default async function AdminBookingsPage({
                       {booking.status === "booked" && (
                         <>
                           <form action={completeBookingAction.bind(null, booking.id)}>
-                            <button type="submit" className="text-xs underline underline-offset-2 hover:text-charcoal">
+                            <SubmitButton pendingLabel="…" className="text-xs underline underline-offset-2 hover:text-charcoal">
                               Complete
-                            </button>
+                            </SubmitButton>
                           </form>
                           <form action={noShowBookingAction.bind(null, booking.id)}>
-                            <button type="submit" className="text-xs text-charcoal/50 underline underline-offset-2 hover:text-red-600">
+                            <SubmitButton
+                              pendingLabel="…"
+                              className="text-xs text-charcoal/50 underline underline-offset-2 hover:text-red-600"
+                            >
                               No Show
-                            </button>
+                            </SubmitButton>
                           </form>
                           <form action={cancelBookingAction.bind(null, booking.id)}>
-                            <button type="submit" className="text-xs text-red-600 underline underline-offset-2 hover:text-red-700">
+                            <SubmitButton pendingLabel="…" className="text-xs text-red-600 underline underline-offset-2 hover:text-red-700">
                               Cancel
-                            </button>
+                            </SubmitButton>
                           </form>
                         </>
                       )}
