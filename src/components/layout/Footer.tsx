@@ -115,17 +115,18 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-6 flex justify-center border-t border-ivory/10 pt-6 sm:justify-start">
+        <div className="mt-6 flex justify-center border-t border-ivory/10 pb-2 pt-8">
           <Link
             href="https://elevenchase.com"
             target="_blank"
             rel="noreferrer noopener"
-            className="group inline-flex items-center gap-2 text-[11px] text-ivory/40 transition-colors hover:text-ivory/80"
+            aria-label="Website by ElevenChase"
+            className="group inline-flex items-center gap-4 text-ivory/50 transition-colors hover:text-ivory/85"
           >
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-ivory/25 text-[9px] font-medium tracking-tight text-ivory/60 transition-colors group-hover:border-ivory/50 group-hover:text-ivory">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ivory/35 text-sm font-medium text-ivory/65 transition-colors group-hover:border-ivory/60 group-hover:text-ivory">
               C
             </span>
-            <span className="uppercase tracking-[0.14em]">ElevenChase</span>
+            <span className="text-lg font-medium uppercase tracking-[0.16em] sm:text-xl">ElevenChase</span>
           </Link>
         </div>
       </div>
