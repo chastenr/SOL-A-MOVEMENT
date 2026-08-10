@@ -4,6 +4,7 @@ import "./globals.css";
 import { siteConfig } from "@/data/site";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { TextRevealController } from "@/components/layout/TextRevealController";
 import { OrganizationSchema } from "@/components/seo/OrganizationSchema";
 
 const fraunces = Fraunces({
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-ivory text-charcoal">
         <OrganizationSchema />
+        <TextRevealController />
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
