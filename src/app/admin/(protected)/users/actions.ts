@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { createClient } from "@supabase/supabase-js";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase/admin";
+import { isRateLimited, getActionClientKey } from "@/lib/rate-limit";
 import { inviteStaffSchema, type InviteStaffFormValues } from "@/lib/validations";
 import type { AdminUserRole } from "@/lib/admin/users";
 
@@ -15,8 +17,18 @@ type InviteResult = { error: string } | { success: true };
  * itself and writes the audit log row), this just adds UI-facing guards so a
  * plain admin never even sees a working control, and so a super_admin can't
  * accidentally lock everyone out by demoting their own only account.
+ *
+ * confirmPassword re-verifies it's really the super admin at the keyboard —
+ * not just an open/left-open session — before granting or revoking admin
+ * access, the single most sensitive action in this panel. Verified on a
+ * throwaway, session-less client (same pattern as changePasswordAction) so
+ * it can't disturb the caller's own session/AAL.
  */
-export async function updateUserRoleAction(targetUserId: string, newRole: AdminUserRole): Promise<void> {
+export async function updateUserRoleAction(
+  targetUserId: string,
+  newRole: AdminUserRole,
+  confirmPassword: string
+): Promise<void> {
   const admin = await requireAdmin();
   if (admin.role !== "super_admin") {
     throw new Error("Only super admins can change roles.");
@@ -24,6 +36,20 @@ export async function updateUserRoleAction(targetUserId: string, newRole: AdminU
   if (targetUserId === admin.id) {
     throw new Error("You can't change your own role from here.");
   }
+
+  const rateLimitKey = await getActionClientKey("update-user-role", admin.id);
+  if (isRateLimited(rateLimitKey, { windowMs: 15 * 60 * 1000, max: 5 })) {
+    throw new Error("Too many attempts. Please try again in a few minutes.");
+  }
+
+  const verifier = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    auth: { persistSession: false },
+  });
+  const { error: verifyError } = await verifier.auth.signInWithPassword({
+    email: admin.email,
+    password: confirmPassword,
+  });
+  if (verifyError) throw new Error("Incorrect password.");
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.rpc("set_user_role", {
@@ -62,7 +88,11 @@ export async function inviteStaffAction(values: InviteStaffFormValues): Promise<
   }
 
   const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(parsed.data.email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/admin`,
+    // Routes through /reset-password first so the invite actually makes them
+    // choose a password, instead of landing an already-authenticated session
+    // straight on /admin. The nested `next` is where /reset-password sends
+    // them once that's done.
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent("/reset-password?next=/admin")}`,
   });
   if (error || !data.user) {
     return { error: error?.message || "Something went wrong sending the invite." };

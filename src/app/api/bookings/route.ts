@@ -38,55 +38,90 @@ export async function POST(request: Request) {
     throw error;
   }
 
-  const supabase = await createSupabaseServerClient();
+  // Everything below can hit the network (Postgres, the pooler) — a
+  // connection reset, a lock-wait timeout, or any other error the RPC
+  // doesn't explicitly raise would otherwise escape as an unhandled
+  // exception. Next.js then renders its own error page instead of JSON, the
+  // client's `response.json()` fails to parse it, and the customer sees a
+  // contentless "Something went wrong" with nothing in the logs to explain
+  // why. Catching everything here guarantees a JSON body either way, and
+  // logs the real error server-side so the next occurrence is diagnosable.
+  try {
+    const supabase = await createSupabaseServerClient();
 
-  if (isPhoneVerificationRequired()) {
-    const { data: profile } = await supabase.from("profiles").select("phone_verified_at").eq("id", user.id).single();
-    if (!profile?.phone_verified_at) {
+    if (isPhoneVerificationRequired()) {
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("phone_verified_at")
+        .eq("id", user.id)
+        .single();
+      if (profileError) {
+        console.error("[/api/bookings] profile lookup failed", { userId: user.id, profileError });
+        return NextResponse.json({ message: "Something went wrong. Please try again." }, { status: 500 });
+      }
+      if (!profile?.phone_verified_at) {
+        return NextResponse.json(
+          { message: "Please verify your mobile number first.", code: "PHONE_NOT_VERIFIED" },
+          { status: 403 }
+        );
+      }
+    }
+
+    const rateLimitKey = `booking:${user.id}`;
+    if (isRateLimited(rateLimitKey, { windowMs: 60 * 1000, max: 5 })) {
+      return NextResponse.json({ message: "Please slow down and try again in a moment." }, { status: 429 });
+    }
+
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ message: "Invalid request." }, { status: 400 });
+    }
+
+    const parsed = bookClassSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ message: "Please select a class and package." }, { status: 400 });
+    }
+
+    const { data, error } = await supabase
+      .rpc("book_class_session", {
+        p_class_session_id: parsed.data.classSessionId,
+        p_customer_package_id: parsed.data.customerPackageId,
+      })
+      .single();
+
+    if (error) {
+      const mapped = ERROR_MAP[error.code ?? ""];
+      if (!mapped) {
+        console.error("[/api/bookings] unmapped book_class_session error", {
+          userId: user.id,
+          classSessionId: parsed.data.classSessionId,
+          customerPackageId: parsed.data.customerPackageId,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+        });
+      }
       return NextResponse.json(
-        { message: "Please verify your mobile number first.", code: "PHONE_NOT_VERIFIED" },
-        { status: 403 }
+        { message: mapped?.message ?? "Something went wrong. Please try again." },
+        { status: mapped?.status ?? 500 }
       );
     }
+
+    const result = data as { booking_id: string; remaining_credits: number };
+
+    // after() runs once the response has been sent — the booking (already
+    // committed by the RPC above) doesn't wait on two emails' worth of
+    // network round-trips before the customer sees "booked."
+    after(() => notifyBookingCreated(supabase, result.booking_id, result.remaining_credits));
+
+    return NextResponse.json({ success: true, bookingId: result.booking_id, remainingCredits: result.remaining_credits });
+  } catch (error) {
+    console.error("[/api/bookings] unhandled error", { userId: user.id, error });
+    return NextResponse.json({ message: "Something went wrong. Please try again." }, { status: 500 });
   }
-
-  const rateLimitKey = `booking:${user.id}`;
-  if (isRateLimited(rateLimitKey, { windowMs: 60 * 1000, max: 5 })) {
-    return NextResponse.json({ message: "Please slow down and try again in a moment." }, { status: 429 });
-  }
-
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ message: "Invalid request." }, { status: 400 });
-  }
-
-  const parsed = bookClassSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ message: "Please select a class and package." }, { status: 400 });
-  }
-
-  const { data, error } = await supabase
-    .rpc("book_class_session", {
-      p_class_session_id: parsed.data.classSessionId,
-      p_customer_package_id: parsed.data.customerPackageId,
-    })
-    .single();
-
-  if (error) {
-    const mapped = ERROR_MAP[error.code ?? ""] ?? { status: 500, message: "Something went wrong. Please try again." };
-    return NextResponse.json({ message: mapped.message }, { status: mapped.status });
-  }
-
-  const result = data as { booking_id: string; remaining_credits: number };
-
-  // after() runs once the response has been sent — the booking (already
-  // committed by the RPC above) doesn't wait on two emails' worth of
-  // network round-trips before the customer sees "booked."
-  after(() => notifyBookingCreated(supabase, result.booking_id, result.remaining_credits));
-
-  return NextResponse.json({ success: true, bookingId: result.booking_id, remainingCredits: result.remaining_credits });
 }
 
 type BookingNotificationRow = {

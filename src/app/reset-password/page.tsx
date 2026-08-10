@@ -9,7 +9,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/reset-password" },
 };
 
-export default function ResetPasswordPage() {
+type ResetPasswordPageProps = {
+  searchParams: Promise<{ next?: string }>;
+};
+
+export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
+  const params = await searchParams;
+
   return (
     <section className="mx-auto max-w-md px-6 pt-28 pb-16 sm:px-8 sm:pb-20">
       <AnimatedSection>
@@ -17,7 +23,7 @@ export default function ResetPasswordPage() {
       </AnimatedSection>
 
       <AnimatedSection delay={0.1} className="mt-10">
-        <ResetPasswordForm />
+        <ResetPasswordForm redirectTo={params.next} />
       </AnimatedSection>
     </section>
   );

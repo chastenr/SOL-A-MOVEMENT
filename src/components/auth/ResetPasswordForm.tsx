@@ -9,7 +9,7 @@ import { resetPasswordAction } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/Button";
 import { PasswordField } from "@/components/ui/PasswordField";
 
-export function ResetPasswordForm() {
+export function ResetPasswordForm({ redirectTo }: { redirectTo?: string }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -32,7 +32,7 @@ export function ResetPasswordForm() {
         setServerError(result.error);
         return;
       }
-      router.push("/account");
+      router.push(redirectTo && redirectTo.startsWith("/") ? redirectTo : "/account");
       router.refresh();
     } catch {
       setServerError("Something went wrong. Please try again.");

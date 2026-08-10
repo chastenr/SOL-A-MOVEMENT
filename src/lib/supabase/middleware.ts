@@ -8,7 +8,12 @@ const PROTECTED_PREFIXES = ["/account", "/admin"];
 // gets the page's own redirect to /admin/login rather than the generic
 // customer /login.
 const PUBLIC_EXCEPTIONS = ["/admin/login", "/admin/mfa"];
-const AUTH_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password"];
+// /reset-password is deliberately excluded: invite and forgot-password links
+// exchange their code for a live session BEFORE landing here, so a signed-in
+// user is exactly who's supposed to be on this page. Bouncing them to
+// /account (like the other auth routes below) skipped the "set a password"
+// step entirely.
+const AUTH_ROUTES = ["/login", "/signup", "/forgot-password"];
 
 /**
  * Whole-site password gate for pre-launch — a plain on-brand password page
