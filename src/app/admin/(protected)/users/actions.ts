@@ -62,6 +62,63 @@ export async function updateUserRoleAction(
 }
 
 /**
+ * Permanently deletes an account (auth.users row + everything that
+ * cascades from it — profiles.id is `on delete cascade`, see migration
+ * 0001). Guarded the same way as a role change (super_admin only, can't
+ * target your own account, password re-entered and rate-limited) since
+ * this is even more sensitive — unlike a role change, it can't be undone
+ * by picking a different dropdown value afterward.
+ *
+ * Deliberately NOT soft-deleted or force-cascaded through purchase/booking
+ * history: `purchases.user_id` and `class_bookings.user_id` are `on delete
+ * restrict` on purpose (migration 0001), so an account with real payment or
+ * class history simply can't be deleted this way — Postgres rejects it and
+ * that rejection is surfaced as a plain-language error rather than losing
+ * financial/attendance records silently. Only genuinely unused accounts
+ * (never purchased, never booked) can actually go through here.
+ */
+export async function deleteUserAction(targetUserId: string, confirmPassword: string): Promise<void> {
+  const admin = await requireAdmin();
+  if (admin.role !== "super_admin") {
+    throw new Error("Only super admins can delete accounts.");
+  }
+  if (targetUserId === admin.id) {
+    throw new Error("You can't delete your own account from here.");
+  }
+
+  if (!isSupabaseConfigured || !supabaseAdmin) {
+    throw new Error("Deleting accounts requires SUPABASE_SERVICE_ROLE_KEY to be configured — it isn't yet.");
+  }
+
+  const rateLimitKey = await getActionClientKey("delete-user", admin.id);
+  if (isRateLimited(rateLimitKey, { windowMs: 15 * 60 * 1000, max: 5 })) {
+    throw new Error("Too many attempts. Please try again in a few minutes.");
+  }
+
+  const verifier = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    auth: { persistSession: false },
+  });
+  const { error: verifyError } = await verifier.auth.signInWithPassword({
+    email: admin.email,
+    password: confirmPassword,
+  });
+  if (verifyError) throw new Error("Incorrect password.");
+
+  const { error } = await supabaseAdmin.auth.admin.deleteUser(targetUserId);
+  if (error) {
+    // Postgres surfaces the on-delete-restrict block as a foreign_key_violation.
+    if ((error as { code?: string }).code === "23503" || /foreign key/i.test(error.message)) {
+      throw new Error(
+        "This account has purchase or booking history and can't be deleted — that record has to stay intact. Set it to Customer instead of removing it."
+      );
+    }
+    throw new Error(error.message || "Something went wrong. Please try again.");
+  }
+
+  revalidatePath("/admin/users");
+}
+
+/**
  * Creates a brand-new account for a staff member and sends them Supabase's
  * own invite email (they set their own password by clicking the link — this
  * app never sees or sets a password on their behalf). Requires the

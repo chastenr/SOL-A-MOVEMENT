@@ -230,3 +230,60 @@ export async function getAdminBookingById(id: string): Promise<AdminBookingRow |
   const bookings = await getAdminBookings({ id });
   return bookings[0] ?? null;
 }
+
+export type ClassSessionRosterRow = {
+  id: string;
+  reference: string;
+  status: AdminBookingStatus;
+  customerName: string;
+  customerEmail: string;
+  packageName: string;
+};
+
+/**
+ * Who's booked into one specific session — this is the "every hour, every
+ * day" check-in list: an admin/coach opens the session that just ran (or is
+ * running) and marks each row Completed or No Show. Deliberately not routed
+ * through getAdminBookings() — that function joins payment/package detail
+ * this view doesn't need, and has no session-id filter to begin with (see
+ * migration 0004's admin_complete_class_booking/admin_mark_class_booking_no_show,
+ * which is what these rows' actions ultimately call).
+ */
+export async function getClassSessionRoster(sessionId: string): Promise<ClassSessionRosterRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("class_bookings")
+    .select("id, status, user_id, customer_package:customer_packages(package_name_snapshot)")
+    .eq("class_session_id", sessionId)
+    .order("booked_at", { ascending: true });
+
+  const rows = (data ?? []) as unknown as {
+    id: string;
+    status: AdminBookingStatus;
+    user_id: string;
+    customer_package: { package_name_snapshot: string } | null;
+  }[];
+  if (rows.length === 0) return [];
+
+  // class_bookings.user_id references auth.users, not public.profiles —
+  // PostgREST can't auto-embed across that (same limitation as
+  // getAdminBookings above), so names/emails are fetched separately.
+  const userIds = [...new Set(rows.map((row) => row.user_id))];
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, first_name, last_name, email")
+    .in("id", userIds);
+  const profileById = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
+
+  return rows.map((row) => {
+    const profile = profileById.get(row.user_id);
+    return {
+      id: row.id,
+      reference: bookingReference(row.id),
+      status: row.status,
+      customerName: profile ? `${profile.first_name} ${profile.last_name}`.trim() || profile.email : "—",
+      customerEmail: profile?.email ?? "—",
+      packageName: row.customer_package?.package_name_snapshot ?? "—",
+    };
+  });
+}

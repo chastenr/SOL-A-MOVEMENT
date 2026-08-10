@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminUsers, type AdminUserRole } from "@/lib/admin/users";
 import { fieldInputClasses } from "@/components/ui/Field";
 import { RoleSelect } from "@/components/admin/RoleSelect";
+import { DeleteUserButton } from "@/components/admin/DeleteUserButton";
 import { InviteStaffForm } from "@/components/admin/InviteStaffForm";
 import { isSupabaseConfigured } from "@/lib/supabase/admin";
 
@@ -106,6 +107,7 @@ export default async function AdminUsersPage({
                 <th className="px-4 py-3">Joined</th>
                 <th className="px-4 py-3">Role</th>
                 <th className="px-4 py-3">Change Role</th>
+                <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody>
@@ -123,6 +125,14 @@ export default async function AdminUsersPage({
                   </td>
                   <td className="px-4 py-3">
                     <RoleSelect userId={user.id} currentRole={user.role} disabled={user.id === admin.id} />
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <DeleteUserButton
+                      userId={user.id}
+                      name={`${user.firstName} ${user.lastName}`.trim()}
+                      email={user.email}
+                      disabled={user.id === admin.id}
+                    />
                   </td>
                 </tr>
               ))}
