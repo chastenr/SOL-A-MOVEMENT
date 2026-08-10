@@ -137,6 +137,11 @@ export async function forgotPasswordAction(values: ForgotPasswordFormValues): Pr
   });
 
   if (error) {
+    if (error.status === 429 || error.code === "over_email_send_rate_limit") {
+      return {
+        error: "Too many reset links were requested. Please wait up to one hour before trying again.",
+      };
+    }
     return { error: "We couldn't send the reset email. Please try again shortly." };
   }
 
