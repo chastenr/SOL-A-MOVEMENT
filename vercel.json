@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/check-attendance",
       "schedule": "5 14 * * *"
+    },
+    {
+      "path": "/api/cron/generate-sessions",
+      "schedule": "10 16 * * *"
     }
   ]
 }

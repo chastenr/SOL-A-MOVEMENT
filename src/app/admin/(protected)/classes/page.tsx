@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/Button";
 import { CancelClassSessionButton } from "@/components/admin/CancelClassSessionButton";
 import { DuplicateWeekForm } from "@/components/admin/DuplicateWeekForm";
 import { getDisplayStatus, STATUS_STYLES } from "@/lib/class-session-status";
-import { formatHourLabel } from "@/lib/studio-hours";
-import { setClassSessionBookingEnabledAction, setClassTimeSlotActiveAction } from "./actions";
+import { ClassTimeSlotRow } from "@/components/admin/ClassTimeSlotRow";
+import { GenerateSessionsButton } from "@/components/admin/GenerateSessionsButton";
+import { setClassSessionBookingEnabledAction } from "./actions";
 import { cn } from "@/lib/utils";
+
+const BALLET_SERVICE_SLUG = "ballet";
 
 export const metadata: Metadata = {
   title: "Classes",
@@ -34,6 +37,10 @@ type SlotRow = {
   id: string;
   hour: number;
   is_active: boolean;
+  class_type_id: string | null;
+  instructor_id: string | null;
+  capacity: number;
+  minimum_participants: number | null;
   location: { name: string } | null;
 };
 
@@ -44,7 +51,7 @@ export default async function AdminClassesPage() {
   // Fetched together (not one-then-the-other) so combining these two
   // formerly-separate pages into one doesn't turn into two sequential
   // round-trips instead of one.
-  const [{ data }, { data: slotsData }] = await Promise.all([
+  const [{ data }, { data: slotsData }, { data: classTypesData }, { data: instructorsData }] = await Promise.all([
     supabase
       .from("class_sessions")
       .select(
@@ -52,10 +59,19 @@ export default async function AdminClassesPage() {
       )
       .order("start_at", { ascending: true })
       .limit(100),
-    supabase.from("class_time_slots").select("id, hour, is_active, location:locations(name)").order("hour"),
+    supabase
+      .from("class_time_slots")
+      .select("id, hour, is_active, class_type_id, instructor_id, capacity, minimum_participants, location:locations(name)")
+      .order("hour"),
+    // Ballet excluded — it isn't part of the hourly recurring grid (see
+    // migration 0012), so it's not a valid choice for a Class Times slot.
+    supabase.from("class_types").select("id, name, service_slug").eq("active", true).neq("service_slug", BALLET_SERVICE_SLUG).order("name"),
+    supabase.from("instructors").select("id, name").eq("active", true).order("name"),
   ]);
 
   const sessions = (data as unknown as SessionRow[]) ?? [];
+  const classTypeOptions = (classTypesData ?? []).map((row) => ({ id: row.id, name: row.name }));
+  const instructorOptions = instructorsData ?? [];
 
   const slots = ((slotsData as unknown as SlotRow[] | null) ?? []).slice();
   const slotsByLocation = new Map<string, SlotRow[]>();
@@ -95,9 +111,17 @@ export default async function AdminClassesPage() {
         <div className="border-t border-charcoal/10 px-4 py-4">
           <p className="text-xs text-charcoal/50">
             Hourly start times for Mat Pilates, Yoga, Barre and Strength &amp; HIIT — each fixed at 50
-            minutes. Turn a time off and it won&rsquo;t be offered above. Ballet isn&rsquo;t affected — those
-            classes are 60/90 minutes with their own start time.
+            minutes. Assign a class (and optionally a coach, capacity, minimum) to an hour and it repeats
+            automatically every day — a nightly job keeps the next 14 days generated, so no one has to
+            hand-schedule the same hour over and over. Leave it &ldquo;— None —&rdquo; for an hour you only
+            want to schedule into one-off. Ballet isn&rsquo;t affected — those classes are 60/90 minutes with
+            their own start time, set individually via Schedule Session.
           </p>
+
+          <div className="mt-3">
+            <GenerateSessionsButton />
+          </div>
+
           {slotsByLocation.size === 0 ? (
             <p className="mt-4 text-sm text-charcoal/60">No locations found to schedule class times for yet.</p>
           ) : (
@@ -106,24 +130,38 @@ export default async function AdminClassesPage() {
                 <div className="border-b border-charcoal/10 bg-cream/40 px-3 py-2">
                   <p className="text-xs font-medium text-charcoal">{locationName}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-px bg-charcoal/5 sm:grid-cols-3 lg:grid-cols-4">
-                  {locationSlots.map((slot) => (
-                    <div key={slot.id} className="flex items-center justify-between gap-3 bg-ivory px-3 py-2">
-                      <span className="text-sm text-charcoal">{formatHourLabel(slot.hour)}</span>
-                      <form action={setClassTimeSlotActiveAction.bind(null, slot.id, !slot.is_active)}>
-                        <button
-                          type="submit"
-                          className={
-                            slot.is_active
-                              ? "rounded-full bg-clay/10 px-2.5 py-1 text-xs text-clay underline-offset-2 hover:underline"
-                              : "rounded-full bg-charcoal/10 px-2.5 py-1 text-xs text-charcoal/50 underline-offset-2 hover:underline"
-                          }
-                        >
-                          {slot.is_active ? "Open" : "Closed"}
-                        </button>
-                      </form>
-                    </div>
-                  ))}
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[720px] text-left text-sm">
+                    <thead className="border-b border-charcoal/10 text-xs uppercase tracking-[0.06em] text-charcoal/40">
+                      <tr>
+                        <th className="px-3 py-2">Hour</th>
+                        <th className="px-3 py-2">Status</th>
+                        <th className="px-3 py-2">Class</th>
+                        <th className="px-3 py-2">Coach</th>
+                        <th className="px-3 py-2">Capacity</th>
+                        <th className="px-3 py-2">Min</th>
+                        <th className="px-3 py-2" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {locationSlots.map((slot) => (
+                        <ClassTimeSlotRow
+                          key={slot.id}
+                          slot={{
+                            id: slot.id,
+                            hour: slot.hour,
+                            isActive: slot.is_active,
+                            classTypeId: slot.class_type_id,
+                            instructorId: slot.instructor_id,
+                            capacity: slot.capacity,
+                            minimumParticipants: slot.minimum_participants,
+                          }}
+                          classTypes={classTypeOptions}
+                          instructors={instructorOptions}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             ))

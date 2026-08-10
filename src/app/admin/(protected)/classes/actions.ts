@@ -263,6 +263,73 @@ export async function setClassTimeSlotActiveAction(id: string, isActive: boolean
   revalidatePath("/admin/classes/new");
 }
 
+export type ClassTimeSlotTemplateValues = {
+  classTypeId: string | null;
+  instructorId: string | null;
+  capacity: number;
+  minimumParticipants: number | null;
+};
+
+/**
+ * Assigns (or clears) what recurs at this hour — which class type, coach,
+ * capacity, minimum. A slot with a class type set is what
+ * generate_recurring_class_sessions() (migration 0015) turns into real,
+ * bookable sessions going forward; clearing it back to "— None —" stops new
+ * ones from being generated (existing ones are untouched either way).
+ */
+export async function setClassTimeSlotTemplateAction(
+  id: string,
+  values: ClassTimeSlotTemplateValues
+): Promise<ActionResult> {
+  await requireAdmin();
+  if (!Number.isInteger(values.capacity) || values.capacity < 1) {
+    return { error: "Capacity must be at least 1." };
+  }
+  if (values.minimumParticipants !== null && values.minimumParticipants > values.capacity) {
+    return { error: "Minimum can't be greater than capacity." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("class_time_slots")
+    .update({
+      class_type_id: values.classTypeId,
+      instructor_id: values.instructorId,
+      capacity: values.capacity,
+      minimum_participants: values.minimumParticipants,
+    })
+    .eq("id", id);
+  if (error) return { error: "Something went wrong. Please try again." };
+
+  // Generate right away for this slot rather than making the admin wait
+  // for the next 1 AM Manila cron run to see anything appear.
+  if (values.classTypeId) {
+    await supabase.rpc("generate_recurring_class_sessions", { p_days_ahead: 14 });
+  }
+
+  revalidatePath("/admin/classes");
+  revalidatePath("/admin/classes/new");
+  revalidatePath("/account/book");
+  revalidatePath("/schedule");
+  return { success: true };
+}
+
+export type GenerateSessionsResult = { error: string } | { success: true; created: number };
+
+/** Manual "Generate Now" trigger — same function the daily cron calls. */
+export async function generateRecurringSessionsAction(): Promise<GenerateSessionsResult> {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("generate_recurring_class_sessions", { p_days_ahead: 14 });
+  if (error) return { error: "Something went wrong. Please try again." };
+
+  revalidatePath("/admin/classes");
+  revalidatePath("/admin/calendar");
+  revalidatePath("/account/book");
+  revalidatePath("/schedule");
+  return { success: true, created: (data as number) ?? 0 };
+}
+
 /**
  * Copies every 'scheduled' session in the given week to the following
  * week, same class/location/instructor/time-of-day/capacity/minimum,
