@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isHeic, convertHeicToJpeg } from "@/lib/heic";
 
 type ActionResult = { error: string } | { success: true };
 
@@ -49,8 +50,18 @@ export async function upsertCoachAction(formData: FormData): Promise<ActionResul
 
   if (photo instanceof File && photo.size > 0) {
     if (photo.size > MAX_BYTES) return { error: "Photo is too large. Please upload a file under 4MB." };
-    const bytes = new Uint8Array(await photo.arrayBuffer());
-    const mimeType = sniffImageType(bytes);
+    let bytes = new Uint8Array(await photo.arrayBuffer());
+    let mimeType = sniffImageType(bytes);
+
+    if (!mimeType && isHeic(bytes)) {
+      try {
+        bytes = await convertHeicToJpeg(bytes);
+        mimeType = "image/jpeg";
+      } catch {
+        return { error: "That photo couldn't be converted. Please try a different one, or export it as a JPEG first." };
+      }
+    }
+
     if (!mimeType) return { error: "Please upload a JPEG, PNG or WebP image." };
 
     const path = `${crypto.randomUUID()}.${EXTENSION[mimeType]}`;

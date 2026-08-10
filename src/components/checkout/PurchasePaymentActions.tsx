@@ -68,7 +68,7 @@ export function PurchasePaymentActions({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/png,application/pdf"
+            accept="image/jpeg,image/png,application/pdf,image/heic,image/heif"
             onChange={handleUpload}
             disabled={uploading}
             className="text-sm text-charcoal/70 file:mr-3 file:rounded-full file:border-0 file:bg-cream file:px-4 file:py-2 file:text-xs file:font-medium file:uppercase file:tracking-[0.1em] file:text-charcoal hover:file:bg-sand"

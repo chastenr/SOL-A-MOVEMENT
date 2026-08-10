@@ -92,18 +92,18 @@ export function CoachForm({ coach }: { coach?: Coach }) {
           )}
           <input
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
             onChange={handlePhotoChange}
             className="text-sm text-charcoal/70 file:mr-3 file:rounded-full file:border-0 file:bg-cream file:px-4 file:py-2 file:text-xs file:font-medium file:uppercase file:tracking-[0.1em] file:text-charcoal hover:file:bg-sand"
           />
         </div>
         {previewError ? (
-          <p className="mt-1 text-xs text-red-600">
-            Couldn&rsquo;t load that as an image. A common cause: an iPhone photo saved with a .png/.jpg name
-            that&rsquo;s still actually in HEIC format — re-save or export it as a JPEG/PNG first, then try again.
+          <p className="mt-1 text-xs text-charcoal/50">
+            No preview available for this photo (common for iPhone photos saved as HEIC) — that&rsquo;s fine,
+            it&rsquo;ll still be converted and saved when you submit.
           </p>
         ) : (
-          <p className="mt-1 text-xs text-charcoal/40">JPEG, PNG or WebP, up to 4MB.</p>
+          <p className="mt-1 text-xs text-charcoal/40">JPEG, PNG, WebP or an iPhone photo (HEIC), up to 4MB.</p>
         )}
       </Field>
 

@@ -3,6 +3,7 @@ import { requireUserApi, AuthError } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getClientKey, isRateLimited } from "@/lib/rate-limit";
 import { isUuid } from "@/lib/utils";
+import { isHeic, convertHeicToJpeg } from "@/lib/heic";
 
 // Vercel serverless functions cap request bodies well under 4.5MB — stay
 // comfortably below that rather than an arbitrary "8MB is fine" guess.
@@ -55,9 +56,26 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ message: "File is too large. Please upload a file under 4MB." }, { status: 413 });
   }
 
-  const bytes = new Uint8Array(await file.arrayBuffer());
+  let bytes = new Uint8Array(await file.arrayBuffer());
   // Never trust the client-supplied Content-Type — only the file's own magic bytes.
-  const sniffed = sniffMimeType(bytes);
+  let sniffed = sniffMimeType(bytes);
+
+  // A phone screenshot/photo of a receipt saved or shared with a ".jpg"/
+  // ".png" name is very often still actually HEIC underneath — convert
+  // rather than reject, since asking a customer mid-checkout to go find a
+  // JPEG-export option is real friction for something this common.
+  if (!sniffed && isHeic(bytes)) {
+    try {
+      bytes = await convertHeicToJpeg(bytes);
+      sniffed = "image/jpeg";
+    } catch {
+      return NextResponse.json(
+        { message: "That photo couldn't be converted. Please try a different one, or export it as a JPEG first." },
+        { status: 400 }
+      );
+    }
+  }
+
   if (!sniffed) {
     return NextResponse.json(
       { message: "Unsupported file type. Please upload a JPEG, PNG or PDF." },
