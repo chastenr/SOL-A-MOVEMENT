@@ -46,6 +46,7 @@ export type AdminBookingFilters = {
   range?: "today" | "upcoming" | "past";
   serviceSlug?: string;
   locationId?: string;
+  /** Filters by the class SESSION's start time (calendar view), not by when the booking was made. */
   from?: string;
   to?: string;
 };
@@ -122,8 +123,6 @@ export async function getAdminBookings(filters: AdminBookingFilters = {}): Promi
 
   if (filters.id) query = query.eq("id", filters.id);
   if (filters.status) query = query.eq("status", filters.status);
-  if (filters.from) query = query.gte("booked_at", filters.from);
-  if (filters.to) query = query.lte("booked_at", filters.to);
 
   const { data, error } = await query;
   if (error || !data) return [];
@@ -190,6 +189,20 @@ export async function getAdminBookings(filters: AdminBookingFilters = {}): Promi
         : null,
     };
   });
+
+  // Calendar view: which sessions land on the visible days, not which
+  // bookings were made in that window — booked_at and the session's own
+  // start_at are frequently different dates (a booking made today for a
+  // class next week), so this has to filter on the session time.
+  if (filters.from || filters.to) {
+    const fromTime = filters.from ? new Date(filters.from).getTime() : -Infinity;
+    const toTime = filters.to ? new Date(filters.to).getTime() : Infinity;
+    mapped = mapped.filter((row) => {
+      if (!row.session) return false;
+      const start = new Date(row.session.startAt).getTime();
+      return start >= fromTime && start <= toTime;
+    });
+  }
 
   if (filters.serviceSlug) {
     mapped = mapped.filter((row) => row.session?.serviceSlug === filters.serviceSlug);

@@ -101,7 +101,7 @@ export function Footer() {
 
         <div className="mt-10 grid gap-2 border-t border-ivory/10 pt-6 text-[11px] text-ivory/45 sm:grid-cols-2">
           <p>© 2026 {siteConfig.name}. All rights reserved.</p>
-          <div className="sm:text-right">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:justify-end sm:text-right">
             {siteConfig.hours.length > 0 ? (
               siteConfig.hours.map((entry, index) => (
                 <span key={entry.day}>
@@ -112,22 +112,19 @@ export function Footer() {
             ) : (
               <span>{siteConfig.hoursNote}</span>
             )}
+            <Link
+              href="https://elevenchase.com"
+              target="_blank"
+              rel="noreferrer noopener"
+              aria-label="Website by ElevenChase"
+              className="group inline-flex items-center gap-2 text-ivory/45 transition-colors hover:text-ivory/80"
+            >
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-ivory/30 text-[9px] font-medium text-ivory/60 transition-colors group-hover:border-ivory/50 group-hover:text-ivory">
+                C
+              </span>
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em]">ElevenChase</span>
+            </Link>
           </div>
-        </div>
-
-        <div className="mt-6 flex justify-center border-t border-ivory/10 pb-2 pt-8">
-          <Link
-            href="https://elevenchase.com"
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label="Website by ElevenChase"
-            className="group inline-flex items-center gap-4 text-ivory/50 transition-colors hover:text-ivory/85"
-          >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ivory/35 text-sm font-medium text-ivory/65 transition-colors group-hover:border-ivory/60 group-hover:text-ivory">
-              C
-            </span>
-            <span className="text-lg font-medium uppercase tracking-[0.16em] sm:text-xl">ElevenChase</span>
-          </Link>
         </div>
       </div>
     </footer>
