@@ -12,6 +12,15 @@ type ServiceCardProps = {
 };
 
 export function ServiceCard({ service, variant = "compact", className }: ServiceCardProps) {
+  const variantGroups = service.classVariants
+    ? service.category === "Recovery & Restore"
+      ? [
+          { label: "Heated Classes", items: service.classVariants.filter((name) => name.startsWith("Heated ")) },
+          { label: "Red Light Therapy", items: service.classVariants.filter((name) => name.startsWith("Red Light + ")) },
+        ]
+      : [{ label: "Classes Offered", items: service.classVariants }]
+    : [];
+
   if (variant === "detailed") {
     return (
       <article
@@ -58,11 +67,18 @@ export function ServiceCard({ service, variant = "compact", className }: Service
             )}
           </dl>
 
-          {service.classVariants && (
-            <p className="mt-4 max-w-lg text-sm text-charcoal/55">
-              Includes: {service.classVariants.join(", ")}
-            </p>
-          )}
+          {variantGroups.map((group) => (
+            <div key={group.label} className="mt-5 max-w-2xl">
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-charcoal/45">{group.label}</p>
+              <ul className="mt-2 grid gap-2 sm:grid-cols-2" aria-label={`${service.name} — ${group.label}`}>
+                {group.items.map((name) => (
+                  <li key={name} className="rounded-lg border border-charcoal/10 bg-cream/35 px-3 py-2 text-sm text-charcoal/70">
+                    {name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
           <div className="mt-8">
             <Button href={`/book?service=${service.slug}`}>Book</Button>

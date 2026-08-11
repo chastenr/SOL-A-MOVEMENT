@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 export const metadata: Metadata = {
   title: "Services",
   description:
-    "Explore Veora Wellness's classes — Mat Pilates, Yoga, Barre, Strength & HIIT, Recovery & Restore and Ballet.",
+    "Explore all 47 Veora Wellness classes across Pilates, yoga, barre, strength, HIIT, heated, red light therapy and ballet.",
   alternates: { canonical: "/services" },
 };
 
