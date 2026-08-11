@@ -49,7 +49,7 @@ export async function ServicesSection() {
                     height={320}
                     hoverScale
                     containerClassName="mask-arch aspect-square w-full shrink-0 sm:w-36 lg:w-44"
-                    sizes="176px"
+                    sizes="(min-width: 1024px) 176px, (min-width: 640px) 144px, calc(100vw - 3rem)"
                   />
 
                   <div className="flex-1">

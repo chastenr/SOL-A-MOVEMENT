@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
 import { requireUser } from "@/lib/auth/require-role";
@@ -18,10 +19,15 @@ export const metadata: Metadata = {
 export default async function AccountBookPage({
   searchParams,
 }: {
-  searchParams: Promise<{ package?: string; service?: string; class?: string }>;
+  searchParams: Promise<{ package?: string; service?: string; class?: string; session?: string }>;
 }) {
   const user = await requireUser();
-  const { package: packageParam, service: requestedService, class: requestedClass } = await searchParams;
+  const {
+    package: packageParam,
+    service: requestedService,
+    class: requestedClass,
+    session: requestedSession,
+  } = await searchParams;
 
   const allPackages = await getCustomerPackages(user.id);
   const activePackages = allPackages.filter((pkg) => pkg.status === "active" && pkg.remainingCredits > 0);
@@ -35,9 +41,11 @@ export default async function AccountBookPage({
   const selectedPackage = activePackages.find((pkg) => pkg.id === packageParam) ?? requestedPackage ?? activePackages[0];
 
   const eligibleSessions = selectedPackage ? await getEligibleSessions(selectedPackage.id, user.id) : [];
-  const sessions = requestedClass
-    ? eligibleSessions.filter((session) => session.classSlug === requestedClass)
-    : eligibleSessions;
+  const sessions = requestedSession
+    ? eligibleSessions.filter((session) => session.id === requestedSession)
+    : requestedClass
+      ? eligibleSessions.filter((session) => session.classSlug === requestedClass)
+      : eligibleSessions;
   const sessionsByDay = [...sessions.reduce((groups, session) => {
     const key = format(new Date(session.startAt), "yyyy-MM-dd");
     groups.set(key, [...(groups.get(key) ?? []), session]);
@@ -66,6 +74,7 @@ export default async function AccountBookPage({
                     package: pkg.id,
                     ...(requestedService ? { service: requestedService } : {}),
                     ...(requestedClass ? { class: requestedClass } : {}),
+                    ...(requestedSession ? { session: requestedSession } : {}),
                   }).toString()}`}
                   className={cn(
                     "rounded-full px-4 py-1.5 text-sm transition-colors",
@@ -93,11 +102,11 @@ export default async function AccountBookPage({
           {sessions.length === 0 ? (
             <div className="mt-8">
               <p className="text-charcoal/60">
-                {requestedClass
-                  ? "No upcoming times are scheduled for this class yet — check back soon or view all available classes."
+                {requestedSession || requestedClass
+                  ? "This class is not available with the selected package. Choose another package or view all available classes."
                   : "No upcoming sessions are scheduled for this package yet — check back soon."}
               </p>
-              {requestedClass && (
+              {(requestedSession || requestedClass) && (
                 <Link href="/account/book" className="mt-3 inline-block text-sm underline underline-offset-4">
                   View all available classes
                 </Link>
@@ -140,7 +149,14 @@ export default async function AccountBookPage({
                                 <p className="font-display text-2xl text-charcoal">
                                   {format(new Date(session.startAt), "h:mm a")}
                                 </p>
-                                <p className="mt-1 text-charcoal">{session.className}</p>
+                                <div className="mt-1 flex flex-wrap items-center gap-2">
+                                  <p className="text-charcoal">{session.className}</p>
+                                  {session.level && (
+                                    <span className="rounded-full bg-clay/10 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.1em] text-clay">
+                                      {session.level}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                               <span className="rounded-full bg-cream/70 px-3 py-1 text-[0.65rem] uppercase tracking-[0.12em] text-charcoal/55">
                                 {isUnavailable
@@ -155,10 +171,13 @@ export default async function AccountBookPage({
                             <p className="mt-3 text-sm text-charcoal/55">{session.location}</p>
                             <p className="mt-1 flex items-center gap-2 text-sm text-charcoal/65">
                               {session.instructorPhotoUrl && (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
+                                <Image
                                   src={session.instructorPhotoUrl}
                                   alt=""
+                                  width={48}
+                                  height={48}
+                                  quality={92}
+                                  sizes="24px"
                                   className="h-6 w-6 rounded-full object-cover"
                                 />
                               )}

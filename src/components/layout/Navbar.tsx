@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { motion, type Variants } from "framer-motion";
+import { Sparkle } from "lucide-react";
+import { LayoutGroup, motion, type Variants } from "framer-motion";
 import { siteConfig } from "@/data/site";
 import { Button } from "@/components/ui/Button";
 import { MobileMenu } from "@/components/layout/MobileMenu";
@@ -14,35 +15,31 @@ import { useAuthState } from "@/lib/auth/use-auth-state";
 
 // Modeled on a reference navbar's actual shipped behavior (inspected via its
 // live HTML/CSS/JS, not guessed): there is no scroll-triggered state change
-// at all — the pill is a permanent semi-transparent, blurred glass shape
-// from the very first frame, on every route. The "premium" feeling comes
-// entirely from a one-time staggered reveal on load, not from resizing on
-// scroll. That's what's reproduced here — no scroll listener, no re-renders
-// tied to scroll position, and (as a side effect) no more "washed out over a
-// bright hero frame" risk, since the pill's own background always supplies
-// its contrast regardless of what's behind it.
+// at all — the pill stays a semi-transparent, blurred glass shape on every
+// route. Each completed page navigation intentionally remounts this motion
+// wrapper so the full navbar smoothly fades in and settles down again.
 const pillVariants: Variants = {
-  hidden: { opacity: 0, y: -28 },
+  hidden: { opacity: 0, y: -36 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, ease: EASE, staggerChildren: 0.07, delayChildren: 0.15 },
+    transition: { duration: 1, ease: EASE, staggerChildren: 0.08, delayChildren: 0.18 },
   },
 };
 
 const fromLeft: Variants = {
   hidden: { opacity: 0, x: -16 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: EASE } },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: EASE } },
 };
 
 const fromTop: Variants = {
   hidden: { opacity: 0, y: -10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: EASE } },
 };
 
 const fromRight: Variants = {
   hidden: { opacity: 0, x: 16 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: EASE } },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: EASE } },
 };
 
 // A user who requested reduced motion still gets the reveal (so the navbar
@@ -78,63 +75,96 @@ export function Navbar() {
     <>
       <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
         <motion.div
+          key={pathname}
           initial="hidden"
           animate="visible"
           variants={pillMotion}
-          className="pointer-events-auto mx-auto flex h-[3.75rem] max-w-7xl items-center justify-between gap-3 rounded-full border border-ivory/10 bg-walnut/55 px-4 shadow-[0_10px_40px_-18px_rgba(20,14,10,0.55)] backdrop-blur-xl sm:h-[4.25rem] sm:px-6"
+          className="pointer-events-auto mx-auto flex h-[4.75rem] max-w-7xl items-center justify-between gap-3 rounded-full border border-ivory/10 bg-walnut/55 px-4 shadow-[0_10px_40px_-18px_rgba(20,14,10,0.55)] backdrop-blur-xl sm:h-[5.5rem] sm:px-6"
         >
-          <motion.div variants={leftMotion} className="min-w-0">
-            <Link href="/" className="flex shrink-0 items-center gap-3 text-ivory">
+          <motion.div
+            variants={leftMotion}
+            className="absolute left-1/2 min-w-0 xl:static"
+          >
+            <Link
+              href="/"
+              className="flex -translate-x-1/2 shrink-0 items-center gap-3 text-ivory xl:translate-x-0"
+            >
               <Image
                 src="/veora-mark.png"
                 alt=""
                 width={608}
                 height={676}
                 priority
+                quality={100}
                 // The source art is brown (matches the logo everywhere it sits
                 // on a light background) — this pill is dark, so it's forced
                 // to ivory here the same way the taupe mark it replaced was
                 // deliberately light-colored for the same reason.
-                className="h-7 w-auto brightness-0 invert drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)] sm:h-8"
+                className="h-9 w-auto brightness-0 invert drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)] sm:h-10"
               />
-              <Image
-                src="/veora-wordmark.png"
-                alt={siteConfig.shortName}
-                width={1218}
-                height={189}
-                priority
-                className="h-3.5 w-auto brightness-0 invert drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)] sm:h-4"
-              />
+              <div className="flex flex-col items-center gap-1">
+                <Image
+                  src="/veora-wordmark.png"
+                  alt={siteConfig.shortName}
+                  width={1218}
+                  height={189}
+                  priority
+                  quality={100}
+                  className="h-4 w-auto brightness-0 invert drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)] sm:h-[1.1rem]"
+                />
+                <div className="flex items-center gap-1.5">
+                  <span className="h-px w-4 bg-ivory/40 sm:w-5" />
+                  <Sparkle className="h-2.5 w-2.5 shrink-0 text-ivory/70" strokeWidth={1.5} />
+                  <span className="h-px w-4 bg-ivory/40 sm:w-5" />
+                </div>
+                <p className="whitespace-nowrap text-[8px] font-medium uppercase tracking-[0.22em] text-ivory/60 sm:text-[9px]">
+                  Move. Flow. Dance.
+                </p>
+              </div>
             </Link>
           </motion.div>
 
-          <nav className="hidden items-center gap-5 xl:flex">
-            {siteConfig.nav.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <motion.div key={item.href} variants={topMotion}>
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "relative py-1 text-[11px] uppercase tracking-[0.2em] transition-[color,transform] duration-300 hover:-translate-y-[1px]",
-                      isActive ? "text-ivory" : "text-ivory/60 hover:text-ivory"
-                    )}
+          <LayoutGroup id="primary-navigation">
+            <nav
+              className="hidden items-center gap-5 xl:flex"
+              aria-label="Primary navigation"
+            >
+              {siteConfig.nav.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <motion.div
+                    key={item.href}
+                    variants={topMotion}
+                    whileTap={reduceMotion ? undefined : { scale: 0.96 }}
                   >
-                    {item.label}
-                    {isActive && (
-                      <motion.span
-                        layoutId="nav-active-indicator"
-                        className="absolute -bottom-1 left-0 right-0 h-px bg-clay"
-                        transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                      />
-                    )}
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </nav>
+                    <Link
+                      href={item.href}
+                      aria-current={isActive ? "page" : undefined}
+                      className={cn(
+                        "relative block px-1 py-2 text-[11px] uppercase tracking-[0.2em] transition-[color,transform] duration-300 hover:-translate-y-px",
+                        isActive ? "text-ivory" : "text-ivory/55 hover:text-ivory"
+                      )}
+                    >
+                      <span>{item.label}</span>
+                      {isActive && (
+                        <motion.span
+                          layoutId="nav-active-indicator"
+                          className="absolute inset-x-1 bottom-0 h-px bg-ivory/75 shadow-[0_1px_5px_rgba(250,247,242,0.45)]"
+                          transition={
+                            reduceMotion
+                              ? { duration: 0 }
+                              : { type: "spring", stiffness: 360, damping: 30, mass: 0.7 }
+                          }
+                        />
+                      )}
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </nav>
+          </LayoutGroup>
 
-          <motion.div variants={rightMotion} className="flex items-center gap-2">
+          <motion.div variants={rightMotion} className="ml-auto flex items-center gap-2 xl:ml-0">
             <Link
               href={signedIn ? "/account" : "/login"}
               className="hidden shrink-0 text-[11px] uppercase tracking-[0.2em] text-ivory/60 transition-colors duration-300 hover:text-ivory xl:inline"

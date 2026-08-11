@@ -14,6 +14,7 @@ export function BookingCta() {
         src={images.bookingCta.src}
         alt={images.bookingCta.alt}
         fill
+        quality={92}
         sizes="100vw"
         className="object-cover opacity-35"
       />

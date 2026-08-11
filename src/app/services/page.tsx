@@ -33,9 +33,18 @@ export default async function ServicesPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pb-14 sm:px-8 sm:pb-16 lg:px-12">
-        <div className="flex flex-col gap-10">
+        {/* lg:columns-2 (not grid) on purpose — each service's "classes
+            offered" list varies a lot in length (Yoga lists 8, Mat Pilates
+            none), so a grid's row-locked height leaves a big gap under the
+            shorter card in the row. A column flow lets each card sit
+            directly under whichever is above it in the same column. */}
+        <div className="lg:columns-2 lg:gap-x-12">
           {services.map((service, index) => (
-            <AnimatedSection key={service.slug} delay={Math.min(index * 0.05, 0.3)}>
+            <AnimatedSection
+              key={service.slug}
+              delay={Math.min(index * 0.05, 0.3)}
+              className="mb-10 break-inside-avoid-column"
+            >
               <ServiceCard service={service} variant="detailed" />
             </AnimatedSection>
           ))}

@@ -4,8 +4,11 @@ export type StudioImage = {
   credit?: string;
 };
 
-function imagekit(id: string, w = 1800) {
-  return `https://ik.imagekit.io/rezeve/business/e29c8d72-9f97-4d16-85e7-a044591c66a9/image/editor/${id}.jpg?tr=w-${w}`;
+function imagekit(id: string) {
+  // Keep the real studio original intact. Its 1478×831 source contains
+  // enough detail for the site's capped layout at roughly 2× density;
+  // asking ImageKit for a fake 3840px derivative only increases bytes.
+  return `https://ik.imagekit.io/rezeve/business/e29c8d72-9f97-4d16-85e7-a044591c66a9/image/editor/${id}.jpg`;
 }
 
 // Pexels photos, chosen for indoor studio settings matching each specific
@@ -29,7 +32,7 @@ export const images = {
   },
   // Real photo of the studio's class floor — mats, props and arched alcoves.
   studioExperienceOne: {
-    src: imagekit("38a6d1e6-7df6-432b-97e9-40edf218eeee", 1800),
+    src: imagekit("38a6d1e6-7df6-432b-97e9-40edf218eeee"),
     alt: "The studio's class floor, lined with rolled mats beneath arched, softly lit alcoves",
   },
   studioExperienceTwo: {

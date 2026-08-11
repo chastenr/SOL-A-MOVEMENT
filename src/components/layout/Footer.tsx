@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Sparkle } from "lucide-react";
 import { siteConfig } from "@/data/site";
 import { COOKIE_SETTINGS_EVENT } from "@/components/privacy/CookieConsent";
 
@@ -43,26 +44,40 @@ export function Footer() {
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-16 sm:px-8 sm:py-20 lg:px-12">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-3.5">
-              {/* Same brightness-0 invert as the navbar mark — the source art
-                  is brown, which turned out too close to this footer's own
-                  walnut background to read clearly; forcing it to ivory
-                  matches the navbar treatment and actually shows up here. */}
+            <div className="flex w-fit items-center gap-4 sm:gap-6">
               <Image
                 src="/veora-mark.png"
                 alt=""
                 width={608}
                 height={676}
-                className="h-8 w-auto brightness-0 invert"
+                quality={100}
+                className="h-20 w-auto shrink-0 brightness-0 invert sm:h-24"
               />
-              <Image
-                src="/veora-wordmark.png"
-                alt={siteConfig.shortName}
-                width={1218}
-                height={189}
-                className="h-4 w-auto brightness-0 invert"
-              />
+
+              <div className="flex min-w-0 flex-col items-center">
+                <Image
+                  src="/veora-wordmark.png"
+                  alt={siteConfig.shortName}
+                  width={1218}
+                  height={189}
+                  quality={100}
+                  className="h-auto w-48 brightness-0 invert sm:w-56"
+                />
+
+                <div className="mt-3 flex items-center gap-3" aria-hidden>
+                  <span className="h-px w-9 bg-ivory/40" />
+                  <Sparkle className="h-3.5 w-3.5 shrink-0 text-ivory/75" strokeWidth={1.35} />
+                  <span className="h-px w-9 bg-ivory/40" />
+                </div>
+                <p className="mt-3 whitespace-nowrap text-[11px] font-medium uppercase tracking-[0.27em] text-ivory/70 sm:text-xs">
+                  Move. Flow. Dance.
+                </p>
+                <p className="mt-2 whitespace-nowrap text-[8px] uppercase tracking-[0.25em] text-ivory/45 sm:text-[9px] sm:tracking-[0.3em]">
+                  Where Movement Becomes Ritual
+                </p>
+              </div>
             </div>
+
             <p className="font-display mt-6 max-w-xs text-xl italic leading-snug text-ivory/80">
               {siteConfig.tagline}
             </p>

@@ -9,13 +9,14 @@ import { getAuthedUser } from "@/lib/auth/require-role";
 export default async function BookPage({
   searchParams,
 }: {
-  searchParams: Promise<{ service?: string; class?: string }>;
+  searchParams: Promise<{ service?: string; class?: string; session?: string }>;
 }) {
   const user = await getAuthedUser();
   const params = await searchParams;
   const bookingParams = new URLSearchParams();
   if (params.service) bookingParams.set("service", params.service);
   if (params.class) bookingParams.set("class", params.class);
+  if (params.session) bookingParams.set("session", params.session);
 
   const query = bookingParams.toString();
   const destination = `/account/book${query ? `?${query}` : ""}`;

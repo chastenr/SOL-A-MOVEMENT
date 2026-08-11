@@ -40,7 +40,7 @@ export function StudioExperience() {
                 width={400}
                 height={400}
                 containerClassName="mask-arch aspect-square border-4 border-cream shadow-[0_16px_40px_-16px_rgba(34,31,28,0.45)]"
-                sizes="20vw"
+                sizes="(min-width: 1024px) 18vw, 38vw"
               />
             </div>
           </div>

@@ -130,6 +130,7 @@ export type EligibleSessionRow = {
   className: string;
   classSlug: string;
   serviceSlug: string;
+  level: string;
   location: string;
   instructor: string | null;
   instructorPhotoUrl: string | null;
@@ -160,7 +161,7 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
   const { data } = await supabase
     .from("class_sessions")
     .select(
-      "id, start_at, end_at, capacity, booked_count, booking_enabled, class_type:class_types(name, slug, service_slug), location:locations(name), instructor:instructors(name, photo_url)"
+      "id, start_at, end_at, capacity, booked_count, booking_enabled, class_type:class_types(name, slug, service_slug, level), location:locations(name), instructor:instructors(name, photo_url)"
     )
     .eq("status", "scheduled")
     .gt("start_at", new Date().toISOString())
@@ -174,7 +175,7 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
     capacity: number;
     booked_count: number;
     booking_enabled: boolean;
-    class_type: { name: string; slug: string; service_slug: string } | null;
+    class_type: { name: string; slug: string; service_slug: string; level: string } | null;
     location: { name: string } | null;
     instructor: { name: string; photo_url: string | null } | null;
   };
@@ -194,6 +195,7 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
       className: row.class_type?.name ?? "—",
       classSlug: row.class_type?.slug ?? "",
       serviceSlug: row.class_type?.service_slug ?? "",
+      level: row.class_type?.level ?? "",
       location: row.location?.name ?? "—",
       instructor: row.instructor?.name ?? null,
       instructorPhotoUrl: row.instructor?.photo_url ?? null,

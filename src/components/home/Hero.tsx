@@ -65,6 +65,7 @@ export function Hero() {
               alt={images.hero.alt}
               fill
               priority
+              quality={92}
               sizes="100vw"
               className="object-cover"
             />
@@ -91,6 +92,7 @@ export function Hero() {
                 muted
                 loop
                 playsInline
+                preload="metadata"
                 aria-hidden
                 className="relative h-full w-full object-cover"
               >

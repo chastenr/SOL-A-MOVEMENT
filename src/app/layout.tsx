@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/data/site";
 import { Navbar } from "@/components/layout/Navbar";
@@ -8,10 +8,11 @@ import { TextRevealController } from "@/components/layout/TextRevealController";
 import { CookieConsent } from "@/components/privacy/CookieConsent";
 import { OrganizationSchema } from "@/components/seo/OrganizationSchema";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const cormorantGaramond = Cormorant_Garamond({
+  variable: "--font-cormorant-garamond",
   subsets: ["latin"],
-  axes: ["opsz", "SOFT", "WONK"],
+  weight: "variable",
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -54,7 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
+      className={`${cormorantGaramond.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ivory text-charcoal">
         <OrganizationSchema />

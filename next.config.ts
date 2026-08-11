@@ -6,6 +6,20 @@ import path from "node:path";
 // actually configured, without a code change if it ever changes.
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const isDev = process.env.NODE_ENV === "development";
+const supabaseImagePattern = (() => {
+  if (!supabaseUrl) return null;
+  try {
+    const url = new URL(supabaseUrl);
+    return {
+      protocol: url.protocol === "http:" ? ("http" as const) : ("https" as const),
+      hostname: url.hostname,
+      port: url.port,
+      pathname: "/storage/v1/object/public/coach-photos/**",
+    };
+  } catch {
+    return null;
+  }
+})();
 
 // Static (non-nonce) CSP, per Next.js's own documented "Without Nonces"
 // approach (node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md).
@@ -40,10 +54,8 @@ const cspDirectives = [
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   // Supabase Storage host included so admin-uploaded images (coach photos,
-  // payment QR codes, receipts) actually render — these are plain <img>
-  // tags pointing at runtime URLs, not next/image, so Next's own
-  // remotePatterns config below doesn't cover them; CSP is a separate gate
-  // that blocks the browser's image *request* regardless of that.
+  // payment QR codes, receipts) render. CSP is a separate gate from the
+  // next/image remotePatterns configuration below.
   `img-src 'self' data: https://images.pexels.com https://ik.imagekit.io https://images.unsplash.com https://upload.wikimedia.org${supabaseUrl ? ` ${supabaseUrl}` : ""}`,
   "font-src 'self'",
   `connect-src 'self'${supabaseUrl ? ` ${supabaseUrl}` : ""}`,
@@ -73,11 +85,18 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    // Preserve a true 2x candidate for full-bleed photography on 1920px
+    // displays, including the small overscan used by reveal animations.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840, 4096],
+    // Photography uses 92 (visually near-lossless without the severe weight
+    // of blanket quality 100); small brand assets explicitly request 100.
+    qualities: [75, 92, 100],
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "upload.wikimedia.org" },
       { protocol: "https", hostname: "ik.imagekit.io" },
       { protocol: "https", hostname: "images.pexels.com" },
+      ...(supabaseImagePattern ? [supabaseImagePattern] : []),
     ],
   },
   async headers() {

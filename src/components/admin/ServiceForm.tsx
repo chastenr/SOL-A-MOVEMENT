@@ -102,7 +102,8 @@ export function ServiceForm({
         <input {...register("imageSrc")} className={fieldInputClasses} />
         <p className="mt-1 text-xs text-charcoal/45">
           Must be hosted on an already-configured domain (images.pexels.com, images.unsplash.com,
-          upload.wikimedia.org or ik.imagekit.io) or the image won&rsquo;t render.
+          upload.wikimedia.org or ik.imagekit.io). Use the original image URL—not a thumbnail—with
+          at least 2400px on its longest edge.
         </p>
       </Field>
       <Field label="Image Alt Text" required error={errors.imageAlt?.message} className="sm:col-span-2">

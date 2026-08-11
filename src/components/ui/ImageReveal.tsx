@@ -17,6 +17,7 @@ export function ImageReveal({
   imageClassName,
   hoverScale = false,
   alt,
+  quality = 92,
   ...imageProps
 }: ImageRevealProps) {
   return (
@@ -29,15 +30,18 @@ export function ImageReveal({
     >
       <motion.div
         className="h-full w-full"
-        initial={{ scale: 1.15 }}
+        // A smaller reveal zoom keeps the cinematic movement without briefly
+        // stretching a responsive raster image far beyond its rendered size.
+        initial={{ scale: 1.06 }}
         whileInView={{ scale: 1 }}
         viewport={{ once: true, margin: "-10% 0px" }}
-        whileHover={hoverScale ? { scale: 1.06 } : undefined}
+        whileHover={hoverScale ? { scale: 1.025 } : undefined}
         transition={{ duration: 1.1, ease: EASE }}
       >
         <Image
           {...imageProps}
           alt={alt}
+          quality={quality}
           className={cn("h-full w-full object-cover", imageClassName)}
         />
       </motion.div>

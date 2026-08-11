@@ -180,7 +180,7 @@ export const policyDocuments: PolicyDocument[] = [
       {
         heading: "Contact",
         paragraphs: [
-          "For questions about privacy, cookies or personal information handled through the website, contact biance.bookings@veorawellnessph.com.",
+          "For questions about privacy, cookies or personal information handled through the website, contact bookings@veorawellnessph.com.",
         ],
       },
     ],

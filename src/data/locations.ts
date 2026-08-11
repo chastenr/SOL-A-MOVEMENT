@@ -45,8 +45,8 @@ export const locations: Location[] = [
       addressCountry: "PH",
     },
     phone: "+63 917 319 4772",
-    email: "biance.bookings@veorawellnessph.com",
-    bookingEmail: "biance.bookings@veorawellnessph.com",
+    email: "bookings@veorawellnessph.com",
+    bookingEmail: "bookings@veorawellnessph.com",
     mapUrl: "https://www.google.com/maps/search/?api=1&query=14.4108087,120.9503414",
     geo: { lat: 14.4108087, lng: 120.9503414 },
     // Confirmed by the client: studio is open 7:00 AM – 8:00 PM daily.

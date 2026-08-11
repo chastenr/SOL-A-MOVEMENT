@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 
 /**
@@ -14,10 +15,13 @@ export function CoachAvatar({ name, photoUrl }: { name: string; photoUrl: string
 
   if (photoUrl && !failed) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <Image
         src={photoUrl}
         alt=""
+        width={112}
+        height={112}
+        quality={92}
+        sizes="56px"
         className="h-14 w-14 shrink-0 rounded-full object-cover"
         onError={() => setFailed(true)}
       />

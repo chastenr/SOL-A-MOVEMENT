@@ -7,6 +7,7 @@ export type UpcomingSessionRow = {
   endAt: string;
   className: string;
   serviceSlug: string;
+  level: string;
   location: string;
   instructor: string | null;
   instructorPhotoUrl: string | null;
@@ -22,7 +23,7 @@ type RawSession = {
   capacity: number;
   booked_count: number;
   booking_enabled: boolean;
-  class_type: { name: string; service_slug: string } | null;
+  class_type: { name: string; service_slug: string; level: string } | null;
   location: { name: string } | null;
   instructor: { name: string; photo_url: string | null } | null;
 };
@@ -39,7 +40,7 @@ export async function getUpcomingSessions(limit = 12): Promise<UpcomingSessionRo
   const { data } = await supabase
     .from("class_sessions")
     .select(
-      "id, start_at, end_at, capacity, booked_count, booking_enabled, class_type:class_types(name, service_slug), location:locations(name), instructor:instructors(name, photo_url)"
+      "id, start_at, end_at, capacity, booked_count, booking_enabled, class_type:class_types(name, service_slug, level), location:locations(name), instructor:instructors(name, photo_url)"
     )
     .eq("status", "scheduled")
     .gt("start_at", new Date().toISOString())
@@ -53,6 +54,7 @@ export async function getUpcomingSessions(limit = 12): Promise<UpcomingSessionRo
     endAt: row.end_at,
     className: row.class_type?.name ?? "—",
     serviceSlug: row.class_type?.service_slug ?? "",
+    level: row.class_type?.level ?? "All Levels",
     location: row.location?.name ?? "—",
     instructor: row.instructor?.name ?? null,
     instructorPhotoUrl: row.instructor?.photo_url ?? null,
