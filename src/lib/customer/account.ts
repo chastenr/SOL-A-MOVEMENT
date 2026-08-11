@@ -11,13 +11,14 @@ export type CustomerPackageRow = {
   status: "active" | "exhausted" | "expired" | "revoked";
   activatedAt: string | null;
   expiresAt: string | null;
+  serviceSlug: string | null;
 };
 
 export async function getCustomerPackages(userId: string): Promise<CustomerPackageRow[]> {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("customer_packages")
-    .select("id, package_name_snapshot, credit_count, remaining_credits, status, activated_at, expires_at")
+    .select("id, package_name_snapshot, credit_count, remaining_credits, status, activated_at, expires_at, package:packages(service_slug)")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
@@ -29,6 +30,7 @@ export async function getCustomerPackages(userId: string): Promise<CustomerPacka
     status: row.status,
     activatedAt: row.activated_at,
     expiresAt: row.expires_at,
+    serviceSlug: (row.package as unknown as { service_slug: string | null } | null)?.service_slug ?? null,
   }));
 }
 
@@ -126,6 +128,7 @@ export type EligibleSessionRow = {
   startAt: string;
   endAt: string;
   className: string;
+  classSlug: string;
   serviceSlug: string;
   location: string;
   instructor: string | null;
@@ -157,7 +160,7 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
   const { data } = await supabase
     .from("class_sessions")
     .select(
-      "id, start_at, end_at, capacity, booked_count, booking_enabled, class_type:class_types(name, service_slug), location:locations(name), instructor:instructors(name, photo_url)"
+      "id, start_at, end_at, capacity, booked_count, booking_enabled, class_type:class_types(name, slug, service_slug), location:locations(name), instructor:instructors(name, photo_url)"
     )
     .eq("status", "scheduled")
     .gt("start_at", new Date().toISOString())
@@ -171,7 +174,7 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
     capacity: number;
     booked_count: number;
     booking_enabled: boolean;
-    class_type: { name: string; service_slug: string } | null;
+    class_type: { name: string; slug: string; service_slug: string } | null;
     location: { name: string } | null;
     instructor: { name: string; photo_url: string | null } | null;
   };
@@ -189,6 +192,7 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
       startAt: row.start_at,
       endAt: row.end_at,
       className: row.class_type?.name ?? "—",
+      classSlug: row.class_type?.slug ?? "",
       serviceSlug: row.class_type?.service_slug ?? "",
       location: row.location?.name ?? "—",
       instructor: row.instructor?.name ?? null,

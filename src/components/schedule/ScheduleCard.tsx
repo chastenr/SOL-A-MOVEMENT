@@ -3,7 +3,7 @@ import { TiltCard } from "@/components/ui/TiltCard";
 import type { ClassDirectoryEntry } from "@/data/schedule";
 
 export function ScheduleCard({ entry }: { entry: ClassDirectoryEntry }) {
-  const bookingHref = `/book?service=${entry.serviceSlug}`;
+  const bookingHref = `/book?service=${encodeURIComponent(entry.serviceSlug)}&class=${encodeURIComponent(entry.id)}`;
 
   return (
     <TiltCard

@@ -60,9 +60,13 @@ async function getTodayStats() {
   const sessions = (data as unknown as TodaySession[]) ?? [];
   const sessionIds = sessions.map((session) => session.id);
 
-  const { data: bookings, error: bookingsError } = sessionIds.length
-    ? await supabase.from("class_bookings").select("status").in("class_session_id", sessionIds)
-    : { data: [] as { status: string }[], error: null };
+  const [bookingsResult, todayBookings] = await Promise.all([
+    sessionIds.length
+      ? supabase.from("class_bookings").select("status").in("class_session_id", sessionIds)
+      : Promise.resolve({ data: [] as { status: string }[], error: null }),
+    getAdminBookings({ from: start.toISOString(), to: end.toISOString() }),
+  ]);
+  const { data: bookings, error: bookingsError } = bookingsResult;
   if (bookingsError) console.error("[getTodayStats] class_bookings query failed", bookingsError);
 
   const rows = bookings ?? [];
@@ -71,13 +75,13 @@ async function getTodayStats() {
   // Same [start, end) Manila-day window as the query above, so "who's
   // booked today" always matches the counts above it — not two independently
   // -computed ideas of "today" drifting apart near midnight.
-  const todayBookings = (await getAdminBookings({ from: start.toISOString(), to: end.toISOString() })).sort(
+  const sortedTodayBookings = todayBookings.sort(
     (a, b) => new Date(a.session?.startAt ?? 0).getTime() - new Date(b.session?.startAt ?? 0).getTime()
   );
 
   return {
     sessions,
-    todayBookings,
+    todayBookings: sortedTodayBookings,
     classesToday: sessions.filter((s) => s.status !== "cancelled").length,
     peopleBooked: rows.filter((b) => b.status !== "cancelled").length,
     checkedIn: rows.filter((b) => b.status === "completed").length,

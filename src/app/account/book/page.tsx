@@ -18,16 +18,26 @@ export const metadata: Metadata = {
 export default async function AccountBookPage({
   searchParams,
 }: {
-  searchParams: Promise<{ package?: string }>;
+  searchParams: Promise<{ package?: string; service?: string; class?: string }>;
 }) {
   const user = await requireUser();
-  const { package: packageParam } = await searchParams;
+  const { package: packageParam, service: requestedService, class: requestedClass } = await searchParams;
 
   const allPackages = await getCustomerPackages(user.id);
   const activePackages = allPackages.filter((pkg) => pkg.status === "active" && pkg.remainingCredits > 0);
-  const selectedPackage = activePackages.find((pkg) => pkg.id === packageParam) ?? activePackages[0];
+  const requestedPackage = requestedService
+    ? activePackages.find((pkg) =>
+        requestedService === "recovery-restore" || requestedService === "ballet"
+          ? pkg.serviceSlug === requestedService
+          : pkg.serviceSlug === null
+      )
+    : undefined;
+  const selectedPackage = activePackages.find((pkg) => pkg.id === packageParam) ?? requestedPackage ?? activePackages[0];
 
-  const sessions = selectedPackage ? await getEligibleSessions(selectedPackage.id, user.id) : [];
+  const eligibleSessions = selectedPackage ? await getEligibleSessions(selectedPackage.id, user.id) : [];
+  const sessions = requestedClass
+    ? eligibleSessions.filter((session) => session.classSlug === requestedClass)
+    : eligibleSessions;
   const sessionsByDay = [...sessions.reduce((groups, session) => {
     const key = format(new Date(session.startAt), "yyyy-MM-dd");
     groups.set(key, [...(groups.get(key) ?? []), session]);
@@ -52,7 +62,11 @@ export default async function AccountBookPage({
               {activePackages.map((pkg) => (
                 <Link
                   key={pkg.id}
-                  href={`/account/book?package=${pkg.id}`}
+                  href={`/account/book?${new URLSearchParams({
+                    package: pkg.id,
+                    ...(requestedService ? { service: requestedService } : {}),
+                    ...(requestedClass ? { class: requestedClass } : {}),
+                  }).toString()}`}
                   className={cn(
                     "rounded-full px-4 py-1.5 text-sm transition-colors",
                     selectedPackage?.id === pkg.id ? "bg-charcoal text-ivory" : "border border-charcoal/15 hover:bg-charcoal/5"
@@ -77,9 +91,18 @@ export default async function AccountBookPage({
           )}
 
           {sessions.length === 0 ? (
-            <p className="mt-8 text-charcoal/60">
-              No upcoming sessions are scheduled for this package yet — check back soon.
-            </p>
+            <div className="mt-8">
+              <p className="text-charcoal/60">
+                {requestedClass
+                  ? "No upcoming times are scheduled for this class yet — check back soon or view all available classes."
+                  : "No upcoming sessions are scheduled for this package yet — check back soon."}
+              </p>
+              {requestedClass && (
+                <Link href="/account/book" className="mt-3 inline-block text-sm underline underline-offset-4">
+                  View all available classes
+                </Link>
+              )}
+            </div>
           ) : (
             <div className="mt-7 space-y-8">
               {sessionsByDay.map(([day, daySessions]) => (

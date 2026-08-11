@@ -6,7 +6,18 @@ import { getAuthedUser } from "@/lib/auth/require-role";
  * booking form: members continue to the real credit-backed schedule, while
  * signed-out visitors must authenticate first.
  */
-export default async function BookPage() {
+export default async function BookPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ service?: string; class?: string }>;
+}) {
   const user = await getAuthedUser();
-  redirect(user ? "/account/book" : "/login?redirectTo=%2Faccount%2Fbook");
+  const params = await searchParams;
+  const bookingParams = new URLSearchParams();
+  if (params.service) bookingParams.set("service", params.service);
+  if (params.class) bookingParams.set("class", params.class);
+
+  const query = bookingParams.toString();
+  const destination = `/account/book${query ? `?${query}` : ""}`;
+  redirect(user ? destination : `/login?redirectTo=${encodeURIComponent(destination)}`);
 }
