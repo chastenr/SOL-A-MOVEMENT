@@ -17,7 +17,7 @@ import { normalizePhoneE164 } from "@/lib/phone";
 import { sanitizeRedirectTo } from "@/lib/utils";
 import { getAuthRedirectOrigin } from "@/lib/auth/request-origin";
 
-type ActionResult = { error: string } | { success: true };
+type ActionResult = { error: string } | { requiresMfa: true } | { success: true };
 type SignUpResult = { error: string } | { success: true; needsEmailConfirmation: boolean };
 
 const GENERIC_ERROR = "Something went wrong. Please try again.";
@@ -139,11 +139,19 @@ export async function resetPasswordAction(values: ResetPasswordFormValues): Prom
   }
 
   const supabase = await createSupabaseServerClient();
+  const { data: assurance } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (assurance?.currentLevel !== "aal2" && assurance?.nextLevel === "aal2") {
+    return { requiresMfa: true };
+  }
+
   // Requires an active recovery session, established by the /auth/callback
   // PKCE exchange when the customer clicked the reset-password email link.
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
 
   if (error) {
+    // Protect against a stale AAL check or a session that was downgraded
+    // between the assurance check and the password mutation.
+    if (error.message.toLowerCase().includes("aal2")) return { requiresMfa: true };
     return { error: error.message || GENERIC_ERROR };
   }
 

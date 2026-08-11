@@ -42,7 +42,10 @@ export async function changePasswordAction(values: ChangePasswordFormValues): Pr
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
-  if (error) return { error: error.message || "Something went wrong. Please try again." };
+  if (error) {
+    if (error.message.toLowerCase().includes("aal2")) return { requiresMfa: true };
+    return { error: error.message || "Something went wrong. Please try again." };
+  }
 
   return { success: true };
 }
@@ -74,7 +77,10 @@ export async function changeEmailAction(values: ChangeEmailFormValues): Promise<
     { email: parsed.data.email },
     { emailRedirectTo: `${authRedirectOrigin}/auth/callback?next=/account/security` }
   );
-  if (error) return { error: error.message || "Something went wrong. Please try again." };
+  if (error) {
+    if (error.message.toLowerCase().includes("aal2")) return { requiresMfa: true };
+    return { error: error.message || "Something went wrong. Please try again." };
+  }
 
   return { success: true };
 }

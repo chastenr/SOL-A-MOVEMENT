@@ -28,6 +28,14 @@ export function ResetPasswordForm({ redirectTo }: { redirectTo?: string }) {
     setServerError(null);
     try {
       const result = await resetPasswordAction(values);
+      if ("requiresMfa" in result) {
+        const safeNext = redirectTo && redirectTo.startsWith("/") ? redirectTo : undefined;
+        const returnTo = safeNext
+          ? `/reset-password?next=${encodeURIComponent(safeNext)}`
+          : "/reset-password";
+        router.push(`/mfa?redirectTo=${encodeURIComponent(returnTo)}`);
+        return;
+      }
       if ("error" in result) {
         setServerError(result.error);
         return;

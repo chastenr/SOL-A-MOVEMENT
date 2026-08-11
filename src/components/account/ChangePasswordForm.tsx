@@ -33,7 +33,7 @@ export function ChangePasswordForm() {
     try {
       const result = await changePasswordAction(values);
       if ("requiresMfa" in result) {
-        router.push(`/admin/mfa?redirectTo=${encodeURIComponent(pathname)}`);
+        router.push(`/mfa?redirectTo=${encodeURIComponent(pathname)}`);
         return;
       }
       if ("error" in result) {

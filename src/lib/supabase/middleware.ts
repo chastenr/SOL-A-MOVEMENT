@@ -16,7 +16,7 @@ const PUBLIC_EXCEPTIONS = ["/admin/login", "/admin/mfa"];
 const AUTH_ROUTES = ["/login", "/signup", "/forgot-password"];
 // Recovery still requires a valid single-use token. These routes bypass only
 // the temporary marketing-site password so the email can open the form.
-const SITE_LOCK_PUBLIC_AUTH_PATHS = ["/auth/confirm", "/auth/callback", "/reset-password"];
+const SITE_LOCK_PUBLIC_AUTH_PATHS = ["/auth/confirm", "/auth/callback", "/reset-password", "/mfa"];
 
 /**
  * Whole-site password gate for pre-launch — a plain on-brand password page
