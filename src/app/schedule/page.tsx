@@ -17,7 +17,7 @@ export default async function SchedulePage() {
 
   return (
     <section
-      className="mx-auto max-w-7xl px-6 pt-28 pb-16 sm:px-8 sm:pb-20 lg:px-12"
+      className="mx-auto max-w-7xl px-6 pt-40 pb-16 sm:px-8 sm:pb-20 lg:px-12"
       data-no-text-reveal
     >
       <AnimatedSection className="rounded-[2rem] border border-charcoal/10 bg-cream/60 px-6 py-9 sm:px-9 sm:py-11">

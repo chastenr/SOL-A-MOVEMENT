@@ -96,7 +96,7 @@ export default async function PricingPage() {
 
   return (
     <>
-      <section className="mx-auto max-w-7xl px-6 pt-28 pb-8 sm:px-8 lg:px-12">
+      <section className="mx-auto max-w-7xl px-6 pt-40 pb-8 sm:px-8 lg:px-12">
         <AnimatedSection>
           <SectionHeading
             eyebrow="Pricing"

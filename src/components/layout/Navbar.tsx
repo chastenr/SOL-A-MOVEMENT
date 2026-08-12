@@ -81,14 +81,8 @@ export function Navbar() {
           variants={pillMotion}
           className="pointer-events-auto mx-auto flex h-[4.75rem] max-w-7xl items-center justify-between gap-3 rounded-full border border-ivory/10 bg-walnut/55 px-4 shadow-[0_10px_40px_-18px_rgba(20,14,10,0.55)] backdrop-blur-xl sm:h-[5.5rem] sm:px-6"
         >
-          <motion.div
-            variants={leftMotion}
-            className="absolute left-1/2 min-w-0 xl:static"
-          >
-            <Link
-              href="/"
-              className="flex -translate-x-1/2 shrink-0 items-center gap-3 text-ivory xl:translate-x-0"
-            >
+          <motion.div variants={leftMotion} className="min-w-0">
+            <Link href="/" className="flex shrink-0 items-center gap-3 text-ivory">
               <Image
                 src="/veora-mark.png"
                 alt=""

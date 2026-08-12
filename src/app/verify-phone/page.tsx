@@ -32,7 +32,7 @@ export default async function VerifyPhonePage({ searchParams }: VerifyPhonePageP
   }
 
   return (
-    <section className="mx-auto max-w-md px-6 pt-28 pb-16 sm:px-8 sm:pb-20">
+    <section className="mx-auto max-w-md px-6 pt-40 pb-16 sm:px-8 sm:pb-20">
       <AnimatedSection>
         <PhoneMfaFlow initialPhone={profile?.mobile_number ?? ""} redirectTo={redirectTo} />
       </AnimatedSection>

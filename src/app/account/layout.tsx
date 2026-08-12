@@ -15,7 +15,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
   await requireUser();
 
   return (
-    <section className="mx-auto max-w-6xl px-6 pt-28 pb-16 sm:px-8 sm:pb-20 lg:px-12">
+    <section className="mx-auto max-w-6xl px-6 pt-40 pb-16 sm:px-8 sm:pb-20 lg:px-12">
       <div className="gap-10 lg:grid lg:grid-cols-[220px_1fr]">
         <nav className="mb-8 flex gap-1 overflow-x-auto lg:mb-0 lg:flex-col lg:overflow-visible">
           {NAV.map((item) => (

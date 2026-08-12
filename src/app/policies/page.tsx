@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function PoliciesPage() {
   return (
-    <section className="mx-auto max-w-3xl px-6 pt-28 pb-16 sm:px-8 sm:pb-20">
+    <section className="mx-auto max-w-3xl px-6 pt-40 pb-16 sm:px-8 sm:pb-20">
       <AnimatedSection>
         <SectionHeading
           eyebrow="Studio Policies"

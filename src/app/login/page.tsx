@@ -21,7 +21,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     : "/signup";
 
   return (
-    <section className="mx-auto max-w-md px-6 pt-28 pb-16 sm:px-8 sm:pb-20">
+    <section className="mx-auto max-w-md px-6 pt-40 pb-16 sm:px-8 sm:pb-20">
       <AnimatedSection>
         <SectionHeading eyebrow="Welcome Back" heading="Sign in to your account." align="center" className="mx-auto" />
       </AnimatedSection>

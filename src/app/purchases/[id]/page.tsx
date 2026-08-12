@@ -60,7 +60,7 @@ export default async function PurchaseDetailPage({ params }: { params: Promise<{
   const paymentSettings = (settingsData ?? []) as PaymentSettingRow[];
 
   return (
-    <section className="mx-auto max-w-2xl px-6 pt-28 pb-16 sm:px-8 sm:pb-20">
+    <section className="mx-auto max-w-2xl px-6 pt-40 pb-16 sm:px-8 sm:pb-20">
       <AnimatedSection>
         <SectionHeading eyebrow="Your Order" heading={purchase.package_name_snapshot} />
       </AnimatedSection>

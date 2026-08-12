@@ -95,10 +95,30 @@ export function TextRevealController() {
 
     register(document.body);
 
+    // App Router navigations can stream new server-rendered nodes into the
+    // existing layout before React has hydrated that subtree. Mutating those
+    // nodes immediately causes a hydration mismatch, so registration waits
+    // until two animation frames have passed and hydration has settled.
+    const pendingRoots = new Set<Element>();
+    let registrationFrame: number | undefined;
+
+    function scheduleRegistration(root: Element) {
+      pendingRoots.add(root);
+      if (registrationFrame !== undefined) return;
+
+      registrationFrame = requestAnimationFrame(() => {
+        registrationFrame = requestAnimationFrame(() => {
+          registrationFrame = undefined;
+          for (const pendingRoot of pendingRoots) register(pendingRoot);
+          pendingRoots.clear();
+        });
+      });
+    }
+
     const mutationObserver = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
-          if (node instanceof Element) register(node);
+          if (node instanceof Element) scheduleRegistration(node);
         }
         for (const node of mutation.removedNodes) {
           if (node instanceof Element) unregister(node);
@@ -111,6 +131,8 @@ export function TextRevealController() {
     return () => {
       mutationObserver.disconnect();
       intersectionObserver.disconnect();
+      if (registrationFrame !== undefined) cancelAnimationFrame(registrationFrame);
+      pendingRoots.clear();
       for (const target of targets) {
         target.classList.remove("text-reveal-target", "text-reveal-visible");
         delete target.dataset.textRevealReady;

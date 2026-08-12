@@ -1,4 +1,4 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, ChevronDown, Clock3 } from "lucide-react";
 import { ImageReveal } from "@/components/ui/ImageReveal";
 import { TiltCard } from "@/components/ui/TiltCard";
 import { Button } from "@/components/ui/Button";
@@ -9,9 +9,10 @@ type ServiceCardProps = {
   service: Service;
   variant?: "compact" | "detailed";
   className?: string;
+  priority?: boolean;
 };
 
-export function ServiceCard({ service, variant = "compact", className }: ServiceCardProps) {
+export function ServiceCard({ service, variant = "compact", className, priority = false }: ServiceCardProps) {
   const variantGroups = service.classVariants
     ? service.category === "Recovery & Restore"
       ? [
@@ -22,66 +23,93 @@ export function ServiceCard({ service, variant = "compact", className }: Service
     : [];
 
   if (variant === "detailed") {
+    const optionCount = service.classVariants?.length ?? 0;
+
     return (
       <article
         id={service.slug}
         className={cn(
-          "group grid scroll-mt-28 gap-8 border-b border-charcoal/10 pb-12 sm:grid-cols-5 sm:gap-10",
+          "group flex h-full scroll-mt-36 flex-col overflow-hidden rounded-[1.75rem] border border-charcoal/10 bg-white/60 shadow-[0_18px_55px_-42px_rgba(34,31,28,0.65)] transition-[transform,box-shadow,border-color] duration-500 hover:-translate-y-1 hover:border-clay/30 hover:shadow-[0_26px_65px_-38px_rgba(77,56,44,0.42)]",
           className
         )}
       >
-        <ImageReveal
-          src={service.image.src}
-          alt={service.image.alt}
-          width={640}
-          height={480}
-          hoverScale
-          containerClassName="sm:col-span-2 aspect-[4/3] rounded-2xl"
-          sizes="(min-width: 640px) 40vw, 100vw"
-        />
-        <div className="flex flex-col sm:col-span-3">
-          <p className="text-xs uppercase tracking-[0.2em] text-clay">{service.category}</p>
-          <h3 className="font-display mt-3 text-3xl text-charcoal sm:text-4xl">{service.name}</h3>
-          <p className="mt-4 max-w-lg text-charcoal/70">{service.description}</p>
+        <div className="relative">
+          <ImageReveal
+            src={service.image.src}
+            alt={service.image.alt}
+            width={720}
+            height={480}
+            priority={priority}
+            hoverScale
+            containerClassName="aspect-[3/2]"
+            sizes="(min-width: 1024px) 31vw, (min-width: 640px) 48vw, 100vw"
+          />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-charcoal/40 to-transparent" />
+          <p className="absolute bottom-4 left-5 rounded-full border border-white/30 bg-charcoal/45 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white backdrop-blur-md">
+            {service.category}
+          </p>
+        </div>
 
-          <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-charcoal/60">
-            <div className="flex gap-2">
-              <dt className="uppercase tracking-[0.1em] text-charcoal/40">Duration</dt>
-              <dd>{service.duration}</dd>
+        <div className="flex flex-1 flex-col p-6 sm:p-7">
+          <h3 className="font-display text-[2rem] leading-none text-charcoal sm:text-4xl">{service.name}</h3>
+          <p className="mt-4 text-[15px] leading-relaxed text-charcoal/65">{service.shortDescription}</p>
+
+          <dl className="mt-5 grid grid-cols-2 gap-2 text-sm">
+            <div className="rounded-xl bg-cream/65 px-3.5 py-3">
+              <dt className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-charcoal/40">
+                <Clock3 size={13} aria-hidden /> Duration
+              </dt>
+              <dd className="mt-1.5 text-xs leading-snug text-charcoal/75">{service.duration}</dd>
             </div>
-            <div className="flex gap-2">
-              <dt className="uppercase tracking-[0.1em] text-charcoal/40">Level</dt>
-              <dd>{service.level}</dd>
+            <div className="rounded-xl bg-cream/65 px-3.5 py-3">
+              <dt className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-charcoal/40">
+                <Check size={13} aria-hidden /> Level
+              </dt>
+              <dd className="mt-1.5 text-xs leading-snug text-charcoal/75">{service.level}</dd>
             </div>
-            {service.instructor && (
-              <div className="flex gap-2">
-                <dt className="uppercase tracking-[0.1em] text-charcoal/40">Instructor</dt>
-                <dd>{service.instructor}</dd>
-              </div>
-            )}
-            {service.startingPrice && (
-              <div className="flex gap-2">
-                <dt className="uppercase tracking-[0.1em] text-charcoal/40">Pricing</dt>
-                <dd>{service.startingPrice}</dd>
-              </div>
-            )}
           </dl>
 
-          {variantGroups.map((group) => (
-            <div key={group.label} className="mt-5 max-w-2xl">
-              <p className="text-xs font-medium uppercase tracking-[0.14em] text-charcoal/45">{group.label}</p>
-              <ul className="mt-2 grid gap-2 sm:grid-cols-2" aria-label={`${service.name} — ${group.label}`}>
-                {group.items.map((name) => (
-                  <li key={name} className="rounded-lg border border-charcoal/10 bg-cream/35 px-3 py-2 text-sm text-charcoal/70">
-                    {name}
-                  </li>
+          {variantGroups.length > 0 && (
+            <details className="group/options mt-4 border-y border-charcoal/10 py-1">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3 text-xs font-medium uppercase tracking-[0.13em] text-charcoal/65 marker:content-none">
+                <span>{optionCount} class {optionCount === 1 ? "option" : "options"}</span>
+                <ChevronDown
+                  size={16}
+                  className="shrink-0 text-clay transition-transform duration-300 group-open/options:rotate-180"
+                  aria-hidden
+                />
+              </summary>
+              <div className="space-y-4 pb-4">
+                {variantGroups.map((group) => (
+                  <div key={group.label}>
+                    {variantGroups.length > 1 && (
+                      <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.14em] text-charcoal/40">
+                        {group.label}
+                      </p>
+                    )}
+                    <ul className="flex flex-wrap gap-1.5" aria-label={`${service.name} — ${group.label}`}>
+                      {group.items.map((name) => (
+                        <li key={name} className="rounded-full border border-charcoal/10 bg-cream/45 px-2.5 py-1.5 text-[11px] leading-tight text-charcoal/65">
+                          {name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
-            </div>
-          ))}
+              </div>
+            </details>
+          )}
 
-          <div className="mt-8">
-            <Button href={`/book?service=${service.slug}`}>Book</Button>
+          <div className="mt-auto pt-6">
+            {service.startingPrice && (
+              <p className="mb-3 text-xs text-charcoal/55">
+                <span className="font-medium text-charcoal">{service.startingPrice}</span>
+              </p>
+            )}
+            <Button href={`/book?service=${service.slug}`} className="w-full justify-between px-6 py-3.5">
+              Book this class
+              <ArrowRight size={16} aria-hidden />
+            </Button>
           </div>
         </div>
       </article>
@@ -96,6 +124,7 @@ export function ServiceCard({ service, variant = "compact", className }: Service
           alt={service.image.alt}
           width={480}
           height={360}
+          priority={priority}
           hoverScale
           containerClassName="h-full w-full"
           sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
