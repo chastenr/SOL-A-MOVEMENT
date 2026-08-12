@@ -120,6 +120,9 @@ export function Navbar() {
                 <p className="whitespace-nowrap text-[8px] font-medium uppercase tracking-[0.22em] text-ivory/60 sm:text-[9px]">
                   Move. Flow. Dance.
                 </p>
+                <p className="whitespace-nowrap text-[6px] uppercase tracking-[0.18em] text-ivory/40 sm:text-[7px] sm:tracking-[0.22em]">
+                  Where Movement Becomes Ritual
+                </p>
               </div>
             </Link>
           </motion.div>
