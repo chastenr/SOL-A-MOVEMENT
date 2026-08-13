@@ -116,41 +116,43 @@ export function Hero() {
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-charcoal/55 to-transparent sm:h-56" />
       </motion.div>
 
-      <StaggerContainer className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-16 sm:px-8 sm:pb-20 lg:px-12">
-        <StaggerItem>
-          <p className="text-xs font-medium uppercase tracking-[0.3em] text-ivory/70">
+      <StaggerContainer className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-14 sm:px-8 sm:pb-16 lg:px-12 lg:pb-20">
+        <div className="max-w-6xl">
+          <StaggerItem>
+            <p className="text-[10px] font-medium uppercase tracking-[0.26em] text-ivory/70 sm:text-xs sm:tracking-[0.3em]">
             {siteConfig.name} · Bacoor, Cavite
-          </p>
-        </StaggerItem>
-        <RevealHeading
-          lines={["Move with intention.", "Feel your best."]}
-          className="font-display balance mt-5 max-w-4xl text-[clamp(2.75rem,7vw,6.5rem)] leading-[1.02] text-ivory"
-        />
-        <StaggerItem>
-          <p className="mt-6 max-w-md text-base leading-relaxed text-ivory/80 sm:text-lg">
-            Pilates, yoga and barre in one boutique studio in Bacoor, Cavite.
-          </p>
-        </StaggerItem>
-        <StaggerItem>
-          <div className="mt-8 flex flex-wrap items-center gap-5">
-            <Button href="/book" size="lg" magnetic>
-              {siteConfig.bookingCtaLabel}
-            </Button>
-            <Button
-              href="/services"
-              variant="ghost"
-              className="text-ivory/80 hover:text-ivory"
-            >
-              Explore Services
-            </Button>
-          </div>
-        </StaggerItem>
-        <StaggerItem>
-          <div className="mt-8 flex items-center gap-2 text-ivory/60">
-            <MapPin size={14} aria-hidden />
-            <p className="text-xs uppercase tracking-[0.18em]">Opening soon</p>
-          </div>
-        </StaggerItem>
+            </p>
+          </StaggerItem>
+          <RevealHeading
+            lines={["Move with intention.", "Feel your best."]}
+            className="font-display mt-4 max-w-6xl text-[clamp(2.9rem,5.8vw,6rem)] font-medium leading-[0.9] tracking-[-0.025em] text-ivory [&>span>span]:lg:whitespace-nowrap"
+          />
+          <StaggerItem>
+            <p className="mt-6 max-w-xl text-sm leading-relaxed text-ivory/78 sm:text-base lg:text-lg">
+              Pilates, yoga and barre—thoughtfully guided in one boutique wellness studio in Bacoor, Cavite.
+            </p>
+          </StaggerItem>
+          <StaggerItem>
+            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
+              <Button href="/book" size="lg" magnetic>
+                {siteConfig.bookingCtaLabel}
+              </Button>
+              <Button
+                href="/services"
+                variant="ghost"
+                className="text-ivory/80 hover:text-ivory"
+              >
+                Explore Classes
+              </Button>
+            </div>
+          </StaggerItem>
+          <StaggerItem>
+            <div className="mt-7 flex items-center gap-2 text-ivory/60">
+              <MapPin size={14} aria-hidden />
+              <p className="text-[10px] uppercase tracking-[0.18em] sm:text-xs">Opening soon</p>
+            </div>
+          </StaggerItem>
+        </div>
       </StaggerContainer>
     </section>
   );

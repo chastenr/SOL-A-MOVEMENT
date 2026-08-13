@@ -7,6 +7,7 @@ type SectionHeadingProps = {
   align?: "left" | "center";
   className?: string;
   tone?: "dark" | "light";
+  as?: "h1" | "h2" | "h3";
 };
 
 export function SectionHeading({
@@ -16,6 +17,7 @@ export function SectionHeading({
   align = "left",
   className,
   tone = "dark",
+  as: HeadingTag = "h2",
 }: SectionHeadingProps) {
   return (
     <div
@@ -35,14 +37,14 @@ export function SectionHeading({
           {eyebrow}
         </p>
       )}
-      <h2
+      <HeadingTag
         className={cn(
           "font-display balance text-3xl leading-[1.15] sm:text-4xl md:text-5xl",
           tone === "dark" ? "text-charcoal" : "text-ivory"
         )}
       >
         {heading}
-      </h2>
+      </HeadingTag>
       {body && (
         <p
           className={cn(

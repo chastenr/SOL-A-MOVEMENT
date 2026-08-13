@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Reset Password",
   description: "Set a new password for your Veora Wellness account.",
   alternates: { canonical: "/reset-password" },
+  robots: { index: false, follow: false },
 };
 
 type ResetPasswordPageProps = {

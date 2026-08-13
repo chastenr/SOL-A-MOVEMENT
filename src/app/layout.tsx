@@ -9,7 +9,7 @@ import { CookieConsent } from "@/components/privacy/CookieConsent";
 import { OrganizationSchema } from "@/components/seo/OrganizationSchema";
 
 const cormorantGaramond = Cormorant_Garamond({
-  variable: "--font-cormorant-garamond",
+  variable: "--font-editorial",
   subsets: ["latin"],
   weight: "variable",
   style: ["normal", "italic"],
@@ -25,25 +25,35 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} | Pilates, Movement & Wellness`,
+    default: `Pilates & Wellness Studio in Bacoor, Cavite | ${siteConfig.name}`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  keywords: ["Pilates", "mat pilates", "yoga", "barre", "ballet", "wellness studio", "movement studio", "Bacoor Cavite"],
+  applicationName: siteConfig.name,
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  category: "Fitness and wellness",
+  // Not /veora-mark.png directly: that's fine brown linework on a
+  // transparent ground, drawn to sit on the site's own light background —
+  // shrunk to an actual 16-32px tab icon it all but disappears, especially
+  // against a dark browser chrome. favicon-mark.png is the same mark
+  // recolored ivory on a solid walnut square specifically so it still reads
+  // as a solid, on-brand icon at real favicon sizes.
   icons: {
-    icon: [{ url: "/veora-mark.png", type: "image/png" }],
-    apple: [{ url: "/veora-mark.png", type: "image/png" }],
+    icon: [{ url: "/favicon-mark.png", type: "image/png", sizes: "256x256" }],
+    apple: [{ url: "/favicon-mark.png", type: "image/png", sizes: "256x256" }],
   },
   openGraph: {
     type: "website",
     url: siteConfig.url,
     siteName: siteConfig.name,
-    title: `${siteConfig.name} | Pilates, Movement & Wellness`,
+    locale: "en_PH",
+    title: `Pilates & Wellness Studio in Bacoor, Cavite | ${siteConfig.name}`,
     description: siteConfig.description,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} | Pilates, Movement & Wellness`,
+    title: `Pilates & Wellness Studio in Bacoor, Cavite | ${siteConfig.name}`,
     description: siteConfig.description,
   },
   alternates: {
@@ -54,7 +64,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
+      lang="en-PH"
       className={`${cormorantGaramond.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ivory text-charcoal">

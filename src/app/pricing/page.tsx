@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo-metadata";
 import Link from "next/link";
 import type { PricingOption } from "@/data/pricing";
 import { getPricingGroups } from "@/lib/catalog/packages";
@@ -6,12 +6,12 @@ import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { PricingCard } from "@/components/pricing/PricingCard";
 
-export const metadata: Metadata = {
-  title: "Pricing",
+export const metadata = createPageMetadata({
+  title: "Class Packages & Pilates Pricing in Bacoor",
   description:
-    "Veora Wellness pricing — Founding Member offers, single-session passes, class packs and studio rentals. All prices are informational; booking never requires online payment.",
-  alternates: { canonical: "/pricing" },
-};
+    "View Veora Wellness class pricing in Bacoor, including single sessions, founding offers, class packs, ballet options and private studio rentals.",
+  path: "/pricing",
+});
 
 const CATEGORY_ORDER = ["Classics", "Restore", "Ballet"] as const;
 
@@ -99,6 +99,7 @@ export default async function PricingPage() {
       <section className="mx-auto max-w-7xl px-6 pt-40 pb-8 sm:px-8 lg:px-12">
         <AnimatedSection>
           <SectionHeading
+            as="h1"
             eyebrow="Pricing"
             heading="Move in a way that works for you."
             body="All pricing below is published for your information — booking a session never requires online payment. Choose an option and we'll confirm the details with you directly."

@@ -1,19 +1,33 @@
-import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo-metadata";
 import { faqTopics } from "@/data/faq";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { safeJsonLd } from "@/lib/utils";
 
-export const metadata: Metadata = {
-  title: "FAQ",
-  description: "Answers to common questions about booking, first visits, safety and studio policies at Veora Wellness.",
-  alternates: { canonical: "/faq" },
-};
+export const metadata = createPageMetadata({
+  title: "Pilates & Studio FAQs in Bacoor",
+  description: "Get direct answers about Veora Wellness classes, first visits, booking, grip socks, parking, safety, lockers, showers and cancellation policies.",
+  path: "/faq",
+});
 
 export default function FaqPage() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqTopics.flatMap((topic) => topic.items).map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
+
   return (
+    <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }} />
     <section className="mx-auto max-w-4xl px-6 pt-40 pb-16 sm:px-8 sm:pb-20">
       <AnimatedSection>
         <SectionHeading
+          as="h1"
           eyebrow="Good to Know"
           heading="Frequently asked questions."
           body="Everything you need to know before your first visit to Veora."
@@ -36,5 +50,6 @@ export default function FaqPage() {
         ))}
       </div>
     </section>
+    </>
   );
 }

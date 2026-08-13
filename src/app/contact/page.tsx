@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo-metadata";
 import Link from "next/link";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { siteConfig } from "@/data/site";
@@ -6,11 +6,11 @@ import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ContactForm } from "@/components/contact/ContactForm";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description: "Get in touch with Veora Wellness — studio address, hours and contact form.",
-  alternates: { canonical: "/contact" },
-};
+export const metadata = createPageMetadata({
+  title: "Contact Our Bacoor Wellness Studio",
+  description: "Contact Veora Wellness for class, package or studio questions. Find our Bacoor address, daily opening hours, Philippine phone number and booking email.",
+  path: "/contact",
+});
 
 type ContactPageProps = {
   searchParams: Promise<{ topic?: string }>;
@@ -23,6 +23,7 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
     <section className="mx-auto max-w-7xl px-6 pt-40 pb-16 sm:px-8 sm:pb-20 lg:px-12">
       <AnimatedSection>
         <SectionHeading
+          as="h1"
           eyebrow="Get in Touch"
           heading="We would love to hear from you."
           body="Questions about a service, your booking, or Veora in general? Send us a message and we'll get back to you soon."
@@ -36,10 +37,10 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
             <p>{siteConfig.contact.address.line2}</p>
           </InfoRow>
           <InfoRow icon={Phone} label="Phone">
-            <p>{siteConfig.contact.phone}</p>
+            <a href={`tel:${siteConfig.contact.phone.replace(/\s/g, "")}`} className="hover:text-clay">{siteConfig.contact.phone}</a>
           </InfoRow>
           <InfoRow icon={Mail} label="Email">
-            <p>{siteConfig.contact.email}</p>
+            <a href={`mailto:${siteConfig.contact.email}`} className="hover:text-clay">{siteConfig.contact.email}</a>
           </InfoRow>
           <InfoRow icon={Clock} label="Hours">
             {siteConfig.hours.length > 0 ? (

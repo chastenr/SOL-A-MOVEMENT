@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo-metadata";
 import { getServices } from "@/lib/catalog/services";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { ServiceCard } from "@/components/services/ServiceCard";
@@ -6,12 +6,12 @@ import { ServiceSchema } from "@/components/seo/ServiceSchema";
 import { Button } from "@/components/ui/Button";
 import { ArrowDown, CalendarDays, Check, Sparkles } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Services",
+export const metadata = createPageMetadata({
+  title: "Pilates, Yoga & Wellness Classes in Bacoor",
   description:
-    "Explore all 47 Veora Wellness classes across Pilates, yoga, barre, strength, HIIT, heated, red light therapy and ballet.",
-  alternates: { canonical: "/services" },
-};
+    "Explore Veora Wellness classes in Bacoor, Cavite: Mat Pilates, yoga, barre, strength, HIIT, heated and red light recovery formats, and ballet.",
+  path: "/services",
+});
 
 export default async function ServicesPage() {
   const services = await getServices();

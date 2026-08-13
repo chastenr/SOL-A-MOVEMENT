@@ -35,8 +35,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  --font-display: var(--font-cormorant-garamond);
-  --font-sans: var(--font-inter);
+  --font-display: var(--font-editorial);
+  --font-sans: var(--font-editorial);
 
   --animate-fade-up: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-float-slow: float-slow 14s ease-in-out infinite;
@@ -80,6 +80,15 @@ body {
 
 .font-display {
   font-family: var(--font-display);
+}
+
+/* The content uses the editorial serif throughout. Navigation intentionally
+   stays in Inter for compact labels, tracking and quick scanning. Keep this
+   after `.font-display` so legacy display utilities inside the mobile menu
+   cannot override the navbar typography. */
+.font-navbar,
+.font-navbar * {
+  font-family: var(--font-inter);
 }
 
 .balance {

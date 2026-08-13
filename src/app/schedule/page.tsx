@@ -1,16 +1,16 @@
-import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo-metadata";
 import { Clock3 } from "lucide-react";
 import { getUpcomingSessions } from "@/lib/catalog/sessions";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { Button } from "@/components/ui/Button";
 import { UpcomingSessionsList } from "@/components/schedule/UpcomingSessionsList";
 
-export const metadata: Metadata = {
-  title: "Schedule",
+export const metadata = createPageMetadata({
+  title: "Pilates & Wellness Class Schedule in Bacoor",
   description:
-    "Browse Veora Wellness classes, available session times, coaches and remaining capacity.",
-  alternates: { canonical: "/schedule" },
-};
+    "Browse upcoming Pilates, yoga, barre, strength, recovery and ballet classes at Veora Wellness in Bacoor, Cavite, then reserve your spot online.",
+  path: "/schedule",
+});
 
 export default async function SchedulePage() {
   const sessions = await getUpcomingSessions(16);

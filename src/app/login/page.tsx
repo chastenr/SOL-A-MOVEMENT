@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Sign In",
   description: "Sign in to your Veora Wellness account.",
   alternates: { canonical: "/login" },
+  robots: { index: false, follow: false },
 };
 
 type LoginPageProps = {

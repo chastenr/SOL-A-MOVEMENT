@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo-metadata";
 import { MapPin, Phone, Mail, Clock, ExternalLink } from "lucide-react";
 import { getActiveLocations } from "@/data/locations";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
@@ -6,11 +6,11 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { TiltCard } from "@/components/ui/TiltCard";
 
-export const metadata: Metadata = {
-  title: "Locations",
-  description: "Find Veora Wellness — studio address, contact details and directions.",
-  alternates: { canonical: "/locations" },
-};
+export const metadata = createPageMetadata({
+  title: "Studio Location in Bacoor, Cavite",
+  description: "Find Veora Wellness at EMRADEE Building on Daang Hari Road, Molino IV, Bacoor, Cavite. View daily hours, contact details and Google Maps directions.",
+  path: "/locations",
+});
 
 export default function LocationsPage() {
   const locations = getActiveLocations();
@@ -19,6 +19,7 @@ export default function LocationsPage() {
     <section className="mx-auto max-w-7xl px-6 pt-40 pb-16 sm:px-8 sm:pb-20 lg:px-12">
       <AnimatedSection>
         <SectionHeading
+          as="h1"
           eyebrow="Visit Us"
           heading="Your wellness journey starts here."
           body={
@@ -45,17 +46,21 @@ export default function LocationsPage() {
                 </div>
                 <div className="flex gap-3">
                   <Phone size={18} className="mt-0.5 shrink-0 text-clay" aria-hidden />
-                  <p>{location.phone}</p>
+                  <a href={`tel:${location.phone.replace(/\s/g, "")}`} className="hover:text-clay">{location.phone}</a>
                 </div>
                 <div className="flex gap-3">
                   <Mail size={18} className="mt-0.5 shrink-0 text-clay" aria-hidden />
-                  <p>{location.email}</p>
+                  <a href={`mailto:${location.email}`} className="hover:text-clay">{location.email}</a>
                 </div>
                 <div className="flex gap-3">
                   <Clock size={18} className="mt-0.5 shrink-0 text-clay" aria-hidden />
                   <p>{location.hoursNote}</p>
                 </div>
               </div>
+
+              <p className="mt-6 rounded-xl bg-cream/55 px-4 py-3 text-sm leading-relaxed text-charcoal/65">
+                Limited parking is available within the building, subject to availability.
+              </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button href="/book" size="md">

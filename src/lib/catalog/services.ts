@@ -19,6 +19,8 @@ type ServiceRow = {
 };
 
 function mapRow(row: ServiceRow): Service {
+  const catalogDefaults = staticServices.find((service) => service.slug === row.slug);
+
   return {
     slug: row.slug,
     name: row.name,
@@ -27,6 +29,7 @@ function mapRow(row: ServiceRow): Service {
     description: row.description,
     duration: row.duration,
     level: row.level,
+    benefits: catalogDefaults?.benefits,
     instructor: row.instructor ?? undefined,
     startingPrice: row.starting_price ?? undefined,
     classVariants: row.class_variants?.length ? row.class_variants : undefined,

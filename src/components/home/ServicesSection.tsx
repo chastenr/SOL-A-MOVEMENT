@@ -32,7 +32,7 @@ export async function ServicesSection() {
             return (
               <AnimatedSection key={service.slug} delay={Math.min(index * 0.05, 0.25)}>
                 <a
-                  href={`/services#${service.slug}`}
+                  href={`/services/${service.slug}`}
                   className={cn(
                     "group flex flex-col items-start gap-6 py-8 sm:flex-row sm:items-center sm:gap-10",
                     reversed && "sm:flex-row-reverse"

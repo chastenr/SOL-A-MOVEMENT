@@ -149,7 +149,7 @@ export async function inviteStaffAction(values: InviteStaffFormValues): Promise<
     // choose a password, instead of landing an already-authenticated session
     // straight on /admin. The nested `next` is where /reset-password sends
     // them once that's done.
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent("/reset-password?next=/admin")}`,
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.veora.ph"}/auth/callback?next=${encodeURIComponent("/reset-password?next=/admin")}`,
   });
   if (error || !data.user) {
     return { error: error?.message || "Something went wrong sending the invite." };

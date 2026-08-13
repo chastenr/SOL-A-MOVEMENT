@@ -4,10 +4,10 @@ Items below could not be verified from the source business (spacioblnc.com) or i
 
 ## Business identity
 
-- **Website domain.** The public booking address is confirmed as `bookings@veorawellnessph.com`, but `NEXT_PUBLIC_SITE_URL` still needs to match the final production website URL.
+- **Website domain confirmed.** The production website is `https://www.veora.ph` (the `veora.ph` apex redirects to it), and the public booking address is `bookings@veora.ph`.
 - **Social media accounts.** The footer and structured data currently link to the real, active `instagram.com/spacioblnc` and `facebook.com/spacioblnc` accounts — the only real accounts that exist. Decide whether these accounts will be renamed to Veora or replaced with new ones, and update `src/data/site.ts` (`social.instagram`, `social.facebook`) accordingly. Do not point to a guessed `@veorawellness` handle until one actually exists.
 - **No TikTok, Threads, YouTube or WhatsApp Business account** were found on the source site or its business record (`whatsAppNumber` is explicitly `null` in the source data). The studio's mobile number is displayed as a phone number only — confirm before labeling it as a WhatsApp contact point.
-- **Booking email confirmed.** Public contact and routine booking messages use `bookings@veorawellnessph.com`.
+- **Booking email confirmed.** Public contact and routine booking messages use `bookings@veora.ph`.
 
 ## Hours & schedule
 

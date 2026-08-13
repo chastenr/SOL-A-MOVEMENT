@@ -25,7 +25,7 @@ spacioblnc.com is a client-rendered app — its HTML has no visible content; eve
 - **Address:** 2nd Floor, EMRADEE Building, Daang Hari Road, Molino IV, Bacoor, Cavite, 4102, Philippines.
 - **Phone/mobile:** +63 917 319 4772.
 - **Geo coordinates:** 14.4108087, 120.9503414 (used in structured data and the `/locations` map link).
-- **Email:** local part `hello@` preserved from the source; domain adapted to the Veora placeholder domain (see `NEEDS_CLIENT_CONFIRMATION.md`).
+- **Email:** the confirmed public booking address is `bookings@veora.ph`.
 - **Social:** real, active Instagram and Facebook (`@spacioblnc`) — linked as-is pending the client's rename/replace decision.
 - **Cancellation window:** 12 hours before class (confirmed in both the business record and the FAQ).
 - **Data architecture:** contact/address/hours now live in `src/data/locations.ts` as the single source of truth (multi-branch-ready); `src/data/site.ts` derives its `contact` block from the active location instead of duplicating it.
@@ -74,7 +74,7 @@ The full FAQ (8 topics, ~24 questions) was also migrated to a new `/faq` page (`
 - Fake services: Reformer Pilates, Private Sessions, Mobility & Stretch, Wellness Sessions (as distinct offerings), Yoga Flow (renamed/merged into the real "Yoga" umbrella).
 - Fabricated weekly class schedule with placeholder instructor names and spot counts.
 - The "Loved by the Veora community" star-rating banner — the studio hasn't launched and has zero reviews; replaced with an honest "Opening soon in Bacoor, Cavite."
-- Generic/example contact values (`owner@example.com`, `555-` phone numbers, `example.com`) — none exist in customer-facing content; only the intentional `.env.example` template and the `NEXT_PUBLIC_SITE_URL` placeholder fallback remain, both clearly documented as pending the client's real domain.
+- Generic/example contact values (`owner@example.com`, `555-` phone numbers, `example.com`) — none exist in customer-facing content. The intentional owner fallback remains only in the environment template, while production URLs and public email defaults use the confirmed `veora.ph` domain.
 
 ## Motion / Design Additions
 
@@ -96,4 +96,4 @@ Design, typography, color system, layout and the booking architecture were prese
 
 ## Needs Client Confirmation
 
-See `NEEDS_CLIENT_CONFIRMATION.md` for the full list (domain/email, social account ownership, business hours, live timetable, Founding Member promo end date, a source data inconsistency in one package's validity period, the FAQ's "Dance" mention vs. the real catalog, and legal review of the migrated Terms & Conditions).
+See `NEEDS_CLIENT_CONFIRMATION.md` for the remaining list (social account ownership, business hours, live timetable, Founding Member promo end date, a source data inconsistency in one package's validity period, the FAQ's "Dance" mention vs. the real catalog, and legal review of the migrated Terms & Conditions).

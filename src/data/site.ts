@@ -8,7 +8,7 @@ export const siteConfig = {
   tagline: "Move intentionally. Live fully.",
   description:
     "A premium boutique movement and wellness studio in Bacoor, Cavite offering Pilates, yoga, barre, ballet and specialty heated and infrared recovery classes. Explore our services and book your session online.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.veorawellnessph.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.veora.ph",
 
   // Veora is a new studio preparing to open — avoid language that implies
   // years of history, an established client base, or existing reviews.

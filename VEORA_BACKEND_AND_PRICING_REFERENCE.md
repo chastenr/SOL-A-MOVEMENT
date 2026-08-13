@@ -461,7 +461,7 @@ Important backend functions include:
 - Supabase Storage setup
 - Resend transactional email integration
 - Custom authentication-email templates
-- Custom domain configuration
+- `veora.ph` custom domain configuration
 - DNS records
 - Transactional email-domain verification
 - Google Workspace/business-email setup and administration
@@ -476,7 +476,6 @@ The client should own the domain, Google Workspace tenant, production Supabase p
 - Final founder name, biography, credentials, and photo
 - Final coach roster and coach content
 - Final Veora social-media URLs instead of the older SPACIO BLNC URLs
-- Confirmation of the dedicated booking email
 - Final studio photography to replace remaining stock images
 - Confirmation of promotional/founding-member offer end dates
 - Resolution of any package-validity conflicts in the source material

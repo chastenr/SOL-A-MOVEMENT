@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUpRight, Check, ChevronDown, Clock3 } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, ChevronDown, Clock3, Sparkles } from "lucide-react";
 import { ImageReveal } from "@/components/ui/ImageReveal";
 import { TiltCard } from "@/components/ui/TiltCard";
 import { Button } from "@/components/ui/Button";
@@ -52,7 +52,7 @@ export function ServiceCard({ service, variant = "compact", className, priority 
 
         <div className="flex flex-1 flex-col p-6 sm:p-7">
           <h3 className="font-display text-[2rem] leading-none text-charcoal sm:text-4xl">{service.name}</h3>
-          <p className="mt-4 text-[15px] leading-relaxed text-charcoal/65">{service.shortDescription}</p>
+          <p className="mt-4 text-sm leading-relaxed text-charcoal/65">{service.description}</p>
 
           <dl className="mt-5 grid grid-cols-2 gap-2 text-sm">
             <div className="rounded-xl bg-cream/65 px-3.5 py-3">
@@ -68,6 +68,22 @@ export function ServiceCard({ service, variant = "compact", className, priority 
               <dd className="mt-1.5 text-xs leading-snug text-charcoal/75">{service.level}</dd>
             </div>
           </dl>
+
+          {service.benefits && service.benefits.length > 0 && (
+            <div className="mt-4 rounded-2xl border border-clay/15 bg-clay/[0.06] p-4">
+              <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-clay">
+                <Sparkles size={13} aria-hidden /> Benefits
+              </p>
+              <ul className="mt-3 space-y-2.5" aria-label={`${service.name} benefits`}>
+                {service.benefits.map((benefit) => (
+                  <li key={benefit} className="flex gap-2.5 text-xs leading-relaxed text-charcoal/70">
+                    <Check size={14} className="mt-0.5 shrink-0 text-clay" strokeWidth={2} aria-hidden />
+                    <span>{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {variantGroups.length > 0 && (
             <details className="group/options mt-4 border-y border-charcoal/10 py-1">
@@ -106,6 +122,9 @@ export function ServiceCard({ service, variant = "compact", className, priority 
                 <span className="font-medium text-charcoal">{service.startingPrice}</span>
               </p>
             )}
+            <a href={`/services/${service.slug}`} className="mb-4 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.13em] text-clay transition-colors hover:text-walnut">
+              Class details <ArrowUpRight size={14} aria-hidden />
+            </a>
             <Button href={`/book?service=${service.slug}`} className="w-full justify-between px-6 py-3.5">
               Book this class
               <ArrowRight size={16} aria-hidden />
@@ -133,7 +152,7 @@ export function ServiceCard({ service, variant = "compact", className, priority 
       <h3 className="font-display mt-4 text-xl text-charcoal">{service.name}</h3>
       <p className="mt-1.5 text-sm leading-relaxed text-charcoal/65">{service.shortDescription}</p>
       <a
-        href={`/services#${service.slug}`}
+        href={`/services/${service.slug}`}
         className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.15em] text-charcoal/70 transition-colors group-hover:text-clay"
       >
         Learn more

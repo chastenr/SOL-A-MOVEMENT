@@ -10,6 +10,8 @@ export type Service = {
   description: string;
   duration: string;
   level: string;
+  /** Customer-facing outcomes stated without medical or guaranteed-result claims. */
+  benefits?: string[];
   instructor?: string;
   /** Real, informational pricing published by the studio — no online payment is collected. */
   startingPrice?: string;
@@ -28,6 +30,11 @@ export const services: Service[] = [
       "Move with intention in our Mat Pilates classes, where you'll strengthen your core, improve balance and enhance flexibility. Every session is led by experienced instructors and designed to help you build strength with confidence, precision and personalized guidance.",
     duration: "50 min",
     level: "Open to all",
+    benefits: [
+      "Build deep core strength and stability",
+      "Improve posture, balance and body awareness",
+      "Develop flexibility with controlled movement",
+    ],
     startingPrice: "₱850 for a single class",
     image: images.services["mat-pilates"],
   },
@@ -41,6 +48,11 @@ export const services: Service[] = [
       "From energizing Vinyasa and Power Yoga to gentle Hatha, Restorative, Gentle Flow, Stretch Yoga and Yogalates, our yoga classes build flexibility, balance and mindful breath at whatever pace suits you.",
     duration: "50 min",
     level: "Open to all",
+    benefits: [
+      "Improve flexibility and everyday mobility",
+      "Build balance, coordination and body awareness",
+      "Use mindful breathing to feel more grounded",
+    ],
     startingPrice: "₱850 for a single class",
     classVariants: [
       "Hatha",
@@ -63,6 +75,11 @@ export const services: Service[] = [
       "Improve posture, balance and muscle endurance through low-impact movements inspired by ballet — a full-body sculpting class suited to every level.",
     duration: "50 min",
     level: "Open to all",
+    benefits: [
+      "Strengthen and tone the full body with low impact",
+      "Improve posture, alignment and balance",
+      "Build muscular endurance through precise movement",
+    ],
     startingPrice: "₱850 for a single class",
     image: images.services.barre,
   },
@@ -75,6 +92,11 @@ export const services: Service[] = [
       "Build functional strength, tone and cardiovascular fitness through Mat Strength, Mat Sculpt, Functional Group Exercise and HIIT — guided, full-body sessions for every fitness level.",
     duration: "50 min",
     level: "Open to all",
+    benefits: [
+      "Build practical, full-body strength",
+      "Improve cardiovascular fitness and stamina",
+      "Increase confidence with coached, scalable exercises",
+    ],
     startingPrice: "₱850 for a single class",
     classVariants: ["Mat Strength", "Mat Sculpt", "Functional Group Exercise", "HIIT"],
     image: images.services["strength-hiit"],
@@ -88,6 +110,11 @@ export const services: Service[] = [
       "Our Restore collection includes heated and red light therapy versions of every Classics format, from Pilates and yoga to barre, strength and HIIT. Choose the movement you enjoy with an environment designed to support warmth, circulation and recovery.",
     duration: "50 min",
     level: "Open to all",
+    benefits: [
+      "Explore familiar movements in a warm, immersive setting",
+      "Support mobility through mindful, guided movement",
+      "Make space to slow down, reset and reconnect",
+    ],
     startingPrice: "₱1,500 for a single class",
     classVariants: [
       "Heated Barre",
@@ -130,6 +157,11 @@ export const services: Service[] = [
       "Structured ballet training for every age — from playful, play-based first steps at 3–5 years old through disciplined technique for teens and adults — building posture, coordination, artistry and confidence.",
     duration: "60–90 min, varies by age group",
     level: "Beginner-friendly, all ages",
+    benefits: [
+      "Develop posture, coordination and musicality",
+      "Build strength, flexibility and movement control",
+      "Grow confidence, discipline and creative expression",
+    ],
     startingPrice: "₱1,000 trial class",
     classVariants: [
       "Little Swans Ballet (3–5 yrs)",

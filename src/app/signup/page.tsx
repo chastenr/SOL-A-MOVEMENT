@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Create Account",
   description: "Create a Veora Wellness account to buy class packages and book classes.",
   alternates: { canonical: "/signup" },
+  robots: { index: false, follow: false },
 };
 
 export default async function SignUpPage({

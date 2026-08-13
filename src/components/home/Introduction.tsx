@@ -13,7 +13,7 @@ export function Introduction() {
           <SectionLabel index="01" label="Why Veora" className="mb-5" />
           <SectionHeading
             heading="Movement, made intentional."
-            body="A boutique studio in Bacoor built for strength, balance and confidence, with guidance every step of the way."
+            body="Veora Wellness is a Pilates and wellness studio in Bacoor, Cavite, Philippines. We offer guided Mat Pilates, yoga, barre, strength, recovery and ballet classes for beginners and experienced movers."
           />
           <div className="mt-8">
             <Button href="/about" variant="secondary">

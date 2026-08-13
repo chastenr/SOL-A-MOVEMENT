@@ -83,7 +83,7 @@ export const faqTopics: FaqTopic[] = [
       {
         question: "What's the difference between heated and infrared classes?",
         answer:
-          "Heated classes use a warm studio environment that improves flexibility and encourages sweating — great for muscle recovery. Infrared classes use infrared heat panels for deep, penetrating warmth that supports circulation and relaxation.",
+          "Heated classes use a warm studio environment, while infrared classes use infrared heat panels for a different kind of warmth. Both formats pair the selected class with an immersive heated setting; choose based on your comfort and ask the studio if you're unsure.",
       },
       {
         question: "Are heated classes safe?",

@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/data/site";
+import { getServices } from "@/lib/catalog/services";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const services = await getServices();
   const routes = [
     "",
     "/about",
@@ -14,10 +16,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/policies",
   ];
 
-  return routes.map((route) => ({
+  const pages: MetadataRoute.Sitemap = routes.map((route) => ({
     url: `${siteConfig.url}${route}`,
-    lastModified: new Date(),
     changeFrequency: route === "/schedule" ? "daily" : "weekly",
     priority: route === "" ? 1 : route === "/pricing" ? 0.9 : 0.7,
   }));
+
+  const classPages: MetadataRoute.Sitemap = services.map((service) => ({
+    url: `${siteConfig.url}/services/${service.slug}`,
+    changeFrequency: "monthly",
+    priority: 0.8,
+    images: [service.image.src],
+  }));
+
+  return [...pages, ...classPages];
 }

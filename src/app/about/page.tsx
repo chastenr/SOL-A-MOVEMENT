@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo-metadata";
 import { images } from "@/data/images";
 import { siteConfig } from "@/data/site";
 import { founder } from "@/data/team";
@@ -7,12 +7,12 @@ import { ImageReveal } from "@/components/ui/ImageReveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 
-export const metadata: Metadata = {
-  title: "About",
+export const metadata = createPageMetadata({
+  title: "About Our Pilates & Wellness Studio in Bacoor",
   description:
-    "Learn about Veora Wellness — our philosophy, our studio experience and our approach to intentional movement.",
-  alternates: { canonical: "/about" },
-};
+    "Meet Veora Wellness, a Pilates and movement studio in Bacoor, Cavite offering guided classes, premium equipment, lockers and showers in a calm studio setting.",
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (
