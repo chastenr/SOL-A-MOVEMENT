@@ -17,6 +17,7 @@ export function BookSessionButton({
   timeRange,
   arrivalTime,
   packageName,
+  onDone,
 }: {
   classSessionId: string;
   customerPackageId: string;
@@ -27,6 +28,7 @@ export function BookSessionButton({
   timeRange: string;
   arrivalTime: string;
   packageName: string;
+  onDone?: () => void;
 }) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
@@ -121,7 +123,15 @@ export function BookSessionButton({
 
           <p className="mt-4 text-sm text-charcoal">See you at Veora Wellness Studio.</p>
 
-          <Button type="button" size="md" className="mt-5 w-full" onClick={() => setConfirmed(null)}>
+          <Button
+            type="button"
+            size="md"
+            className="mt-5 w-full"
+            onClick={() => {
+              setConfirmed(null);
+              onDone?.();
+            }}
+          >
             Done
           </Button>
         </div>

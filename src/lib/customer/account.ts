@@ -134,6 +134,8 @@ export type EligibleSessionRow = {
   location: string;
   instructor: string | null;
   instructorPhotoUrl: string | null;
+  instructorBio: string | null;
+  classDescription: string;
   capacity: number;
   bookedCount: number;
   bookingEnabled: boolean;
@@ -161,7 +163,7 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
   const { data } = await supabase
     .from("class_sessions")
     .select(
-      "id, start_at, end_at, capacity, booked_count, booking_enabled, class_type:class_types(name, slug, service_slug, level), location:locations(name), instructor:instructors(name, photo_url)"
+      "id, start_at, end_at, capacity, booked_count, booking_enabled, class_type:class_types(name, slug, service_slug, level, description), location:locations(name), instructor:instructors(name, photo_url, bio)"
     )
     .eq("status", "scheduled")
     .gt("start_at", new Date().toISOString())
@@ -175,9 +177,9 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
     capacity: number;
     booked_count: number;
     booking_enabled: boolean;
-    class_type: { name: string; slug: string; service_slug: string; level: string } | null;
+    class_type: { name: string; slug: string; service_slug: string; level: string; description: string } | null;
     location: { name: string } | null;
-    instructor: { name: string; photo_url: string | null } | null;
+    instructor: { name: string; photo_url: string | null; bio: string | null } | null;
   };
 
   const rows = (data as unknown as RawSession[]) ?? [];
@@ -199,6 +201,8 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
       location: row.location?.name ?? "—",
       instructor: row.instructor?.name ?? null,
       instructorPhotoUrl: row.instructor?.photo_url ?? null,
+      instructorBio: row.instructor?.bio ?? null,
+      classDescription: row.class_type?.description ?? "",
       capacity: row.capacity,
       bookedCount: row.booked_count,
       bookingEnabled: row.booking_enabled,

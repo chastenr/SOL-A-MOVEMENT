@@ -3,7 +3,7 @@ import { Clock3 } from "lucide-react";
 import { getUpcomingSessions } from "@/lib/catalog/sessions";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { Button } from "@/components/ui/Button";
-import { UpcomingSessionsList } from "@/components/schedule/UpcomingSessionsList";
+import { ScheduleExplorer } from "@/components/schedule/ScheduleExplorer";
 
 export const metadata = createPageMetadata({
   title: "Pilates & Wellness Class Schedule in Bacoor",
@@ -13,7 +13,7 @@ export const metadata = createPageMetadata({
 });
 
 export default async function SchedulePage() {
-  const sessions = await getUpcomingSessions(16);
+  const sessions = await getUpcomingSessions(100);
 
   return (
     <section
@@ -37,7 +37,7 @@ export default async function SchedulePage() {
 
       {sessions.length > 0 ? (
         <div className="mt-6">
-          <UpcomingSessionsList sessions={sessions} />
+          <ScheduleExplorer sessions={sessions} />
         </div>
       ) : (
         <div className="mt-6 rounded-[2rem] border border-charcoal/10 bg-ivory px-6 py-12 text-center sm:px-10">
