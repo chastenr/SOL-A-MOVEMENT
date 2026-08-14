@@ -71,9 +71,13 @@ function sessionState(session: ScheduleExplorerSession) {
 export function ScheduleExplorer({
   sessions,
   memberPackage,
+  memberPackagesBySessionId,
+  uncoveredSessionHref,
 }: {
   sessions: ScheduleExplorerSession[];
   memberPackage?: MemberPackage;
+  memberPackagesBySessionId?: Record<string, MemberPackage>;
+  uncoveredSessionHref?: string;
 }) {
   const sessionsByDate = useMemo(() => {
     const groups = new Map<string, ScheduleExplorerSession[]>();
@@ -84,9 +88,12 @@ export function ScheduleExplorer({
     return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
   }, [sessions]);
 
-  const [selectedDate, setSelectedDate] = useState(sessionsByDate[0]?.[0] ?? "");
+  const [requestedDate, setRequestedDate] = useState(sessionsByDate[0]?.[0] ?? "");
   const [selectedSession, setSelectedSession] = useState<ScheduleExplorerSession | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const selectedDate = sessionsByDate.some(([key]) => key === requestedDate)
+    ? requestedDate
+    : (sessionsByDate[0]?.[0] ?? "");
   const selectedDay = sessionsByDate.find(([key]) => key === selectedDate)?.[1] ?? [];
 
   useEffect(() => {
@@ -131,7 +138,7 @@ export function ScheduleExplorer({
                 aria-selected={active}
                 aria-controls="daily-schedule"
                 onClick={() => {
-                  setSelectedDate(key);
+                  setRequestedDate(key);
                   setSelectedSession(null);
                 }}
                 className={cn(
@@ -206,7 +213,8 @@ export function ScheduleExplorer({
       {selectedSession && (
         <SessionDetailDialog
           session={selectedSession}
-          memberPackage={memberPackage}
+          memberPackage={memberPackagesBySessionId?.[selectedSession.id] ?? memberPackage}
+          uncoveredSessionHref={uncoveredSessionHref}
           closeButtonRef={closeButtonRef}
           onClose={() => setSelectedSession(null)}
         />
@@ -218,11 +226,13 @@ export function ScheduleExplorer({
 function SessionDetailDialog({
   session,
   memberPackage,
+  uncoveredSessionHref,
   closeButtonRef,
   onClose,
 }: {
   session: ScheduleExplorerSession;
   memberPackage?: MemberPackage;
+  uncoveredSessionHref?: string;
   closeButtonRef: React.RefObject<HTMLButtonElement | null>;
   onClose: () => void;
 }) {
@@ -314,7 +324,9 @@ function SessionDetailDialog({
                   onDone={onClose}
                 />
               ) : (
-                <Button href={bookingHref} size="lg" className="w-full">Book this class</Button>
+                <Button href={uncoveredSessionHref ?? bookingHref} size="lg" className="w-full">
+                  {uncoveredSessionHref ? "View Package Options" : "Book this class"}
+                </Button>
               )
             ) : (
               <p className="rounded-xl bg-charcoal/5 px-4 py-3 text-center text-sm text-charcoal/55">This session is currently {state.label.toLowerCase()}.</p>

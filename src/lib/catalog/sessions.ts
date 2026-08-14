@@ -39,7 +39,7 @@ type RawSession = {
  */
 export async function getUpcomingSessions(limit = 12): Promise<UpcomingSessionRow[]> {
   const supabase = await createSupabaseServerClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("class_sessions")
     .select(
       "id, start_at, end_at, capacity, booked_count, booking_enabled, class_type:class_types(name, service_slug, level, description), location:locations(name), instructor:instructors(name, photo_url, bio)"
@@ -48,6 +48,11 @@ export async function getUpcomingSessions(limit = 12): Promise<UpcomingSessionRo
     .gt("start_at", new Date().toISOString())
     .order("start_at", { ascending: true })
     .limit(limit);
+
+  if (error) {
+    console.error("[getUpcomingSessions] class sessions query failed", error);
+    return [];
+  }
 
   const rows = (data as unknown as RawSession[]) ?? [];
   return rows.map((row) => ({

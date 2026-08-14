@@ -7,17 +7,20 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { ScheduleExplorer } from "@/components/schedule/ScheduleExplorer";
 import { getServiceBySlug } from "@/data/services";
+import { getUpcomingSessions } from "@/lib/catalog/sessions";
 
 export const metadata: Metadata = {
   title: "Book a Class",
   robots: { index: false, follow: false },
 };
 
+const CLASSIC_SERVICE_SLUGS = ["mat-pilates", "yoga", "barre", "strength-hiit"];
+
 function packageSupportsService(serviceSlug: string | null, requestedService: string): boolean {
   if (requestedService === "recovery-restore" || requestedService === "ballet") {
     return serviceSlug === requestedService;
   }
-  return serviceSlug === null;
+  return serviceSlug === null && CLASSIC_SERVICE_SLUGS.includes(requestedService);
 }
 
 export default async function AccountBookPage({
@@ -56,6 +59,16 @@ export default async function AccountBookPage({
       : requestedService
         ? eligibleSessions.filter((session) => session.serviceSlug === requestedService)
         : eligibleSessions;
+  const shouldShowScheduleFallback = packageMismatch || sessions.length === 0;
+  const fallbackSessions = shouldShowScheduleFallback ? await getUpcomingSessions(100) : [];
+  const fallbackPackagesBySessionId = Object.fromEntries(
+    fallbackSessions.flatMap((session) => {
+      const compatiblePackage = activePackages.find((pkg) => packageSupportsService(pkg.serviceSlug, session.serviceSlug));
+      return compatiblePackage
+        ? [[session.id, { id: compatiblePackage.id, name: compatiblePackage.packageName }]]
+        : [];
+    })
+  );
 
   return (
     <div>
@@ -115,17 +128,25 @@ export default async function AccountBookPage({
           )}
 
           {packageMismatch && selectedPackage ? (
-            <div className="mt-6 rounded-2xl border border-amber-300/60 bg-amber-50 p-6 text-amber-950">
-              <p className="font-semibold">This package does not cover {requestedServiceName}.</p>
-              <p className="mt-2 text-sm leading-relaxed text-amber-900/75">
-                Your {selectedPackage.packageName} credits are for Classic classes. Choose a compatible
-                package for {requestedServiceName}, or return to the classes included with your current package.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Button href="/pricing" size="md">View Compatible Packages</Button>
-                <Button href="/account/book" variant="secondary" size="md">View My Available Classes</Button>
+            <>
+              <div className="mt-6 rounded-2xl border border-amber-300/60 bg-amber-50 p-6 text-amber-950">
+                <p className="font-semibold">This package does not cover {requestedServiceName}.</p>
+                <p className="mt-2 text-sm leading-relaxed text-amber-900/75">
+                  Your {selectedPackage.packageName} credits cannot be used for this class type. You can still
+                  browse every available schedule below. Classes covered by one of your active packages can be
+                  booked immediately.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Button href="/pricing" size="md">View Compatible Packages</Button>
+                  <Button href="/account/book" variant="secondary" size="md">Clear Class Filter</Button>
+                </div>
               </div>
-            </div>
+
+              <AvailableScheduleFallback
+                sessions={fallbackSessions}
+                memberPackagesBySessionId={fallbackPackagesBySessionId}
+              />
+            </>
           ) : (
             <>
               <p className="mt-6 text-xs text-charcoal/45">
@@ -141,25 +162,23 @@ export default async function AccountBookPage({
               )}
 
               {sessions.length === 0 ? (
-            <div className="mt-8 rounded-2xl border border-dashed border-charcoal/15 bg-cream/25 p-6 sm:p-8">
-              <p className="font-medium text-charcoal">
-                {requestedSession || requestedClass
-                  ? "This class is not available with the selected package. Choose another package or view all available classes."
-                  : "The studio has not published upcoming classes for this package yet."}
-              </p>
-              {!requestedSession && !requestedClass && selectedPackage && (
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-charcoal/55">
-                  Your package is active with {selectedPackage.remainingCredits} credit
-                  {selectedPackage.remainingCredits === 1 ? "" : "s"} available. Dates and times will appear
-                  here automatically as soon as the studio publishes the schedule.
-                </p>
-              )}
-              {(requestedSession || requestedClass) && (
-                <Link href="/account/book" className="mt-3 inline-block text-sm underline underline-offset-4">
-                  View all available classes
-                </Link>
-              )}
-            </div>
+                <>
+                  <div className="mt-8 rounded-2xl border border-dashed border-charcoal/15 bg-cream/25 p-6 sm:p-8">
+                    <p className="font-medium text-charcoal">
+                      {requestedSession || requestedClass || requestedService
+                        ? `${requestedServiceName ?? "This class"} has no upcoming times right now.`
+                        : "There are no upcoming classes covered by this package right now."}
+                    </p>
+                    <p className="mt-2 max-w-2xl text-sm leading-relaxed text-charcoal/55">
+                      Here are all other available studio schedules so you can choose another class or date.
+                    </p>
+                  </div>
+
+                  <AvailableScheduleFallback
+                    sessions={fallbackSessions}
+                    memberPackagesBySessionId={fallbackPackagesBySessionId}
+                  />
+                </>
               ) : selectedPackage ? (
                 <div className="mt-7">
                   <ScheduleExplorer
@@ -173,5 +192,42 @@ export default async function AccountBookPage({
         </>
       )}
     </div>
+  );
+}
+
+function AvailableScheduleFallback({
+  sessions,
+  memberPackagesBySessionId,
+}: {
+  sessions: Awaited<ReturnType<typeof getUpcomingSessions>>;
+  memberPackagesBySessionId: Record<string, { id: string; name: string }>;
+}) {
+  if (sessions.length === 0) {
+    return (
+      <div className="mt-6 rounded-2xl border border-charcoal/10 bg-ivory p-6 text-center sm:p-8">
+        <p className="font-medium text-charcoal">No upcoming studio schedules have been published yet.</p>
+        <p className="mt-2 text-sm text-charcoal/55">New class dates and times will appear here automatically.</p>
+      </div>
+    );
+  }
+
+  return (
+    <section className="mt-8" aria-labelledby="other-schedules-heading">
+      <div className="mb-5">
+        <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-clay">Available alternatives</p>
+        <h2 id="other-schedules-heading" className="font-display mt-1 text-3xl text-charcoal">
+          All upcoming class times
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-charcoal/55">
+          Select any date and time to review the class and coach. If your current credits do not cover it,
+          you&rsquo;ll see the package options instead of a booking button.
+        </p>
+      </div>
+      <ScheduleExplorer
+        sessions={sessions}
+        memberPackagesBySessionId={memberPackagesBySessionId}
+        uncoveredSessionHref="/pricing"
+      />
+    </section>
   );
 }
