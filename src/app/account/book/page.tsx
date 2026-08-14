@@ -58,8 +58,30 @@ export default async function AccountBookPage({
         </div>
       ) : (
         <>
+          {selectedPackage && (
+            <div className="mt-7 flex flex-col gap-5 rounded-2xl border border-charcoal/10 bg-ivory p-5 shadow-[0_18px_45px_-40px_rgba(34,31,28,0.55)] sm:flex-row sm:items-center sm:justify-between sm:p-6">
+              <div>
+                <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-clay">
+                  Available class credits
+                </p>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <p className="text-4xl font-semibold leading-none text-charcoal">
+                    {selectedPackage.remainingCredits}
+                  </p>
+                  <p className="text-sm text-charcoal/50">
+                    of {selectedPackage.creditCount} remaining
+                  </p>
+                </div>
+                <p className="mt-2 text-sm text-charcoal/65">{selectedPackage.packageName}</p>
+              </div>
+              <Button href="/account/packages" variant="secondary" size="md">
+                View My Packages
+              </Button>
+            </div>
+          )}
+
           {activePackages.length > 1 && (
-            <div className="mt-6 flex flex-wrap gap-2">
+            <div className="mt-4 flex flex-wrap gap-2">
               {activePackages.map((pkg) => (
                 <Link
                   key={pkg.id}
@@ -93,12 +115,19 @@ export default async function AccountBookPage({
           )}
 
           {sessions.length === 0 ? (
-            <div className="mt-8">
-              <p className="text-charcoal/60">
+            <div className="mt-8 rounded-2xl border border-dashed border-charcoal/15 bg-cream/25 p-6 sm:p-8">
+              <p className="font-medium text-charcoal">
                 {requestedSession || requestedClass
                   ? "This class is not available with the selected package. Choose another package or view all available classes."
-                  : "No upcoming sessions are scheduled for this package yet — check back soon."}
+                  : "The studio has not published upcoming classes for this package yet."}
               </p>
+              {!requestedSession && !requestedClass && selectedPackage && (
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-charcoal/55">
+                  Your package is active with {selectedPackage.remainingCredits} credit
+                  {selectedPackage.remainingCredits === 1 ? "" : "s"} available. Dates and times will appear
+                  here automatically as soon as the studio publishes the schedule.
+                </p>
+              )}
               {(requestedSession || requestedClass) && (
                 <Link href="/account/book" className="mt-3 inline-block text-sm underline underline-offset-4">
                   View all available classes

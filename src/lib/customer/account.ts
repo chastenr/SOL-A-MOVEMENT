@@ -16,11 +16,13 @@ export type CustomerPackageRow = {
 
 export async function getCustomerPackages(userId: string): Promise<CustomerPackageRow[]> {
   const supabase = await createSupabaseServerClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("customer_packages")
     .select("id, package_name_snapshot, credit_count, remaining_credits, status, activated_at, expires_at, package:packages(service_slug)")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
+
+  if (error) console.error("[getCustomerPackages] customer_packages query failed", error);
 
   return (data ?? []).map((row) => ({
     id: row.id,
@@ -65,7 +67,7 @@ type RawCustomerBooking = {
 
 export async function getCustomerBookings(userId: string): Promise<CustomerBookingRow[]> {
   const supabase = await createSupabaseServerClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("class_bookings")
     .select(
       `id, status, booked_at,
@@ -74,6 +76,8 @@ export async function getCustomerBookings(userId: string): Promise<CustomerBooki
     )
     .eq("user_id", userId)
     .order("booked_at", { ascending: false });
+
+  if (error) console.error("[getCustomerBookings] class_bookings query failed", error);
 
   const rows = (data as unknown as RawCustomerBooking[]) ?? [];
   const now = Date.now();
@@ -107,11 +111,13 @@ export type CustomerPurchaseRow = {
 
 export async function getCustomerPurchases(userId: string): Promise<CustomerPurchaseRow[]> {
   const supabase = await createSupabaseServerClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("purchases")
     .select("id, reference_number, package_name_snapshot, total_amount_centavos, purchase_status, created_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
+
+  if (error) console.error("[getCustomerPurchases] purchases query failed", error);
 
   return (data ?? []).map((row) => ({
     id: row.id,
@@ -151,16 +157,28 @@ const CLASSIC_SERVICE_SLUGS = ["mat-pilates", "yoga", "barre", "strength-hiit"];
 export async function getEligibleSessions(customerPackageId: string, userId: string): Promise<EligibleSessionRow[]> {
   const supabase = await createSupabaseServerClient();
 
-  const { data: customerPackage } = await supabase
+  const { data: customerPackage, error: customerPackageError } = await supabase
     .from("customer_packages")
     .select("package_id, user_id")
     .eq("id", customerPackageId)
     .single();
+  if (customerPackageError) {
+    console.error("[getEligibleSessions] customer package query failed", customerPackageError);
+    return [];
+  }
   if (!customerPackage || customerPackage.user_id !== userId) return [];
 
-  const { data: pkg } = await supabase.from("packages").select("service_slug").eq("id", customerPackage.package_id).single();
+  const { data: pkg, error: packageError } = await supabase
+    .from("packages")
+    .select("service_slug")
+    .eq("id", customerPackage.package_id)
+    .single();
+  if (packageError) {
+    console.error("[getEligibleSessions] package query failed", packageError);
+    return [];
+  }
 
-  const { data } = await supabase
+  const { data, error: sessionsError } = await supabase
     .from("class_sessions")
     .select(
       "id, start_at, end_at, capacity, booked_count, booking_enabled, class_type:class_types(name, slug, service_slug, level, description), location:locations(name), instructor:instructors(name, photo_url, bio)"
@@ -169,6 +187,11 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
     .gt("start_at", new Date().toISOString())
     .order("start_at", { ascending: true })
     .limit(100);
+
+  if (sessionsError) {
+    console.error("[getEligibleSessions] class sessions query failed", sessionsError);
+    return [];
+  }
 
   type RawSession = {
     id: string;

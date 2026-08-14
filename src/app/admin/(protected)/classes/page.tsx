@@ -176,6 +176,9 @@ export default async function AdminClassesPage() {
   const instructorOptions = instructorsData ?? [];
 
   const slots = ((slotsData as unknown as SlotRow[] | null) ?? []).slice();
+  const assignedRecurringCount = slots.filter(
+    (slot) => slot.is_active && slot.class_type_id !== null
+  ).length;
   const slotsByLocation = new Map<string, SlotRow[]>();
   for (const slot of slots) {
     const locationName = slot.location?.name ?? "—";
@@ -194,6 +197,16 @@ export default async function AdminClassesPage() {
         class is still below its minimum — review and cancel if it won&apos;t run. Sessions automatically
         become completed after their end time.
       </p>
+
+      {assignedRecurringCount === 0 && (
+        <div className="mt-5 rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p className="font-semibold">No recurring classes are assigned.</p>
+          <p className="mt-1 text-amber-800/80">
+            Customers cannot see or book Classic or Restore sessions until a class is selected under Class
+            Times. Assign the class and coach for each day and time, then select Generate Schedule.
+          </p>
+        </div>
+      )}
 
       <div className="mt-6 rounded-xl border border-charcoal/10 bg-ivory p-4">
         <p className="text-xs uppercase tracking-[0.1em] text-charcoal/45">Coach schedules change weekly</p>
