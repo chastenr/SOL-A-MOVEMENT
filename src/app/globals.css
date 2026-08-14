@@ -91,6 +91,15 @@ body {
   font-family: var(--font-inter);
 }
 
+/* The operations dashboard is a dense working interface, so it uses Inter
+   throughout for faster scanning in tables, calendars, forms and dialogs.
+   This intentionally overrides legacy `font-display` utilities inside the
+   admin route without changing the editorial typography on the public site. */
+.font-admin,
+.font-admin * {
+  font-family: var(--font-inter);
+}
+
 .balance {
   text-wrap: balance;
 }
