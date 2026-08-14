@@ -82,14 +82,20 @@ export async function adjustCreditsAction(values: AdjustCreditsValues): Promise<
     .eq("id", parsed.data.customerPackageId)
     .single();
 
-  const { error } = await supabase.rpc("admin_adjust_customer_package_credits", {
+  const { error } = await supabase.rpc("admin_set_customer_package_credits", {
     p_customer_package_id: parsed.data.customerPackageId,
-    p_delta: parsed.data.delta,
+    p_new_balance: parsed.data.newBalance,
     p_reason: parsed.data.reason,
   });
 
   if (error) return { error: error.message || "Something went wrong. Please try again." };
 
   if (pkgRow) revalidatePath(`/admin/customers/${pkgRow.user_id}`);
+  revalidatePath("/admin/customers");
+  if (pkgRow) {
+    revalidatePath("/account");
+    revalidatePath("/account/book");
+    revalidatePath("/account/packages");
+  }
   return { success: true };
 }

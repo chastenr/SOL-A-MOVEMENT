@@ -45,8 +45,9 @@ export default async function AdminCustomersPage({
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Credits</th>
+                <th className="px-4 py-3">Available credits</th>
                 <th className="px-4 py-3">Joined</th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -70,6 +71,15 @@ export default async function AdminCustomersPage({
                     </span>
                   </td>
                   <td className="px-4 py-3 text-charcoal/70">{format(new Date(customer.createdAt), "MMM d, yyyy")}</td>
+                  <td className="px-4 py-3 text-right">
+                    <Link
+                      href={`/admin/customers/${customer.id}`}
+                      className="inline-flex min-h-9 items-center rounded-full border border-charcoal/20 px-4 text-xs font-semibold uppercase tracking-[0.08em] text-charcoal transition-colors hover:border-charcoal hover:bg-charcoal hover:text-ivory"
+                      aria-label={`Manage packages and credits for ${customer.name}`}
+                    >
+                      Manage credits
+                    </Link>
+                  </td>
                 </tr>
               ))}
             </tbody>

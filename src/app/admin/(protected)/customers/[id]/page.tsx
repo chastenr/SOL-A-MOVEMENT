@@ -39,9 +39,16 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
       </p>
 
       <section className="mt-10">
-        <h2 className="font-display text-lg text-charcoal">Packages</h2>
+        <h2 className="font-display text-lg text-charcoal">Packages &amp; Credits</h2>
+        <p className="mt-1 text-sm text-charcoal/55">
+          Update the available balance for a specific package. Every change requires a reason and is saved in the credit history.
+        </p>
         {packages.length === 0 ? (
-          <p className="mt-3 text-sm text-charcoal/55">No packages yet.</p>
+          <div className="mt-4 rounded-xl border border-dashed border-charcoal/15 bg-ivory p-4">
+            <p className="text-sm text-charcoal/60">
+              This customer has no package to update yet. Grant a package below to give them credits.
+            </p>
+          </div>
         ) : (
           <div className="mt-4 space-y-3">
             {packages.map((pkg) => (
@@ -57,7 +64,16 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
                   </div>
                 </div>
                 <div className="mt-3">
-                  <AdjustCreditsForm customerPackageId={pkg.id} />
+                  {pkg.status === "active" || pkg.status === "exhausted" ? (
+                    <AdjustCreditsForm
+                      customerPackageId={pkg.id}
+                      currentCredits={pkg.remainingCredits}
+                      maximumCredits={pkg.creditCount}
+                      packageName={pkg.packageName}
+                    />
+                  ) : (
+                    <p className="text-xs text-charcoal/45">Expired packages cannot be given new credits.</p>
+                  )}
                 </div>
               </div>
             ))}

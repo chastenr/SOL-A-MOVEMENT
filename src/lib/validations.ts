@@ -219,7 +219,7 @@ export type GrantPackageValues = z.infer<typeof grantPackageSchema>;
 
 export const adjustCreditsSchema = z.object({
   customerPackageId: z.string().uuid(),
-  delta: z.coerce.number().int().refine((value) => value !== 0, "Enter a non-zero amount."),
+  newBalance: z.coerce.number().int().min(0, "Credits cannot be below zero."),
   reason: z.string().trim().min(1, "A reason is required.").max(300),
 });
 
