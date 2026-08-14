@@ -9,7 +9,8 @@ const DAYS_AHEAD = 14;
  * (migration 0015) — an admin sets up each open hour once (which class
  * type, which coach), and this is what turns that template into actual
  * bookable sessions going forward, instead of someone hand-creating a
- * session for every configured weekday and time.
+ * session for every configured weekday and time. The database function also
+ * completes sessions whose end time has passed before generating new ones.
  *
  * Same auth convention as /api/cron/check-attendance: Vercel's CRON_SECRET
  * bearer token, service-role Supabase client (the underlying function is

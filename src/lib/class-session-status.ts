@@ -3,6 +3,7 @@ import { isPastBookingCutoff } from "@/lib/booking-cutoff";
 export type ClassSessionStatusInput = {
   status: "scheduled" | "cancelled" | "completed";
   start_at: string;
+  end_at: string;
   booked_count: number;
   capacity: number;
   minimum_participants: number | null;
@@ -31,13 +32,17 @@ export const STATUS_STYLES: Record<DisplayStatus, string> = {
  * 0013). It's checked ahead of "Full"/"Open" since it's a deliberate admin
  * choice, not a side effect of capacity.
  */
-export function getDisplayStatus(session: ClassSessionStatusInput): DisplayStatus {
+export function getDisplayStatus(session: ClassSessionStatusInput, now = new Date()): DisplayStatus {
   if (session.status === "cancelled") return "CANCELLED";
   if (session.status === "completed") return "COMPLETED";
+  // The nightly database job persists this state. This time-based fallback
+  // prevents a class that has already ended from looking open while the next
+  // job run is still pending.
+  if (new Date(session.end_at) <= now) return "COMPLETED";
   if (
     session.minimum_participants !== null &&
     session.booked_count < session.minimum_participants &&
-    isPastBookingCutoff(new Date(session.start_at))
+    isPastBookingCutoff(new Date(session.start_at), now)
   ) {
     return "NEEDS ATTENTION";
   }

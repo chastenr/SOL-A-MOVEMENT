@@ -46,21 +46,118 @@ type SlotRow = {
 };
 
 const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const SESSION_SELECT =
+  "id, start_at, end_at, capacity, booked_count, minimum_participants, booking_enabled, status, class_type:class_types(name), location:locations(name), instructor:instructors(name)";
+
+function SessionsTable({ sessions, history = false }: { sessions: SessionRow[]; history?: boolean }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[860px] text-left text-sm">
+        <thead className="border-b border-charcoal/10 text-xs uppercase tracking-[0.08em] text-charcoal/45">
+          <tr>
+            <th className="px-4 py-3">Class</th>
+            <th className="px-4 py-3">Location</th>
+            <th className="px-4 py-3">Coach</th>
+            <th className="px-4 py-3">Date &amp; Time</th>
+            <th className="px-4 py-3">Booked</th>
+            <th className="px-4 py-3">Minimum</th>
+            <th className="px-4 py-3">Status</th>
+            <th className="px-4 py-3" />
+          </tr>
+        </thead>
+        <tbody>
+          {sessions.map((session) => {
+            const status = getDisplayStatus(session);
+            return (
+              <tr key={session.id} className="border-b border-charcoal/5 last:border-0">
+                <td className="px-4 py-3 text-charcoal">{session.class_type?.name ?? "—"}</td>
+                <td className="px-4 py-3 text-charcoal/70">{session.location?.name ?? "—"}</td>
+                <td className="px-4 py-3 text-charcoal/70">{session.instructor?.name ?? "—"}</td>
+                <td className="px-4 py-3 text-charcoal/70">
+                  {format(new Date(session.start_at), "MMM d, yyyy · h:mm a")}
+                </td>
+                <td className="px-4 py-3 text-charcoal/70">
+                  {session.booked_count} / {session.capacity}
+                </td>
+                <td className="px-4 py-3 text-charcoal/70">{session.minimum_participants ?? "—"}</td>
+                <td className="px-4 py-3">
+                  <span
+                    className={cn(
+                      "rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em]",
+                      STATUS_STYLES[status]
+                    )}
+                  >
+                    {status}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-end gap-3 whitespace-nowrap">
+                    {history || session.status !== "scheduled" || status === "COMPLETED" ? (
+                      <Link
+                        href={`/admin/classes/${session.id}`}
+                        className="text-xs underline underline-offset-2 hover:text-charcoal"
+                      >
+                        View
+                      </Link>
+                    ) : (
+                      <>
+                        <Link
+                          href={`/admin/classes/${session.id}`}
+                          className="text-xs underline underline-offset-2 hover:text-charcoal"
+                        >
+                          Edit
+                        </Link>
+                        <form
+                          action={setClassSessionBookingEnabledAction.bind(
+                            null,
+                            session.id,
+                            !session.booking_enabled
+                          )}
+                        >
+                          <button type="submit" className="text-xs underline underline-offset-2 hover:text-charcoal">
+                            {session.booking_enabled ? "Close Booking" : "Open Booking"}
+                          </button>
+                        </form>
+                        <CancelClassSessionButton sessionId={session.id} bookedCount={session.booked_count} />
+                      </>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export default async function AdminClassesPage() {
   await requireAdmin();
   const supabase = await createSupabaseServerClient();
+  const nowIso = new Date().toISOString();
 
   // Fetched together (not one-then-the-other) so combining these two
   // formerly-separate pages into one doesn't turn into two sequential
   // round-trips instead of one.
-  const [{ data }, { data: slotsData }, { data: classTypesData }, { data: instructorsData }] = await Promise.all([
+  const [
+    { data: upcomingData },
+    { data: historyData },
+    { data: slotsData },
+    { data: classTypesData },
+    { data: instructorsData },
+  ] = await Promise.all([
     supabase
       .from("class_sessions")
-      .select(
-        "id, start_at, end_at, capacity, booked_count, minimum_participants, booking_enabled, status, class_type:class_types(name), location:locations(name), instructor:instructors(name)"
-      )
+      .select(SESSION_SELECT)
+      .gt("end_at", nowIso)
       .order("start_at", { ascending: true })
+      .limit(100),
+    supabase
+      .from("class_sessions")
+      .select(SESSION_SELECT)
+      .lte("end_at", nowIso)
+      .order("start_at", { ascending: false })
       .limit(100),
     supabase
       .from("class_time_slots")
@@ -73,7 +170,8 @@ export default async function AdminClassesPage() {
     supabase.from("instructors").select("id, name").eq("active", true).order("name"),
   ]);
 
-  const sessions = (data as unknown as SessionRow[]) ?? [];
+  const upcomingSessions = (upcomingData as unknown as SessionRow[]) ?? [];
+  const historySessions = (historyData as unknown as SessionRow[]) ?? [];
   const classTypeOptions = (classTypesData ?? []).map((row) => ({ id: row.id, name: row.name }));
   const instructorOptions = instructorsData ?? [];
 
@@ -93,7 +191,8 @@ export default async function AdminClassesPage() {
       <p className="mt-1 text-sm text-charcoal/55">
         Real, bookable class sessions — customers redeem package credits against these on{" "}
         <code>/account/book</code>. &quot;Needs Attention&quot; means the booking cutoff has passed and the
-        class is still below its minimum — review and cancel if it won&apos;t run.
+        class is still below its minimum — review and cancel if it won&apos;t run. Sessions automatically
+        become completed after their end time.
       </p>
 
       <div className="mt-6 rounded-xl border border-charcoal/10 bg-ivory p-4">
@@ -189,83 +288,49 @@ export default async function AdminClassesPage() {
         </div>
       </details>
 
-      {sessions.length === 0 ? (
-        <p className="mt-8 text-charcoal/60">
-          No class sessions scheduled yet. Schedule one above to make it bookable.
-        </p>
-      ) : (
-        <div className="mt-6 overflow-x-auto rounded-xl border border-charcoal/10 bg-ivory">
-          <table className="w-full min-w-[860px] text-left text-sm">
-            <thead className="border-b border-charcoal/10 text-xs uppercase tracking-[0.08em] text-charcoal/45">
-              <tr>
-                <th className="px-4 py-3">Class</th>
-                <th className="px-4 py-3">Location</th>
-                <th className="px-4 py-3">Coach</th>
-                <th className="px-4 py-3">Date &amp; Time</th>
-                <th className="px-4 py-3">Booked</th>
-                <th className="px-4 py-3">Minimum</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {sessions.map((session) => {
-                const status = getDisplayStatus(session);
-                return (
-                  <tr key={session.id} className="border-b border-charcoal/5 last:border-0">
-                    <td className="px-4 py-3 text-charcoal">{session.class_type?.name ?? "—"}</td>
-                    <td className="px-4 py-3 text-charcoal/70">{session.location?.name ?? "—"}</td>
-                    <td className="px-4 py-3 text-charcoal/70">{session.instructor?.name ?? "—"}</td>
-                    <td className="px-4 py-3 text-charcoal/70">
-                      {format(new Date(session.start_at), "MMM d, yyyy · h:mm a")}
-                    </td>
-                    <td className="px-4 py-3 text-charcoal/70">
-                      {session.booked_count} / {session.capacity}
-                    </td>
-                    <td className="px-4 py-3 text-charcoal/70">{session.minimum_participants ?? "—"}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={cn(
-                          "rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em]",
-                          STATUS_STYLES[status]
-                        )}
-                      >
-                        {status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-3 whitespace-nowrap">
-                        {session.status === "scheduled" && (
-                          <>
-                            <Link
-                              href={`/admin/classes/${session.id}`}
-                              className="text-xs underline underline-offset-2 hover:text-charcoal"
-                            >
-                              Edit
-                            </Link>
-                            <form
-                              action={setClassSessionBookingEnabledAction.bind(
-                                null,
-                                session.id,
-                                !session.booking_enabled
-                              )}
-                            >
-                              <button type="submit" className="text-xs underline underline-offset-2 hover:text-charcoal">
-                                {session.booking_enabled ? "Close Booking" : "Open Booking"}
-                              </button>
-                            </form>
-                            <CancelClassSessionButton sessionId={session.id} bookedCount={session.booked_count} />
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      <section className="mt-6">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-charcoal">Current &amp; Upcoming Classes</h2>
+            <p className="mt-1 text-sm text-charcoal/50">Only active and future class dates appear here.</p>
+          </div>
+          <span className="text-xs text-charcoal/45">
+            {upcomingSessions.length} class{upcomingSessions.length === 1 ? "" : "es"}
+          </span>
         </div>
-      )}
+
+        {upcomingSessions.length === 0 ? (
+          <div className="mt-3 rounded-xl border border-dashed border-charcoal/15 bg-ivory px-5 py-8 text-center">
+            <p className="text-sm text-charcoal/60">No upcoming classes yet.</p>
+            <p className="mt-1 text-xs text-charcoal/45">Generate the schedule or add a one-off session above.</p>
+          </div>
+        ) : (
+          <div className="mt-3 rounded-xl border border-charcoal/10 bg-ivory">
+            <SessionsTable sessions={upcomingSessions} />
+          </div>
+        )}
+      </section>
+
+      <details className="group mt-6 rounded-xl border border-charcoal/10 bg-ivory">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 marker:content-none">
+          <div>
+            <h2 className="text-base font-semibold text-charcoal">Class History</h2>
+            <p className="mt-0.5 text-xs text-charcoal/45">Past completed and cancelled class records</p>
+          </div>
+          <span className="flex items-center gap-3 text-xs text-charcoal/45">
+            {historySessions.length} record{historySessions.length === 1 ? "" : "s"}
+            <span className="group-open:hidden">＋</span>
+            <span className="hidden group-open:inline">−</span>
+          </span>
+        </summary>
+        <div className="border-t border-charcoal/10">
+          {historySessions.length === 0 ? (
+            <p className="px-5 py-8 text-center text-sm text-charcoal/50">No class history yet.</p>
+          ) : (
+            <SessionsTable sessions={historySessions} history />
+          )}
+        </div>
+      </details>
     </div>
   );
 }
