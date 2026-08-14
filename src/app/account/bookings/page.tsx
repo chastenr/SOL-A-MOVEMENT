@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { format } from "date-fns";
 import { requireUser } from "@/lib/auth/require-role";
 import { getCustomerBookings } from "@/lib/customer/account";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { CancelBookingButton } from "@/components/account/CancelBookingButton";
+import { formatManilaFullDateTime, formatManilaTime } from "@/lib/manila-time";
 
 export const metadata: Metadata = {
   title: "My Bookings",
@@ -42,12 +42,12 @@ export default async function AccountBookingsPage() {
                 <div>
                   <p className="text-charcoal">{booking.session?.className ?? "—"}</p>
                   <p className="text-sm text-charcoal/55">
-                    {booking.session ? format(new Date(booking.session.startAt), "EEEE, MMMM d 'at' h:mm a") : "—"}
+                    {booking.session ? formatManilaFullDateTime(booking.session.startAt) : "—"}
                     {booking.session ? ` · ${booking.session.location}` : ""}
                   </p>
                   {isUpcoming && booking.session && (
                     <p className="mt-1 text-xs text-charcoal/40">
-                      Arrive by {format(new Date(booking.session.arrivalTime), "h:mm a")}
+                      Arrive by {formatManilaTime(booking.session.arrivalTime)}
                     </p>
                   )}
                   <p className="mt-1 text-xs text-charcoal/40">

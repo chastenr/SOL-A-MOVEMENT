@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminBookingById } from "@/lib/admin/bookings";
 import { centavosToPeso } from "@/lib/money";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { cancelBookingAction, completeBookingAction, noShowBookingAction } from "../actions";
 import { cn } from "@/lib/utils";
+import {
+  formatManilaDateTime,
+  formatManilaFullDate,
+  formatManilaTime,
+} from "@/lib/manila-time";
 
 export const metadata: Metadata = {
   title: "Booking Detail",
@@ -81,13 +85,13 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
             <Row label="Location" value={booking.session?.location ?? "—"} />
             <Row
               label="Date"
-              value={booking.session ? format(new Date(booking.session.startAt), "EEEE, MMMM d, yyyy") : "—"}
+              value={booking.session ? formatManilaFullDate(booking.session.startAt) : "—"}
             />
             <Row
               label="Time"
               value={
                 booking.session
-                  ? `${format(new Date(booking.session.startAt), "h:mm a")} – ${format(new Date(booking.session.endAt), "h:mm a")}`
+                  ? `${formatManilaTime(booking.session.startAt)} – ${formatManilaTime(booking.session.endAt)}`
                   : "—"
               }
             />
@@ -119,8 +123,8 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
       </div>
 
       <div className="mt-6 text-xs text-charcoal/45">
-        <p>Booked: {format(new Date(booking.bookedAt), "MMM d, yyyy 'at' h:mm a")}</p>
-        {booking.cancelledAt && <p>Cancelled: {format(new Date(booking.cancelledAt), "MMM d, yyyy 'at' h:mm a")}</p>}
+        <p>Booked: {formatManilaDateTime(booking.bookedAt)}</p>
+        {booking.cancelledAt && <p>Cancelled: {formatManilaDateTime(booking.cancelledAt)}</p>}
       </div>
     </div>
   );

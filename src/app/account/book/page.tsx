@@ -6,11 +6,19 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { ScheduleExplorer } from "@/components/schedule/ScheduleExplorer";
+import { getServiceBySlug } from "@/data/services";
 
 export const metadata: Metadata = {
   title: "Book a Class",
   robots: { index: false, follow: false },
 };
+
+function packageSupportsService(serviceSlug: string | null, requestedService: string): boolean {
+  if (requestedService === "recovery-restore" || requestedService === "ballet") {
+    return serviceSlug === requestedService;
+  }
+  return serviceSlug === null;
+}
 
 export default async function AccountBookPage({
   searchParams,
@@ -28,15 +36,19 @@ export default async function AccountBookPage({
   const allPackages = await getCustomerPackages(user.id);
   const activePackages = allPackages.filter((pkg) => pkg.status === "active" && pkg.remainingCredits > 0);
   const requestedPackage = requestedService
-    ? activePackages.find((pkg) =>
-        requestedService === "recovery-restore" || requestedService === "ballet"
-          ? pkg.serviceSlug === requestedService
-          : pkg.serviceSlug === null
-      )
+    ? activePackages.find((pkg) => packageSupportsService(pkg.serviceSlug, requestedService))
     : undefined;
   const selectedPackage = activePackages.find((pkg) => pkg.id === packageParam) ?? requestedPackage ?? activePackages[0];
+  const packageMismatch = Boolean(
+    requestedService && selectedPackage && !packageSupportsService(selectedPackage.serviceSlug, requestedService)
+  );
+  const requestedServiceName = requestedService
+    ? getServiceBySlug(requestedService)?.name ?? "this class type"
+    : null;
 
-  const eligibleSessions = selectedPackage ? await getEligibleSessions(selectedPackage.id, user.id) : [];
+  const eligibleSessions = selectedPackage && !packageMismatch
+    ? await getEligibleSessions(selectedPackage.id, user.id)
+    : [];
   const sessions = requestedSession
     ? eligibleSessions.filter((session) => session.id === requestedSession)
     : requestedClass
@@ -102,19 +114,33 @@ export default async function AccountBookPage({
             </div>
           )}
 
-          <p className="mt-6 text-xs text-charcoal/45">
-            One credit is deducted from your package the moment a reservation is confirmed. Bookings close
-            at 10:00 PM the evening before class. If Veora needs to cancel a class, your credit is
-            automatically returned.
-          </p>
+          {packageMismatch && selectedPackage ? (
+            <div className="mt-6 rounded-2xl border border-amber-300/60 bg-amber-50 p-6 text-amber-950">
+              <p className="font-semibold">This package does not cover {requestedServiceName}.</p>
+              <p className="mt-2 text-sm leading-relaxed text-amber-900/75">
+                Your {selectedPackage.packageName} credits are for Classic classes. Choose a compatible
+                package for {requestedServiceName}, or return to the classes included with your current package.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Button href="/pricing" size="md">View Compatible Packages</Button>
+                <Button href="/account/book" variant="secondary" size="md">View My Available Classes</Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="mt-6 text-xs text-charcoal/45">
+                One credit is deducted from your package the moment a reservation is confirmed. Bookings close
+                at 10:00 PM the evening before class. If Veora needs to cancel a class, your credit is
+                automatically returned.
+              </p>
 
-          {selectedPackage && (
-            <p className="mt-2 text-xs text-charcoal/45">
-              Showing classes your <strong>{selectedPackage.packageName}</strong> credits can be used on.
-            </p>
-          )}
+              {selectedPackage && (
+                <p className="mt-2 text-xs text-charcoal/45">
+                  Showing classes your <strong>{selectedPackage.packageName}</strong> credits can be used on.
+                </p>
+              )}
 
-          {sessions.length === 0 ? (
+              {sessions.length === 0 ? (
             <div className="mt-8 rounded-2xl border border-dashed border-charcoal/15 bg-cream/25 p-6 sm:p-8">
               <p className="font-medium text-charcoal">
                 {requestedSession || requestedClass
@@ -134,14 +160,16 @@ export default async function AccountBookPage({
                 </Link>
               )}
             </div>
-          ) : selectedPackage ? (
-            <div className="mt-7">
-              <ScheduleExplorer
-                sessions={sessions}
-                memberPackage={{ id: selectedPackage.id, name: selectedPackage.packageName }}
-              />
-            </div>
-          ) : null}
+              ) : selectedPackage ? (
+                <div className="mt-7">
+                  <ScheduleExplorer
+                    sessions={sessions}
+                    memberPackage={{ id: selectedPackage.id, name: selectedPackage.packageName }}
+                  />
+                </div>
+              ) : null}
+            </>
+          )}
         </>
       )}
     </div>

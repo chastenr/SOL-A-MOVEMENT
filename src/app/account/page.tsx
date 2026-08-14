@@ -8,6 +8,7 @@ import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { logoutAction } from "@/lib/auth/actions";
+import { formatManilaFullDateTime } from "@/lib/manila-time";
 
 export const metadata: Metadata = {
   title: "My Account",
@@ -78,7 +79,7 @@ export default async function AccountPage() {
             <>
               <p className="mt-3 text-charcoal">{upcomingBooking.session.className}</p>
               <p className="text-sm text-charcoal/60">
-                {format(new Date(upcomingBooking.session.startAt), "EEEE, MMMM d 'at' h:mm a")}
+                {formatManilaFullDateTime(upcomingBooking.session.startAt)}
               </p>
               <p className="text-sm text-charcoal/60">{upcomingBooking.session.location}</p>
             </>

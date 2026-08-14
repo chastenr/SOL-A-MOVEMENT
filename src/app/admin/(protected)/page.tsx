@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getManilaDayRange } from "@/lib/booking-cutoff";
@@ -10,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { cn } from "@/lib/utils";
 import { cancelBookingAction, completeBookingAction, noShowBookingAction } from "./bookings/actions";
+import { formatManilaTime } from "@/lib/manila-time";
 
 const BOOKING_STATUS_LABEL: Record<AdminBookingRow["status"], string> = {
   booked: "Confirmed",
@@ -131,7 +131,7 @@ export default async function AdminDashboardPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-xs uppercase tracking-[0.08em] text-charcoal/45">
-                        {format(new Date(session.start_at), "h:mm a")}
+                        {formatManilaTime(session.start_at)}
                       </p>
                       <p className="mt-1 font-display text-lg text-charcoal">
                         {session.class_type?.name ?? "—"}
@@ -192,7 +192,7 @@ export default async function AdminDashboardPage() {
               {today.todayBookings.map((booking) => (
                 <tr key={booking.id} className="border-b border-charcoal/5 last:border-0">
                   <td className="px-4 py-3 text-charcoal/70">
-                    {booking.session ? format(new Date(booking.session.startAt), "h:mm a") : "—"}
+                    {booking.session ? formatManilaTime(booking.session.startAt) : "—"}
                   </td>
                   <td className="px-4 py-3">
                     <p className="text-charcoal">{booking.customer.name}</p>

@@ -21,6 +21,7 @@ const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0006: { status: 409, message: "Sorry, this class just filled up." },
   P0009: { status: 409, message: "Bookings close at 10:00 PM the evening before class." },
   P0010: { status: 409, message: "Bookings are currently closed for this class." },
+  P0011: { status: 409, message: "This class is not included with the selected package." },
   // book_class_session() takes row locks on the package and session (see
   // migration 0013) so two overlapping requests for the same booking
   // normally just serialize and the second gets a proper P0005 above — but

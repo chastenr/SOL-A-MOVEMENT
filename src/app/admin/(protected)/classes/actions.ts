@@ -58,9 +58,17 @@ async function resolveDurationMinutes(
     .eq("weekday", weekday)
     .eq("hour", Math.floor(minutesSinceMidnight / 60))
     .eq("is_active", true)
+    .limit(1)
     .maybeSingle();
-  if (slotError) console.error("[resolveDurationMinutes] class time slot query failed", slotError);
-  if (!slot) return { error: "That time isn't open for this location. Pick another hour." };
+  if (slotError) {
+    console.error("[resolveDurationMinutes] class time slot query failed", slotError);
+    return { error: "We couldn't verify that time. Refresh the page and try again." };
+  }
+  if (!slot) {
+    return {
+      error: "That time is not enabled for this date and location. Enable it under Class Times or choose another hour.",
+    };
+  }
   return { durationMinutes: CLASS_DURATION_MINUTES };
 }
 

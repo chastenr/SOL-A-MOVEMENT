@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/Button";
@@ -11,6 +10,7 @@ import { ClassTimeSlotRow } from "@/components/admin/ClassTimeSlotRow";
 import { GenerateSessionsButton } from "@/components/admin/GenerateSessionsButton";
 import { setClassSessionBookingEnabledAction } from "./actions";
 import { cn } from "@/lib/utils";
+import { formatManilaDateTime } from "@/lib/manila-time";
 
 const BALLET_SERVICE_SLUG = "ballet";
 
@@ -74,7 +74,7 @@ function SessionsTable({ sessions, history = false }: { sessions: SessionRow[]; 
                 <td className="px-4 py-3 text-charcoal/70">{session.location?.name ?? "—"}</td>
                 <td className="px-4 py-3 text-charcoal/70">{session.instructor?.name ?? "—"}</td>
                 <td className="px-4 py-3 text-charcoal/70">
-                  {format(new Date(session.start_at), "MMM d, yyyy · h:mm a")}
+                  {formatManilaDateTime(session.start_at)}
                 </td>
                 <td className="px-4 py-3 text-charcoal/70">
                   {session.booked_count} / {session.capacity}

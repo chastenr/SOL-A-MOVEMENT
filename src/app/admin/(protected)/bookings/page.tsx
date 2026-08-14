@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminBookings, type AdminBookingStatus } from "@/lib/admin/bookings";
 import { fieldInputClasses } from "@/components/ui/Field";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { cancelBookingAction, completeBookingAction, noShowBookingAction } from "./actions";
+import { formatManilaDateTime } from "@/lib/manila-time";
 
 export const metadata: Metadata = {
   title: "Bookings",
@@ -130,7 +130,7 @@ export default async function AdminBookingsPage({
                   <td className="px-4 py-3 text-charcoal/70">{booking.session?.className ?? "—"}</td>
                   <td className="px-4 py-3 text-charcoal/70">{booking.session?.location ?? "—"}</td>
                   <td className="px-4 py-3 text-charcoal/70">
-                    {booking.session ? format(new Date(booking.session.startAt), "MMM d, yyyy · h:mm a") : "—"}
+                    {booking.session ? formatManilaDateTime(booking.session.startAt) : "—"}
                   </td>
                   <td className="px-4 py-3 text-charcoal/70">{booking.package?.name ?? "—"}</td>
                   <td className="px-4 py-3">
