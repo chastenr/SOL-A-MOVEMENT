@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { classSessionFormSchema, type ClassSessionFormValues } from "@/lib/validations";
 import { createClassSessionAction, updateClassSessionAction } from "@/app/admin/(protected)/classes/actions";
-import { CLASS_DURATION_MINUTES, formatHourLabel } from "@/lib/studio-hours";
+import { CLASS_DURATION_MINUTES, formatHourLabel, getWeekdayFromDateInput } from "@/lib/studio-hours";
 import { Button } from "@/components/ui/Button";
 import { Field, fieldInputClasses } from "@/components/ui/Field";
 
 type Option = { id: string; name: string };
 type ClassTypeOption = Option & { serviceSlug: string };
-type TimeSlot = { locationId: string; hour: number; isActive: boolean };
+type TimeSlot = { locationId: string; weekday: number; hour: number; isActive: boolean };
 type EditTarget = { id: string; bookedCount: number; initialValues: ClassSessionFormValues };
 
 const BALLET_SERVICE_SLUG = "ballet";
@@ -65,10 +65,21 @@ export function ClassSessionForm({
   // class type is fixed at 50 minutes, on the hour — see studio-hours.ts.
   const isFixedSchedule = selectedClassType?.serviceSlug !== BALLET_SERVICE_SLUG;
 
-  const openHours = timeSlots
-    .filter((slot) => slot.locationId === selectedLocationId && slot.isActive)
-    .map((slot) => slot.hour)
-    .sort((a, b) => a - b);
+  const selectedWeekday = getWeekdayFromDateInput(date);
+  const openHours = useMemo(
+    () =>
+      [...new Set(
+        timeSlots
+          .filter(
+            (slot) =>
+              slot.locationId === selectedLocationId &&
+              slot.weekday === selectedWeekday &&
+              slot.isActive
+          )
+          .map((slot) => slot.hour)
+      )].sort((a, b) => a - b),
+    [selectedLocationId, selectedWeekday, timeSlots]
+  );
 
   useEffect(() => {
     if (!isFixedSchedule) return;
@@ -86,9 +97,7 @@ export function ClassSessionForm({
 
   useEffect(() => {
     if (hour !== "" && !openHours.includes(Number(hour))) setHour("");
-    // Only re-check when the location (and thus the open-hours list) changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedLocationId]);
+  }, [hour, openHours]);
 
   async function onSubmit(values: ClassSessionFormValues) {
     setSubmitting(true);
@@ -165,7 +174,7 @@ export function ClassSessionForm({
             <select
               value={hour}
               onChange={(event) => setHour(event.target.value === "" ? "" : Number(event.target.value))}
-              disabled={openHours.length === 0}
+              disabled={selectedWeekday === null || openHours.length === 0}
               className={`${fieldInputClasses} appearance-none`}
             >
               <option value="">— Select an hour —</option>
@@ -176,7 +185,9 @@ export function ClassSessionForm({
               ))}
             </select>
             <p className="mt-1 text-xs text-charcoal/40">
-              {openHours.length === 0
+              {selectedWeekday === null
+                ? "Select a date first to see that day's available hours."
+                : openHours.length === 0
                 ? "No hours are open for this location yet — enable some under Class Times."
                 : "Fixed at 50 minutes, back-to-back on the hour — customers should arrive 10 minutes early."}
             </p>

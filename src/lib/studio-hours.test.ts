@@ -2,10 +2,23 @@ import { describe, expect, it } from "vitest";
 import {
   formatHourLabel,
   getArrivalTime,
+  getWeekdayFromDateInput,
   isWithinStudioHours,
   manilaLocalToUtc,
   utcToManilaLocal,
 } from "@/lib/studio-hours";
+
+describe("getWeekdayFromDateInput", () => {
+  it("returns the weekly schedule weekday without depending on device timezone", () => {
+    expect(getWeekdayFromDateInput("2026-08-15")).toBe(6);
+    expect(getWeekdayFromDateInput("2026-08-16")).toBe(0);
+  });
+
+  it("rejects invalid calendar dates", () => {
+    expect(getWeekdayFromDateInput("2026-02-30")).toBeNull();
+    expect(getWeekdayFromDateInput("")).toBeNull();
+  });
+});
 
 describe("isWithinStudioHours", () => {
   it("accepts a class starting and ending inside 7 AM–8 PM", () => {

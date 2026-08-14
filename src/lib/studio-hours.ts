@@ -15,6 +15,27 @@ export function formatHourLabel(hour: number): string {
   return `${displayHour}:00 ${period}`;
 }
 
+/** Returns the weekday used by class_time_slots (Sunday = 0). */
+export function getWeekdayFromDateInput(dateInput: string): number | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateInput);
+  if (!match) return null;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return date.getUTCDay();
+}
+
 /**
  * A <input type="datetime-local"> value carries no timezone at all — the
  * admin, scheduling from the Philippines, types what they see on a Manila

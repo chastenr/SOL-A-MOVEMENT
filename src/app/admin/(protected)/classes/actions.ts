@@ -7,7 +7,12 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { classSessionFormSchema, type ClassSessionFormValues } from "@/lib/validations";
 import { sendClassCancelledByStudioEmail } from "@/lib/email";
 import { isSmsConfigured, sendSms } from "@/lib/sms";
-import { CLASS_DURATION_MINUTES, getMinutesSinceMidnight, manilaLocalToUtc } from "@/lib/studio-hours";
+import {
+  CLASS_DURATION_MINUTES,
+  getMinutesSinceMidnight,
+  getWeekdayFromDateInput,
+  manilaLocalToUtc,
+} from "@/lib/studio-hours";
 
 type ActionResult = { error: string } | { success: true };
 type SupabaseServerClient = Awaited<ReturnType<typeof createSupabaseServerClient>>;
@@ -42,16 +47,19 @@ async function resolveDurationMinutes(
   }
 
   const minutesSinceMidnight = getMinutesSinceMidnight(startAt);
-  if (minutesSinceMidnight === null || minutesSinceMidnight % 60 !== 0) {
+  const weekday = getWeekdayFromDateInput(startAt.slice(0, 10));
+  if (minutesSinceMidnight === null || minutesSinceMidnight % 60 !== 0 || weekday === null) {
     return { error: "Pick one of the open hourly time slots." };
   }
-  const { data: slot } = await supabase
+  const { data: slot, error: slotError } = await supabase
     .from("class_time_slots")
     .select("id")
     .eq("location_id", locationId)
+    .eq("weekday", weekday)
     .eq("hour", Math.floor(minutesSinceMidnight / 60))
     .eq("is_active", true)
     .maybeSingle();
+  if (slotError) console.error("[resolveDurationMinutes] class time slot query failed", slotError);
   if (!slot) return { error: "That time isn't open for this location. Pick another hour." };
   return { durationMinutes: CLASS_DURATION_MINUTES };
 }

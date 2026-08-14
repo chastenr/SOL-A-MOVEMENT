@@ -44,7 +44,7 @@ export default async function EditClassSessionPage({ params }: { params: Promise
       supabase.from("class_types").select("id, name, service_slug").eq("active", true).order("name"),
       supabase.from("locations").select("id, name").eq("active", true).order("name"),
       supabase.from("instructors").select("id, name").eq("active", true).order("name"),
-      supabase.from("class_time_slots").select("location_id, hour, is_active"),
+      supabase.from("class_time_slots").select("location_id, weekday, hour, is_active"),
       getClassSessionRoster(id),
     ]);
 
@@ -68,6 +68,7 @@ export default async function EditClassSessionPage({ params }: { params: Promise
             instructors={instructors ?? []}
             timeSlots={(timeSlots ?? []).map((slot) => ({
               locationId: slot.location_id,
+              weekday: slot.weekday,
               hour: slot.hour,
               isActive: slot.is_active,
             }))}
