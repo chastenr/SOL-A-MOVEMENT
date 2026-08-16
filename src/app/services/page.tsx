@@ -1,7 +1,9 @@
 import { createPageMetadata } from "@/lib/seo-metadata";
 import { getServices } from "@/lib/catalog/services";
+import { getUpcomingSessions } from "@/lib/catalog/sessions";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { ServiceCard } from "@/components/services/ServiceCard";
+import { ScheduleExplorer } from "@/components/schedule/ScheduleExplorer";
 import { ServiceSchema } from "@/components/seo/ServiceSchema";
 import { Button } from "@/components/ui/Button";
 import { ArrowDown, CalendarDays, Check, Sparkles } from "lucide-react";
@@ -14,7 +16,7 @@ export const metadata = createPageMetadata({
 });
 
 export default async function ServicesPage() {
-  const services = await getServices();
+  const [services, sessions] = await Promise.all([getServices(), getUpcomingSessions(60)]);
 
   return (
     <>
@@ -41,8 +43,8 @@ export default async function ServicesPage() {
               </ul>
             </div>
             <div className="flex flex-wrap gap-3 lg:max-w-52 lg:flex-col">
-              <Button href="/book" size="lg" className="bg-ivory text-charcoal hover:bg-cream">
-                <CalendarDays size={15} aria-hidden /> Book a class
+              <Button href="#live-schedule" size="lg" className="bg-ivory text-charcoal hover:bg-cream">
+                <CalendarDays size={15} aria-hidden /> View live schedule
               </Button>
               <Button href="/pricing" size="lg" variant="secondary" className="border-ivory/35 text-ivory hover:border-ivory">
                 View packages
@@ -50,6 +52,42 @@ export default async function ServicesPage() {
             </div>
           </div>
         </AnimatedSection>
+      </section>
+
+      <section id="live-schedule" className="scroll-mt-28 px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
+        <div className="mx-auto max-w-7xl rounded-[2rem] border border-charcoal/10 bg-sand/25 px-4 py-8 sm:px-8 sm:py-10 lg:px-10">
+          <AnimatedSection className="mb-7 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-clay">
+                <span className="relative flex h-2 w-2" aria-hidden>
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-clay/35" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-clay" />
+                </span>
+                Live studio schedule
+              </p>
+              <h2 className="font-display balance mt-3 text-3xl leading-tight text-charcoal sm:text-4xl md:text-5xl">
+                See what&rsquo;s available before you sign in.
+              </h2>
+              <p className="mt-4 max-w-[62ch] text-base leading-[1.7] text-charcoal/75">
+                Browse real upcoming classes, coaches, times and remaining spots. You&rsquo;ll only be asked to sign in when you choose to reserve.
+              </p>
+            </div>
+            <Button href="/schedule" variant="secondary" className="shrink-0">
+              Open full schedule
+            </Button>
+          </AnimatedSection>
+
+          {sessions.length > 0 ? (
+            <ScheduleExplorer sessions={sessions} />
+          ) : (
+            <div className="rounded-[1.5rem] border border-dashed border-charcoal/15 bg-ivory px-6 py-9 text-center sm:px-8">
+              <h3 className="font-display text-2xl text-charcoal">New class times are coming soon.</h3>
+              <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-charcoal/70">
+                The live calendar will update automatically as soon as the studio publishes its next sessions.
+              </p>
+            </div>
+          )}
+        </div>
       </section>
 
       <section id="class-menu" className="mx-auto max-w-7xl scroll-mt-32 px-6 pb-16 sm:px-8 sm:pb-20 lg:px-12">

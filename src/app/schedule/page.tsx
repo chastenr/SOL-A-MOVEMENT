@@ -26,7 +26,7 @@ export default async function SchedulePage() {
           Class Schedule
         </h1>
         <p className="mt-5 max-w-[62ch] text-base leading-[1.7] text-charcoal/75 sm:text-[1.0625rem]">
-          Choose an upcoming class and reserve your spot. Bookings close at 10:00 PM the evening before class.
+          Browse live availability without an account. You&rsquo;ll only be asked to sign in when you choose a class to reserve.
         </p>
       </AnimatedSection>
 

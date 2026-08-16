@@ -147,10 +147,10 @@ export function Navbar() {
                   <Sparkle className="h-2 w-2 shrink-0 text-ivory/70" strokeWidth={1.5} />
                   <span className="h-px w-4 bg-ivory/40" />
                 </div>
-                <p className="whitespace-nowrap text-[8px] font-semibold uppercase leading-none tracking-[0.1em] text-ivory/85">
+                <p className="whitespace-nowrap text-[8px] font-bold uppercase leading-none tracking-[0.1em] text-ivory drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
                   Move. Flow. Dance.
                 </p>
-                <p className="whitespace-nowrap text-[7px] font-medium uppercase leading-none tracking-[0.06em] text-ivory/75">
+                <p className="whitespace-nowrap text-[7px] font-semibold uppercase leading-none tracking-[0.06em] text-ivory/95 drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
                   Where Movement Becomes Ritual
                 </p>
               </div>
