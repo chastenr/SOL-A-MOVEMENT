@@ -25,16 +25,16 @@ export default async function ServicesPage() {
           <div className="pointer-events-none absolute -bottom-40 left-1/3 h-72 w-72 rounded-full bg-cream/10 blur-3xl" />
           <div className="relative z-10 grid items-end gap-10 lg:grid-cols-[1fr_auto]">
             <div className="max-w-3xl">
-              <p className="mb-4 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-cream/75">
+              <p className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-cream/85">
                 <Sparkles size={14} aria-hidden /> Our Classes
               </p>
-              <h1 className="font-display balance text-4xl leading-[1.05] sm:text-5xl md:text-6xl">
+              <h1 className="font-display balance text-[clamp(2.5rem,5vw,4.75rem)] leading-[1.05] tracking-[-0.02em]">
                 Find the movement that feels like you.
               </h1>
-              <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-ivory/72 sm:text-base">
+              <p className="mt-5 max-w-[62ch] text-base leading-[1.7] text-ivory/85 sm:text-[1.0625rem]">
                 From mindful flow to energizing strength, there is a Veora class for every body and every mood. All levels are welcome.
               </p>
-              <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-xs text-ivory/70" aria-label="Class benefits">
+              <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-ivory/85" aria-label="Class benefits">
                 <li className="flex items-center gap-2"><Check size={14} className="text-cream" aria-hidden /> Beginner-friendly</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-cream" aria-hidden /> Expert-led sessions</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-cream" aria-hidden /> Small-group guidance</li>
@@ -55,7 +55,7 @@ export default async function ServicesPage() {
       <section id="class-menu" className="mx-auto max-w-7xl scroll-mt-32 px-6 pb-16 sm:px-8 sm:pb-20 lg:px-12">
         <AnimatedSection className="mb-8 flex flex-col gap-5 border-b border-charcoal/10 pb-7 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-clay">Choose your practice</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Choose your practice</p>
             <h2 className="font-display mt-2 text-3xl text-charcoal sm:text-4xl">What are you in the mood for?</h2>
           </div>
           <a href="#class-grid" className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-charcoal/55 transition-colors hover:text-clay">
@@ -68,7 +68,7 @@ export default async function ServicesPage() {
             <a
               key={service.slug}
               href={`#${service.slug}`}
-              className="shrink-0 rounded-full border border-charcoal/15 bg-ivory px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-charcoal/65 transition-colors hover:border-clay hover:bg-cream/60 hover:text-charcoal"
+              className="shrink-0 rounded-full border border-charcoal/20 bg-ivory px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal/75 transition-colors hover:border-clay hover:bg-cream/60 hover:text-charcoal"
             >
               {service.name}
             </a>
@@ -91,9 +91,9 @@ export default async function ServicesPage() {
       <section className="bg-sand/25 py-14 sm:py-16">
         <div className="mx-auto max-w-3xl px-6 text-center sm:px-8">
           <AnimatedSection>
-            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-clay">Studio Rentals</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Studio Rentals</p>
             <h2 className="font-display balance mt-3 text-3xl text-charcoal sm:text-4xl md:text-5xl">Host your next event at Veora.</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed text-charcoal/70 sm:text-base">Our studio is also available for private rentals — perfect for wellness events, workshops and intimate gatherings, with or without an instructor.</p>
+            <p className="mx-auto mt-5 max-w-[62ch] text-base leading-[1.7] text-charcoal/75 sm:text-[1.0625rem]">Our studio is also available for private rentals — perfect for wellness events, workshops and intimate gatherings, with or without an instructor.</p>
             <div className="mt-6 flex flex-wrap justify-center gap-4">
               <Button href="/pricing#studio-rentals" size="lg">
                 See Rental Pricing

@@ -38,7 +38,7 @@ export async function ServicesSection() {
                     reversed && "sm:flex-row-reverse"
                   )}
                 >
-                  <span className="font-display shrink-0 text-3xl italic text-charcoal/25 sm:text-4xl">
+                  <span className="font-display shrink-0 text-3xl italic text-charcoal/60 sm:text-4xl">
                     {String(index + 1).padStart(2, "0")}
                   </span>
 
@@ -53,13 +53,13 @@ export async function ServicesSection() {
                   />
 
                   <div className="flex-1">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-clay">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">
                       {service.category}
                     </p>
                     <h3 className="font-display mt-2 text-2xl text-charcoal sm:text-3xl">
                       {service.name}
                     </h3>
-                    <p className="mt-2 max-w-lg text-sm leading-relaxed text-charcoal/65">
+                    <p className="mt-3 max-w-[62ch] text-base leading-[1.7] text-charcoal/75">
                       {service.shortDescription}
                     </p>
                   </div>

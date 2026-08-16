@@ -62,8 +62,8 @@ export function StudioExperience() {
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <div>
-                      <h3 className="font-display text-lg text-charcoal">{feature.title}</h3>
-                      <p className="mt-1 text-sm leading-relaxed text-charcoal/65">{feature.description}</p>
+                      <h3 className="font-display text-2xl leading-tight text-charcoal">{feature.title}</h3>
+                      <p className="mt-2 text-base leading-[1.65] text-charcoal/75">{feature.description}</p>
                     </div>
                   </div>
                 </AnimatedSection>

@@ -62,7 +62,7 @@ export default async function CheckoutPage({ params, searchParams }: CheckoutPag
         {pkg.included_services.length > 0 && (
           <ul className="mt-4 space-y-1.5 border-t border-charcoal/10 pt-4">
             {pkg.included_services.map((item) => (
-              <li key={item} className="flex items-start gap-2 text-sm text-charcoal/65">
+              <li key={item} className="flex items-start gap-2 text-base leading-relaxed text-charcoal/75">
                 <Check size={15} className="mt-0.5 shrink-0 text-clay" aria-hidden />
                 <span>{item}</span>
               </li>

@@ -35,8 +35,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  --font-display: var(--font-editorial);
-  --font-sans: var(--font-editorial);
+  --font-display: var(--font-editorial, Georgia, serif);
+  --font-sans: var(--font-body, Arial, sans-serif);
 
   --animate-fade-up: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-float-slow: float-slow 14s ease-in-out infinite;
@@ -71,6 +71,27 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+
+p {
+  max-width: 72ch;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 ::selection {
@@ -82,22 +103,78 @@ body {
   font-family: var(--font-display);
 }
 
-/* The content uses the editorial serif throughout. Navigation intentionally
-   stays in Inter for compact labels, tracking and quick scanning. Keep this
-   after `.font-display` so legacy display utilities inside the mobile menu
-   cannot override the navbar typography. */
+/* Navigation and operational surfaces use the same readable UI family as
+   body copy. Keep these overrides after `.font-display` so inherited legacy
+   display utilities cannot leak into dense controls. */
 .font-navbar,
 .font-navbar * {
-  font-family: var(--font-inter);
+  font-family: var(--font-sans);
 }
 
-/* The operations dashboard is a dense working interface, so it uses Inter
+/* The operations dashboard is a dense working interface, so it uses Manrope
    throughout for faster scanning in tables, calendars, forms and dialogs.
    This intentionally overrides legacy `font-display` utilities inside the
    admin route without changing the editorial typography on the public site. */
 .font-admin,
 .font-admin * {
-  font-family: var(--font-inter);
+  font-family: var(--font-sans);
+}
+
+/* WCAG-oriented floors for legacy muted utilities. These classes remain
+   useful for hierarchy, but no longer fade important copy below a practical
+   reading contrast on Veora's ivory and walnut surfaces. */
+.text-charcoal\/25,
+.text-charcoal\/30,
+.text-charcoal\/35,
+.text-charcoal\/40,
+.text-charcoal\/45,
+.text-charcoal\/50,
+.text-charcoal\/55,
+.text-charcoal\/60,
+.text-charcoal\/65 {
+  color: color-mix(in srgb, var(--color-charcoal) 72%, transparent);
+}
+
+.text-ivory\/40,
+.text-ivory\/45,
+.text-ivory\/50,
+.text-ivory\/55,
+.text-ivory\/60,
+.text-cream\/70 {
+  color: color-mix(in srgb, var(--color-ivory) 78%, transparent);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: color-mix(in srgb, var(--color-charcoal) 62%, transparent);
+  opacity: 1;
+}
+
+/* Status chips and compact labels may be smaller than body copy, but never
+   below 12px—the previous 6–10px utilities were illegible on real devices. */
+.text-\[6px\],
+.text-\[7px\],
+.text-\[8px\],
+.text-\[9px\],
+.text-\[10px\],
+.text-\[11px\],
+.text-\[0\.6rem\],
+.text-\[0\.68rem\],
+.text-\[0\.72rem\] {
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 639px) {
+  .tracking-\[0\.3em\],
+  .tracking-\[0\.27em\],
+  .tracking-\[0\.26em\],
+  .tracking-\[0\.25em\],
+  .tracking-\[0\.24em\],
+  .tracking-\[0\.22em\],
+  .tracking-\[0\.2em\] {
+    letter-spacing: 0.16em;
+  }
 }
 
 .balance {
@@ -109,26 +186,6 @@ body {
 }
 .no-scrollbar {
   scrollbar-width: none;
-}
-
-/* Site-wide typography entrance. `translate` is used instead of `transform`
-   so this can safely coexist with Framer Motion and the browser-native page
-   transitions already used elsewhere in the app. The controller only adds
-   these classes when JavaScript is available, leaving content visible under
-   progressive enhancement and accessibility fallbacks. */
-.text-reveal-target {
-  opacity: 0;
-  translate: 0 14px;
-  transition:
-    opacity 1000ms var(--ease-veora),
-    translate 1000ms var(--ease-veora);
-  will-change: opacity, translate;
-}
-
-.text-reveal-target.text-reveal-visible {
-  opacity: 1;
-  translate: 0 0;
-  will-change: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -46,18 +46,18 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
             {siteConfig.hours.length > 0 ? (
               <dl className="space-y-1">
                 {siteConfig.hours.map((entry) => (
-                  <div key={entry.day} className="flex justify-between gap-6 text-sm">
+                  <div key={entry.day} className="flex justify-between gap-6 text-base leading-relaxed">
                     <dt className="text-charcoal/60">{entry.day}</dt>
                     <dd>{entry.hours}</dd>
                   </div>
                 ))}
               </dl>
             ) : (
-              <p className="text-sm text-charcoal/70">{siteConfig.hoursNote}</p>
+              <p className="text-base leading-relaxed text-charcoal/75">{siteConfig.hoursNote}</p>
             )}
           </InfoRow>
 
-          <p className="text-sm text-charcoal/60">
+          <p className="text-base leading-relaxed text-charcoal/75">
             Have a quick question?{" "}
             <Link href="/faq" className="underline underline-offset-2 hover:text-charcoal">
               Check our FAQ
@@ -89,7 +89,7 @@ function InfoRow({
         <Icon size={18} aria-hidden />
       </span>
       <div>
-        <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">{label}</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-charcoal/70">{label}</p>
         <div className="mt-1 text-charcoal">{children}</div>
       </div>
     </div>

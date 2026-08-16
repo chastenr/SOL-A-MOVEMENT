@@ -36,7 +36,7 @@ export default function LocationsPage() {
             <TiltCard maxTilt={2} className="rounded-2xl border border-charcoal/10 bg-ivory p-8">
               <p className="font-display text-2xl text-charcoal">{location.name}</p>
 
-              <div className="mt-6 space-y-4 text-sm text-charcoal/70">
+              <div className="mt-6 space-y-4 text-base leading-relaxed text-charcoal/75">
                 <div className="flex gap-3">
                   <MapPin size={18} className="mt-0.5 shrink-0 text-clay" aria-hidden />
                   <div>
@@ -58,7 +58,7 @@ export default function LocationsPage() {
                 </div>
               </div>
 
-              <p className="mt-6 rounded-xl bg-cream/55 px-4 py-3 text-sm leading-relaxed text-charcoal/65">
+              <p className="mt-6 rounded-xl bg-cream/55 px-4 py-3 text-base leading-[1.7] text-charcoal/75">
                 Limited parking is available within the building, subject to availability.
               </p>
 

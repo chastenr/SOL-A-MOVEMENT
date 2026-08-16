@@ -16,12 +16,12 @@ const variantStyles: Record<ButtonVariant, string> = {
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  md: "px-5 py-2.5 text-[0.72rem]",
-  lg: "px-7 py-3.5 text-[0.72rem]",
+  md: "min-h-11 px-5 py-2.5 text-xs",
+  lg: "min-h-12 px-7 py-3.5 text-[0.8125rem]",
 };
 
 const baseStyles =
-  "inline-flex items-center justify-center gap-2 rounded-full font-medium uppercase tracking-[0.2em] transition-colors duration-300 ease-out disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay";
+  "inline-flex items-center justify-center gap-2 rounded-full font-semibold uppercase tracking-[0.14em] transition-colors duration-300 ease-out disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay";
 
 type ButtonOwnProps = {
   variant?: ButtonVariant;

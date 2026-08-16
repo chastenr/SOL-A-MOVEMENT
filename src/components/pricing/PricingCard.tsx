@@ -26,7 +26,7 @@ export function PricingCard({ option, ctaType, className }: PricingCardProps) {
       )}
     >
       {option.recommended && (
-        <span className="absolute -top-3 left-8 rounded-full bg-clay px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-ivory">
+        <span className="absolute -top-3 left-8 rounded-full bg-clay px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-ivory">
           {option.recommendedLabel ?? "Most Popular"}
         </span>
       )}
@@ -41,11 +41,11 @@ export function PricingCard({ option, ctaType, className }: PricingCardProps) {
         </div>
         <p className="mt-1 text-xs uppercase tracking-[0.1em] text-charcoal/45">{option.validity}</p>
 
-        <p className="mt-5 text-sm leading-relaxed text-charcoal/70">{option.description}</p>
+        <p className="mt-5 text-base leading-[1.7] text-charcoal/75">{option.description}</p>
 
         <ul className="mt-5 space-y-2">
           {option.includedServices.map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm text-charcoal/65">
+            <li key={item} className="flex items-start gap-2 text-base leading-relaxed text-charcoal/75">
               <Check size={15} className="mt-0.5 shrink-0 text-clay" aria-hidden />
               <span>{item}</span>
             </li>
@@ -55,7 +55,7 @@ export function PricingCard({ option, ctaType, className }: PricingCardProps) {
         {option.conditions && option.conditions.length > 0 && (
           <ul className="mt-4 space-y-1 border-t border-charcoal/10 pt-4">
             {option.conditions.map((condition) => (
-              <li key={condition} className="text-xs leading-relaxed text-charcoal/45">
+              <li key={condition} className="text-sm leading-relaxed text-charcoal/70">
                 {condition}
               </li>
             ))}

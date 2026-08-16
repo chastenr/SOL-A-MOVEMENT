@@ -35,7 +35,7 @@ export default function PoliciesPage() {
                   </h3>
                   <div className="mt-2 space-y-2">
                     {section.paragraphs.map((paragraph, index) => (
-                      <p key={index} className="text-sm leading-relaxed text-charcoal/70">
+                      <p key={index} className="text-base leading-[1.7] text-charcoal/75">
                         {paragraph}
                       </p>
                     ))}

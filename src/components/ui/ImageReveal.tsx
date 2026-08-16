@@ -29,7 +29,7 @@ export function ImageReveal({
       transition={{ duration: 1, ease: EASE }}
     >
       <motion.div
-        className="h-full w-full"
+        className="relative h-full w-full"
         // A smaller reveal zoom keeps the cinematic movement without briefly
         // stretching a responsive raster image far beyond its rendered size.
         initial={{ scale: 1.06 }}

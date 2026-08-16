@@ -21,6 +21,7 @@ export default async function ForgotPasswordPage({ searchParams }: ForgotPasswor
     <section className="mx-auto max-w-md px-6 pt-40 pb-16 sm:px-8 sm:pb-20">
       <AnimatedSection>
         <SectionHeading
+          as="h1"
           eyebrow="Reset Password"
           heading="Forgot your password?"
           body="Enter your email and we'll send you a link to reset it."

@@ -25,6 +25,7 @@ export default async function SignUpPage({
     <section className="mx-auto max-w-2xl px-6 pt-40 pb-16 sm:px-8 sm:pb-20">
       <AnimatedSection>
         <SectionHeading
+          as="h1"
           eyebrow="Create Account"
           heading="Join Veora Wellness."
           body="Create an account to buy class packages and book your sessions."

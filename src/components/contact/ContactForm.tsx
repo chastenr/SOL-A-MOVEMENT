@@ -18,7 +18,7 @@ const TOPICS = [
 ];
 
 const inputClasses =
-  "w-full rounded-xl border border-charcoal/15 bg-ivory px-4 py-3 text-sm text-charcoal placeholder:text-charcoal/35 transition-colors focus:border-charcoal focus:outline-none";
+  "w-full rounded-xl border border-charcoal/20 bg-ivory px-4 py-3 text-base leading-normal text-charcoal placeholder:text-charcoal/60 transition-colors focus:border-charcoal focus:outline-none";
 
 export function ContactForm({ initialTopic }: { initialTopic?: string }) {
   const [submitted, setSubmitted] = useState(false);
@@ -153,7 +153,7 @@ function Field({
 }) {
   return (
     <div className={className}>
-      <label className="mb-1.5 block text-xs uppercase tracking-[0.1em] text-charcoal/50">
+      <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-charcoal/70">
         {label}
         {required && <span className="text-clay"> *</span>}
       </label>

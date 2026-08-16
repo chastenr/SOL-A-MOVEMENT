@@ -41,8 +41,8 @@ export default function FaqPage() {
             <dl className="mt-6 divide-y divide-charcoal/10 border-t border-charcoal/10">
               {topic.items.map((item) => (
                 <div key={item.question} className="py-5">
-                  <dt className="font-medium text-charcoal">{item.question}</dt>
-                  <dd className="mt-2 text-sm leading-relaxed text-charcoal/65">{item.answer}</dd>
+                  <dt className="font-semibold text-charcoal">{item.question}</dt>
+                  <dd className="mt-2 text-base leading-[1.7] text-charcoal/75">{item.answer}</dd>
                 </div>
               ))}
             </dl>

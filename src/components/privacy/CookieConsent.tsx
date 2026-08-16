@@ -61,7 +61,7 @@ export function CookieConsent() {
           <h2 id="cookie-consent-heading" className="font-display text-xl text-charcoal">
             Your privacy matters.
           </h2>
-          <p id="cookie-consent-description" className="mt-2 text-sm leading-relaxed text-charcoal/65">
+          <p id="cookie-consent-description" className="mt-2 text-base leading-[1.65] text-charcoal/75">
             We use essential cookies for secure sign-in, bookings, and site functionality. You can accept
             optional cookies or continue with necessary cookies only. Read our{" "}
             <Link href="/policies#privacy-cookies" className="underline underline-offset-2 hover:text-clay">
@@ -75,14 +75,14 @@ export function CookieConsent() {
           <button
             type="button"
             onClick={() => choose("accepted")}
-            className="rounded-full bg-charcoal px-5 py-2.5 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-ivory transition-colors hover:bg-clay focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay"
+            className="min-h-11 rounded-full bg-charcoal px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-ivory transition-colors hover:bg-clay focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay"
           >
             Accept cookies
           </button>
           <button
             type="button"
             onClick={() => choose("necessary")}
-            className="rounded-full border border-charcoal/20 px-5 py-2.5 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-charcoal transition-colors hover:border-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay"
+            className="min-h-11 rounded-full border border-charcoal/20 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-charcoal transition-colors hover:border-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay"
           >
             Necessary only
           </button>

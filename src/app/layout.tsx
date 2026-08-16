@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Cormorant_Garamond, Manrope } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/data/site";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { TextRevealController } from "@/components/layout/TextRevealController";
 import { CookieConsent } from "@/components/privacy/CookieConsent";
 import { OrganizationSchema } from "@/components/seo/OrganizationSchema";
 
@@ -16,10 +15,11 @@ const cormorantGaramond = Cormorant_Garamond({
   display: "swap",
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const manrope = Manrope({
+  variable: "--font-body",
   subsets: ["latin"],
   display: "swap",
+  fallback: ["Arial", "sans-serif"],
 });
 
 export const metadata: Metadata = {
@@ -65,11 +65,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en-PH"
-      className={`${cormorantGaramond.variable} ${inter.variable} h-full antialiased`}
+      data-scroll-behavior="smooth"
+      className={`${cormorantGaramond.variable} ${manrope.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-ivory text-charcoal">
+      <body className="min-h-full flex flex-col bg-ivory pb-[calc(7rem+env(safe-area-inset-bottom))] text-charcoal xl:pb-0">
         <OrganizationSchema />
-        <TextRevealController />
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

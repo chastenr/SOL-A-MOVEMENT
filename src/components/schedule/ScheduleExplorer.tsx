@@ -120,10 +120,10 @@ export function ScheduleExplorer({
       <div className="rounded-[1.75rem] border border-charcoal/10 bg-ivory p-4 shadow-[0_20px_55px_-48px_rgba(34,31,28,0.55)] sm:p-6">
         <div className="flex items-center justify-between gap-4 px-1">
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-clay">Step 1</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">Step 1</p>
             <h2 className="font-display mt-1 text-2xl text-charcoal">Choose a date</h2>
           </div>
-          <p className="hidden text-xs text-charcoal/45 sm:block">Times shown in Philippine Time</p>
+          <p className="hidden text-sm text-charcoal/70 sm:block">Times shown in Philippine Time</p>
         </div>
 
         <div className="no-scrollbar mt-5 flex gap-2 overflow-x-auto pb-2" role="tablist" aria-label="Available class dates">
@@ -148,11 +148,11 @@ export function ScheduleExplorer({
                     : "border-charcoal/10 bg-cream/35 text-charcoal hover:border-clay/45 hover:bg-cream/70"
                 )}
               >
-                <span className={cn("block text-[10px] uppercase tracking-[0.14em]", active ? "text-ivory/65" : "text-charcoal/45")}>
+                <span className={cn("block text-xs font-medium uppercase tracking-[0.12em]", active ? "text-ivory/80" : "text-charcoal/70")}>
                   {weekdayFormatter.format(date)}
                 </span>
                 <span className="font-display mt-1 block text-2xl leading-none">{dayFormatter.format(date)}</span>
-                <span className={cn("mt-1 block text-[10px] uppercase tracking-[0.12em]", active ? "text-ivory/65" : "text-charcoal/45")}>
+                <span className={cn("mt-1 block text-xs font-medium uppercase tracking-[0.1em]", active ? "text-ivory/80" : "text-charcoal/70")}>
                   {monthFormatter.format(date)} · {daySessions.length}
                 </span>
               </button>
@@ -164,12 +164,12 @@ export function ScheduleExplorer({
       <section id="daily-schedule" role="tabpanel" className="mt-7" aria-labelledby="daily-schedule-heading">
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-clay">Step 2</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">Step 2</p>
             <h2 id="daily-schedule-heading" className="font-display mt-1 text-3xl text-charcoal">
               {selectedDay[0] ? fullDateFormatter.format(new Date(selectedDay[0].startAt)) : "Daily schedule"}
             </h2>
           </div>
-          <p className="text-xs text-charcoal/45">Select a time to see class and coach details</p>
+          <p className="text-sm text-charcoal/70">Select a time to see class and coach details</p>
         </div>
 
         <div className="overflow-hidden rounded-[1.5rem] border border-charcoal/10 bg-ivory">
@@ -191,13 +191,13 @@ export function ScheduleExplorer({
                 </p>
                 <div className="min-w-0">
                   <p className="truncate text-base text-charcoal sm:text-lg">{session.className}</p>
-                  <p className="mt-1 truncate text-xs text-charcoal/50">
+                  <p className="mt-1 truncate text-sm text-charcoal/70">
                     {session.instructor ? `with ${session.instructor}` : "Coach to be announced"}
                   </p>
                 </div>
                 <div className="hidden sm:block">
                   <span className={cn(
-                    "rounded-full px-3 py-1.5 text-[10px] uppercase tracking-[0.1em]",
+                    "rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em]",
                     state.canBook ? "bg-clay/10 text-clay" : "bg-charcoal/8 text-charcoal/45"
                   )}>
                     {state.label}
@@ -253,8 +253,8 @@ function SessionDetailDialog({
       >
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-charcoal/10 bg-ivory/95 px-5 py-4 backdrop-blur sm:px-7">
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-clay">Class details</p>
-            <p className="mt-0.5 text-xs text-charcoal/45">Review before booking</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">Class details</p>
+            <p className="mt-0.5 text-sm text-charcoal/70">Review before booking</p>
           </div>
           <button
             ref={closeButtonRef}
@@ -275,14 +275,14 @@ function SessionDetailDialog({
                 {session.className}
               </h2>
             </div>
-            <span className={cn("rounded-full px-3.5 py-2 text-[10px] uppercase tracking-[0.12em]", state.canBook ? "bg-clay/10 text-clay" : "bg-charcoal/8 text-charcoal/45")}>
+            <span className={cn("rounded-full px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.1em]", state.canBook ? "bg-clay/10 text-clay" : "bg-charcoal/8 text-charcoal/70")}>
               {state.label}
             </span>
           </div>
 
-          {session.classDescription && <p className="mt-4 text-sm leading-relaxed text-charcoal/65 sm:text-base">{session.classDescription}</p>}
+          {session.classDescription && <p className="mt-4 text-base leading-[1.7] text-charcoal/75">{session.classDescription}</p>}
 
-          <dl className="mt-6 grid gap-3 rounded-2xl bg-cream/55 p-4 text-sm sm:grid-cols-2 sm:p-5">
+          <dl className="mt-6 grid gap-3 rounded-2xl bg-cream/55 p-4 text-base leading-relaxed sm:grid-cols-2 sm:p-5">
             <div className="flex gap-3"><CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-clay" aria-hidden /><div><dt className="text-charcoal/40">Date</dt><dd className="mt-0.5 text-charcoal">{fullDateFormatter.format(startAt)}</dd></div></div>
             <div className="flex gap-3"><Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-clay" aria-hidden /><div><dt className="text-charcoal/40">Time</dt><dd className="mt-0.5 text-charcoal">{timeFormatter.format(startAt)}–{timeFormatter.format(endAt)} · {differenceInMinutes(endAt, startAt)} min</dd></div></div>
             <div className="flex gap-3"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-clay" aria-hidden /><div><dt className="text-charcoal/40">Studio</dt><dd className="mt-0.5 text-charcoal">{session.location}</dd></div></div>
@@ -290,7 +290,7 @@ function SessionDetailDialog({
           </dl>
 
           <section className="mt-7 border-t border-charcoal/10 pt-6" aria-labelledby="coach-heading">
-            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-clay">Your coach</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">Your coach</p>
             <div className="mt-4 flex items-start gap-4">
               {session.instructorPhotoUrl ? (
                 <Image src={session.instructorPhotoUrl} alt={`${session.instructor ?? "Veora coach"} profile`} width={112} height={112} quality={92} sizes="80px" className="h-20 w-20 shrink-0 rounded-2xl object-cover" />
@@ -301,7 +301,7 @@ function SessionDetailDialog({
               )}
               <div>
                 <h3 id="coach-heading" className="font-display text-2xl text-charcoal">{session.instructor ?? "To be announced"}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-charcoal/60">
+                <p className="mt-2 text-base leading-[1.7] text-charcoal/75">
                   {session.instructorBio ?? (session.instructor ? "More information about this coach will be added soon." : "The assigned coach will be shown here once the studio confirms the schedule.")}
                 </p>
               </div>
@@ -329,9 +329,9 @@ function SessionDetailDialog({
                 </Button>
               )
             ) : (
-              <p className="rounded-xl bg-charcoal/5 px-4 py-3 text-center text-sm text-charcoal/55">This session is currently {state.label.toLowerCase()}.</p>
+              <p className="rounded-xl bg-charcoal/5 px-4 py-3 text-center text-base text-charcoal/75">This session is currently {state.label.toLowerCase()}.</p>
             )}
-            <p className="mt-3 text-center text-xs leading-relaxed text-charcoal/45">Bookings close at 10:00 PM the evening before class. The 12-hour cancellation policy applies.</p>
+            <p className="mt-3 text-center text-sm leading-relaxed text-charcoal/70">Bookings close at 10:00 PM the evening before class. The 12-hour cancellation policy applies.</p>
           </div>
         </div>
       </div>

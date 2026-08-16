@@ -75,8 +75,8 @@ export const siteConfig = {
   // "received" = studio will manually confirm; "confirmed" = treated as final.
 
   social: {
-    instagram: "https://www.instagram.com/spacioblnc/",
-    facebook: "https://www.facebook.com/spacioblnc/",
+    instagram: "https://www.instagram.com/veora.ph/",
+    facebook: "https://www.facebook.com/veoraph",
   },
 } as const;
 

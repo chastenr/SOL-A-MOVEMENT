@@ -45,24 +45,24 @@ export function ServiceCard({ service, variant = "compact", className, priority 
             sizes="(min-width: 1024px) 31vw, (min-width: 640px) 48vw, 100vw"
           />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-charcoal/40 to-transparent" />
-          <p className="absolute bottom-4 left-5 rounded-full border border-white/30 bg-charcoal/45 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white backdrop-blur-md">
+          <p className="absolute bottom-4 left-5 rounded-full border border-white/40 bg-charcoal/75 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-md">
             {service.category}
           </p>
         </div>
 
         <div className="flex flex-1 flex-col p-6 sm:p-7">
           <h3 className="font-display text-[2rem] leading-none text-charcoal sm:text-4xl">{service.name}</h3>
-          <p className="mt-4 text-sm leading-relaxed text-charcoal/65">{service.description}</p>
+          <p className="mt-4 text-base leading-[1.7] text-charcoal/75">{service.description}</p>
 
           <dl className="mt-5 grid grid-cols-2 gap-2 text-sm">
             <div className="rounded-xl bg-cream/65 px-3.5 py-3">
-              <dt className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-charcoal/40">
+              <dt className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal/70">
                 <Clock3 size={13} aria-hidden /> Duration
               </dt>
               <dd className="mt-1.5 text-xs leading-snug text-charcoal/75">{service.duration}</dd>
             </div>
             <div className="rounded-xl bg-cream/65 px-3.5 py-3">
-              <dt className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-charcoal/40">
+              <dt className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal/70">
                 <Check size={13} aria-hidden /> Level
               </dt>
               <dd className="mt-1.5 text-xs leading-snug text-charcoal/75">{service.level}</dd>
@@ -71,7 +71,7 @@ export function ServiceCard({ service, variant = "compact", className, priority 
 
           {service.benefits && service.benefits.length > 0 && (
             <div className="mt-4 rounded-2xl border border-clay/15 bg-clay/[0.06] p-4">
-              <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-clay">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-clay">
                 <Sparkles size={13} aria-hidden /> Benefits
               </p>
               <ul className="mt-3 space-y-2.5" aria-label={`${service.name} benefits`}>
@@ -99,7 +99,7 @@ export function ServiceCard({ service, variant = "compact", className, priority 
                 {variantGroups.map((group) => (
                   <div key={group.label}>
                     {variantGroups.length > 1 && (
-                      <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.14em] text-charcoal/40">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal/70">
                         {group.label}
                       </p>
                     )}
@@ -150,7 +150,7 @@ export function ServiceCard({ service, variant = "compact", className, priority 
         />
       </TiltCard>
       <h3 className="font-display mt-4 text-xl text-charcoal">{service.name}</h3>
-      <p className="mt-1.5 text-sm leading-relaxed text-charcoal/65">{service.shortDescription}</p>
+      <p className="mt-2 text-base leading-[1.65] text-charcoal/75">{service.shortDescription}</p>
       <a
         href={`/services/${service.slug}`}
         className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.15em] text-charcoal/70 transition-colors group-hover:text-clay"

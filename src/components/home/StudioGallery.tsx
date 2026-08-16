@@ -34,7 +34,7 @@ export function StudioGallery() {
           <AnimatedSection delay={0.1} className="mt-10 divide-y divide-charcoal/10 border-t border-charcoal/10">
             {materials.map((item) => (
               <div key={item.label} className="flex items-baseline justify-between gap-4 py-4">
-                <span className="text-xs uppercase tracking-[0.18em] text-charcoal/45">{item.label}</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-charcoal/70">{item.label}</span>
                 <span className="font-display text-right text-charcoal/80">{item.detail}</span>
               </div>
             ))}
@@ -57,7 +57,7 @@ export function StudioGallery() {
             containerClassName="mask-arch-deep aspect-[4/5] shadow-glow-warm sm:aspect-[5/6]"
             sizes="(min-width: 1024px) 55vw, 100vw"
           />
-          <span className="absolute bottom-5 left-5 rounded-full bg-charcoal/70 px-3.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-ivory backdrop-blur-sm">
+          <span className="absolute bottom-5 left-5 rounded-full bg-charcoal/80 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-ivory backdrop-blur-sm">
             The Studio Floor
           </span>
         </AnimatedSection>

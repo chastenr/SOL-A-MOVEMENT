@@ -13,14 +13,14 @@ export function ScheduleCard({ entry }: { entry: ClassDirectoryEntry }) {
       <div>
         <div className="flex items-start justify-between gap-3">
           <p className="text-xs uppercase tracking-[0.18em] text-clay">{entry.category}</p>
-          <span className="shrink-0 rounded-full bg-cream/70 px-2.5 py-0.5 text-[0.6rem] uppercase tracking-[0.1em] text-charcoal/55">
+          <span className="shrink-0 rounded-full bg-cream/70 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-[0.08em] text-charcoal/70">
             {entry.level}
           </span>
         </div>
         <h3 className="font-display mt-2 text-2xl text-charcoal">{entry.name}</h3>
-        <p className="mt-3 text-sm leading-relaxed text-charcoal/65">{entry.description}</p>
+        <p className="mt-3 text-base leading-[1.7] text-charcoal/75">{entry.description}</p>
 
-        <div className="mt-5 space-y-1 text-sm text-charcoal/60">
+        <div className="mt-5 space-y-1 text-base text-charcoal/75">
           <p>{entry.duration}</p>
         </div>
       </div>

@@ -119,16 +119,16 @@ export function Hero() {
       <StaggerContainer className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-14 sm:px-8 sm:pb-16 lg:px-12 lg:pb-20">
         <div className="max-w-6xl">
           <StaggerItem>
-            <p className="text-[10px] font-medium uppercase tracking-[0.26em] text-ivory/70 sm:text-xs sm:tracking-[0.3em]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ivory/85 sm:text-[13px]">
             {siteConfig.name} · Bacoor, Cavite
             </p>
           </StaggerItem>
           <RevealHeading
             lines={["Move with intention.", "Feel your best."]}
-            className="font-display mt-4 max-w-6xl text-[clamp(2.9rem,5.8vw,6rem)] font-medium leading-[0.9] tracking-[-0.025em] text-ivory [&>span>span]:lg:whitespace-nowrap"
+            className="font-display mt-4 max-w-6xl text-[clamp(2.75rem,5.4vw,4.75rem)] font-medium leading-[1.02] tracking-[-0.02em] text-ivory [&>span>span]:lg:whitespace-nowrap"
           />
           <StaggerItem>
-            <p className="mt-6 max-w-xl text-sm leading-relaxed text-ivory/78 sm:text-base lg:text-lg">
+            <p className="mt-6 max-w-[62ch] text-base leading-[1.7] text-ivory/85 lg:text-lg">
               Pilates, yoga and barre—thoughtfully guided in one boutique wellness studio in Bacoor, Cavite.
             </p>
           </StaggerItem>
@@ -147,9 +147,9 @@ export function Hero() {
             </div>
           </StaggerItem>
           <StaggerItem>
-            <div className="mt-7 flex items-center gap-2 text-ivory/60">
+            <div className="mt-7 flex items-center gap-2 text-ivory/80">
               <MapPin size={14} aria-hidden />
-              <p className="text-[10px] uppercase tracking-[0.18em] sm:text-xs">Opening soon</p>
+              <p className="text-xs font-medium uppercase tracking-[0.14em]">Opening soon</p>
             </div>
           </StaggerItem>
         </div>

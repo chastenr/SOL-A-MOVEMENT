@@ -115,8 +115,8 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
 
           <header className="grid overflow-hidden rounded-[2rem] bg-walnut text-ivory lg:grid-cols-2">
             <div className="flex flex-col justify-center px-7 py-10 sm:px-12 sm:py-14 lg:px-16">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-cream/70">{service.category} · Bacoor, Cavite</p>
-              <h1 className="font-display balance mt-4 text-4xl leading-none sm:text-5xl md:text-6xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cream/85">{service.category} · Bacoor, Cavite</p>
+              <h1 className="font-display balance mt-4 text-[clamp(2.5rem,5vw,4.75rem)] leading-[1.02] tracking-[-0.02em]">
                 {service.name} classes in Bacoor
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-ivory/78">{service.description}</p>
@@ -136,7 +136,7 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
 
           <section className="grid gap-8 py-14 lg:grid-cols-[1.4fr_0.8fr] lg:gap-14" aria-labelledby="benefits-heading">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.2em] text-clay">What to expect</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">What to expect</p>
               <h2 id="benefits-heading" className="font-display mt-3 text-3xl text-charcoal sm:text-4xl">A guided class with clear, purposeful movement.</h2>
               <p className="mt-5 max-w-3xl leading-relaxed text-charcoal/70">
                 Your instructor leads the session and offers guidance throughout. Exercises can be approached at your own pace; let the instructor know about any injury, pregnancy or health concern before class.
@@ -144,7 +144,7 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
               {service.benefits?.length ? (
                 <ul className="mt-7 grid gap-3 sm:grid-cols-2" aria-label={`${service.name} benefits`}>
                   {service.benefits.map((benefit) => (
-                    <li key={benefit} className="flex gap-3 rounded-2xl bg-cream/60 p-4 text-sm leading-relaxed text-charcoal/75">
+                    <li key={benefit} className="flex gap-3 rounded-2xl bg-cream/60 p-4 text-base leading-[1.65] text-charcoal/75">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-clay" aria-hidden />
                       {benefit}
                     </li>
@@ -167,7 +167,7 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
 
           {service.classVariants?.length ? (
             <section className="rounded-[2rem] bg-sand/25 px-6 py-10 sm:px-10" aria-labelledby="formats-heading">
-              <p className="text-[11px] uppercase tracking-[0.2em] text-clay">Available formats</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">Available formats</p>
               <h2 id="formats-heading" className="font-display mt-3 text-3xl text-charcoal">Choose your {service.name} practice.</h2>
               <ul className="mt-6 flex flex-wrap gap-2">
                 {service.classVariants.map((variant) => <li key={variant} className="rounded-full border border-charcoal/10 bg-ivory px-4 py-2 text-sm text-charcoal/70">{variant}</li>)}
@@ -177,22 +177,22 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
 
           <section className="py-14" aria-labelledby="prepare-heading">
             <div className="grid gap-8 md:grid-cols-3">
-              <div><h2 id="prepare-heading" className="font-display text-2xl text-charcoal">What to wear</h2><p className="mt-3 text-sm leading-relaxed text-charcoal/65">Wear comfortable workout clothing that lets you move freely. Grip socks are highly recommended for Pilates and Barre.</p></div>
-              <div><h2 className="font-display text-2xl text-charcoal">What to bring</h2><p className="mt-3 text-sm leading-relaxed text-charcoal/65">Bring a water bottle and an optional small towel. Veora provides premium mats and all class equipment.</p></div>
-              <div><h2 className="font-display text-2xl text-charcoal">When to arrive</h2><p className="mt-3 text-sm leading-relaxed text-charcoal/65">For your first visit, arrive 15–20 minutes early to check in and become familiar with the studio.</p></div>
+              <div><h2 id="prepare-heading" className="font-display text-2xl text-charcoal">What to wear</h2><p className="mt-3 text-base leading-[1.7] text-charcoal/75">Wear comfortable workout clothing that lets you move freely. Grip socks are highly recommended for Pilates and Barre.</p></div>
+              <div><h2 className="font-display text-2xl text-charcoal">What to bring</h2><p className="mt-3 text-base leading-[1.7] text-charcoal/75">Bring a water bottle and an optional small towel. Veora provides premium mats and all class equipment.</p></div>
+              <div><h2 className="font-display text-2xl text-charcoal">When to arrive</h2><p className="mt-3 text-base leading-[1.7] text-charcoal/75">For your first visit, arrive 15–20 minutes early to check in and become familiar with the studio.</p></div>
             </div>
           </section>
 
           <section className="border-y border-charcoal/10 py-12" aria-labelledby="faq-heading">
             <h2 id="faq-heading" className="font-display text-3xl text-charcoal">{service.name} questions</h2>
             <dl className="mt-6 grid gap-6 md:grid-cols-3">
-              {faqs.map((faq) => <div key={faq.question}><dt className="text-base text-charcoal">{faq.question}</dt><dd className="mt-2 text-sm leading-relaxed text-charcoal/65">{faq.answer}</dd></div>)}
+              {faqs.map((faq) => <div key={faq.question}><dt className="font-semibold text-charcoal">{faq.question}</dt><dd className="mt-2 text-base leading-[1.7] text-charcoal/75">{faq.answer}</dd></div>)}
             </dl>
             <Link href="/faq" className="mt-7 inline-flex items-center gap-2 text-xs uppercase tracking-[0.12em] text-clay hover:text-walnut">Read all studio FAQs <ArrowRight size={14} aria-hidden /></Link>
           </section>
 
           <section className="py-14 text-center" aria-labelledby="more-classes-heading">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-clay">Keep exploring</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">Keep exploring</p>
             <h2 id="more-classes-heading" className="font-display mt-3 text-3xl text-charcoal">More ways to move at Veora</h2>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
               {otherServices.map((item) => <Button key={item.slug} href={`/services/${item.slug}`} variant="secondary">{item.name}</Button>)}

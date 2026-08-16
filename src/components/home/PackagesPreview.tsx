@@ -36,12 +36,12 @@ export async function PackagesPreview() {
             <AnimatedSection key={option.slug} delay={0.06}>
               <div className="flex h-full flex-col rounded-2xl border border-charcoal/10 bg-cream/30 p-8">
                 {option.recommended && (
-                  <span className="mb-4 w-fit rounded-full bg-clay px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-ivory">
+                  <span className="mb-4 w-fit rounded-full bg-clay px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-ivory">
                     {option.recommendedLabel ?? "Most Popular"}
                   </span>
                 )}
                 <p className="font-display text-xl text-charcoal">{option.name}</p>
-                <p className="mt-2 text-sm text-charcoal/60">{option.description}</p>
+                <p className="mt-2 text-base leading-[1.65] text-charcoal/75">{option.description}</p>
                 <div className="mt-6 flex items-baseline gap-2">
                   <span className="font-display text-4xl text-charcoal">{option.price}</span>
                   {option.originalPrice && (
