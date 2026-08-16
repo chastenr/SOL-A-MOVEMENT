@@ -5,10 +5,9 @@
  * comfortable with it, set a SITE_PASSWORD environment variable in Vercel —
  * that's optional and only checked if present).
  */
-// Public marketing pages must remain crawlable in production. Authentication
-// still protects account/admin routes independently in middleware and on the
-// server; this switch only controlled the former whole-site pre-launch gate.
-export const SITE_LOCKED = false;
+// Keep the pre-launch gate enabled for deployed Preview and Production builds.
+// Local development remains unlocked by the NODE_ENV check in middleware.
+export const SITE_LOCKED = true;
 export const SITE_LOCK_COOKIE = "veora_site_unlocked";
 export const SITE_LOCK_PATH = "/site-locked";
 
