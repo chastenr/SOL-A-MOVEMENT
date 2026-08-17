@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { differenceInMinutes } from "date-fns";
-import { CalendarDays, ChevronRight, Clock3, MapPin, UserRound, Users, X } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Clock3, MapPin, UserRound, Users, X } from "lucide-react";
 import { isPastBookingCutoff } from "@/lib/booking-cutoff";
 import { getArrivalTime } from "@/lib/studio-hours";
 import { cn } from "@/lib/utils";
@@ -39,6 +39,11 @@ const dateKeyFormatter = new Intl.DateTimeFormat("en-CA", {
 const weekdayFormatter = new Intl.DateTimeFormat("en-PH", { timeZone: MANILA_TIME_ZONE, weekday: "short" });
 const dayFormatter = new Intl.DateTimeFormat("en-PH", { timeZone: MANILA_TIME_ZONE, day: "numeric" });
 const monthFormatter = new Intl.DateTimeFormat("en-PH", { timeZone: MANILA_TIME_ZONE, month: "short" });
+const calendarMonthFormatter = new Intl.DateTimeFormat("en-PH", {
+  timeZone: "UTC",
+  month: "long",
+  year: "numeric",
+});
 const fullDateFormatter = new Intl.DateTimeFormat("en-PH", {
   timeZone: MANILA_TIME_ZONE,
   weekday: "long",
@@ -68,6 +73,44 @@ function sessionState(session: ScheduleExplorerSession) {
   return { canBook, spotsLeft, label };
 }
 
+const CALENDAR_WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function calendarDays(monthKey: string) {
+  const [year, month] = monthKey.split("-").map(Number);
+  const firstWeekday = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const previousMonthDays = new Date(Date.UTC(year, month - 1, 0)).getUTCDate();
+
+  return Array.from({ length: 42 }, (_, index) => {
+    const calendarDay = index - firstWeekday + 1;
+    let cellYear = year;
+    let cellMonth = month;
+    let day = calendarDay;
+
+    if (calendarDay < 1) {
+      cellMonth -= 1;
+      if (cellMonth === 0) {
+        cellMonth = 12;
+        cellYear -= 1;
+      }
+      day = previousMonthDays + calendarDay;
+    } else if (calendarDay > daysInMonth) {
+      cellMonth += 1;
+      if (cellMonth === 13) {
+        cellMonth = 1;
+        cellYear += 1;
+      }
+      day = calendarDay - daysInMonth;
+    }
+
+    return {
+      key: `${cellYear}-${String(cellMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`,
+      day,
+      inMonth: cellMonth === month,
+    };
+  });
+}
+
 export function ScheduleExplorer({
   sessions,
   memberPackage,
@@ -88,13 +131,32 @@ export function ScheduleExplorer({
     return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
   }, [sessions]);
 
+  const sessionsByDateMap = useMemo(() => new Map(sessionsByDate), [sessionsByDate]);
+  const availableMonths = useMemo(
+    () => [...new Set(sessionsByDate.map(([key]) => key.slice(0, 7)))],
+    [sessionsByDate]
+  );
+
   const [requestedDate, setRequestedDate] = useState(sessionsByDate[0]?.[0] ?? "");
+  const [requestedMonth, setRequestedMonth] = useState(availableMonths[0] ?? "");
   const [selectedSession, setSelectedSession] = useState<ScheduleExplorerSession | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const selectedDate = sessionsByDate.some(([key]) => key === requestedDate)
     ? requestedDate
     : (sessionsByDate[0]?.[0] ?? "");
   const selectedDay = sessionsByDate.find(([key]) => key === selectedDate)?.[1] ?? [];
+  const visibleMonth = availableMonths.includes(requestedMonth) ? requestedMonth : (availableMonths[0] ?? "");
+  const visibleMonthIndex = availableMonths.indexOf(visibleMonth);
+  const visibleCalendarDays = useMemo(() => calendarDays(visibleMonth), [visibleMonth]);
+
+  function showMonth(index: number) {
+    const month = availableMonths[index];
+    if (!month) return;
+    setRequestedMonth(month);
+    const firstAvailableDate = sessionsByDate.find(([key]) => key.startsWith(month))?.[0];
+    if (firstAvailableDate) setRequestedDate(firstAvailableDate);
+    setSelectedSession(null);
+  }
 
   useEffect(() => {
     if (!selectedSession) return;
@@ -117,7 +179,7 @@ export function ScheduleExplorer({
 
   return (
     <div data-no-text-reveal>
-      <div className="rounded-[1.75rem] border border-charcoal/10 bg-ivory p-4 shadow-[0_20px_55px_-48px_rgba(34,31,28,0.55)] sm:p-6">
+      <div className="rounded-[1.75rem] border border-charcoal/10 bg-ivory p-4 shadow-[0_20px_55px_-48px_rgba(34,31,28,0.55)] sm:p-6 lg:hidden">
         <div className="flex items-center justify-between gap-4 px-1">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">Step 1</p>
@@ -160,6 +222,105 @@ export function ScheduleExplorer({
           })}
         </div>
       </div>
+
+      <section
+        className="hidden overflow-hidden rounded-[1.75rem] border border-charcoal/10 bg-ivory shadow-[0_20px_55px_-48px_rgba(34,31,28,0.55)] lg:block"
+        aria-labelledby="calendar-heading"
+      >
+        <div className="flex items-center justify-between border-b border-charcoal/10 px-6 py-5">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">Live class calendar</p>
+            <h2 id="calendar-heading" className="font-display mt-1 text-3xl text-charcoal">
+              {calendarMonthFormatter.format(
+                new Date(Date.UTC(Number(visibleMonth.slice(0, 4)), Number(visibleMonth.slice(5, 7)) - 1, 1))
+              )}
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => showMonth(visibleMonthIndex - 1)}
+              disabled={visibleMonthIndex <= 0}
+              aria-label="Show previous available month"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-charcoal/15 text-charcoal transition-colors hover:border-charcoal hover:bg-cream disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              <ChevronLeft size={18} aria-hidden />
+            </button>
+            <button
+              type="button"
+              onClick={() => showMonth(visibleMonthIndex + 1)}
+              disabled={visibleMonthIndex < 0 || visibleMonthIndex >= availableMonths.length - 1}
+              aria-label="Show next available month"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-charcoal/15 text-charcoal transition-colors hover:border-charcoal hover:bg-cream disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              <ChevronRight size={18} aria-hidden />
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-7 border-b border-charcoal/10 bg-cream/40" aria-hidden>
+          {CALENDAR_WEEKDAYS.map((weekday) => (
+            <div key={weekday} className="border-r border-charcoal/10 px-3 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-charcoal/60 last:border-r-0">
+              {weekday}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-7" role="group" aria-label={`${calendarMonthFormatter.format(new Date(Date.UTC(Number(visibleMonth.slice(0, 4)), Number(visibleMonth.slice(5, 7)) - 1, 1)))} class schedule`}>
+          {visibleCalendarDays.map((cell, index) => {
+            const daySessions = sessionsByDateMap.get(cell.key) ?? [];
+            const isSelected = cell.key === selectedDate;
+            const hasSessions = daySessions.length > 0;
+
+            return (
+              <button
+                key={cell.key}
+                type="button"
+                disabled={!hasSessions}
+                aria-pressed={isSelected}
+                aria-label={`${cell.key}, ${daySessions.length} class${daySessions.length === 1 ? "" : "es"}`}
+                onClick={() => {
+                  setRequestedDate(cell.key);
+                  setSelectedSession(null);
+                }}
+                className={cn(
+                  "min-h-36 border-b border-r border-charcoal/10 p-2.5 text-left align-top transition-colors focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-clay",
+                  index % 7 === 6 && "border-r-0",
+                  index >= 35 && "border-b-0",
+                  !cell.inMonth && "bg-cream/20 text-charcoal/30",
+                  cell.inMonth && !hasSessions && "cursor-default bg-ivory text-charcoal/45",
+                  hasSessions && "hover:bg-cream/40",
+                  isSelected && "bg-sand/35 ring-2 ring-inset ring-clay/55"
+                )}
+              >
+                <span className={cn("flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold", isSelected && "bg-charcoal text-ivory")}>
+                  {cell.day}
+                </span>
+                {daySessions.length > 0 && (
+                  <span className="mt-2 block space-y-1.5">
+                    {daySessions.slice(0, 3).map((session) => {
+                      const state = sessionState(session);
+                      return (
+                        <span key={session.id} className="block rounded-lg border border-clay/20 bg-clay/8 px-2 py-1.5">
+                          <span className="block truncate text-xs font-semibold text-charcoal">
+                            {timeFormatter.format(new Date(session.startAt))} · {session.className}
+                          </span>
+                          <span className={cn("mt-0.5 block truncate text-[10px] font-medium uppercase tracking-[0.06em]", state.canBook ? "text-clay" : "text-charcoal/50")}>
+                            {state.label}
+                          </span>
+                        </span>
+                      );
+                    })}
+                    {daySessions.length > 3 && (
+                      <span className="block px-1 text-[11px] font-medium text-charcoal/55">+{daySessions.length - 3} more</span>
+                    )}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       <section id="daily-schedule" role="tabpanel" className="mt-7" aria-labelledby="daily-schedule-heading">
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
