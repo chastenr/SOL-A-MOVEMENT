@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { requireAdmin } from "@/lib/auth/require-role";
+import { requireSuperAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { PackageFormValues } from "@/lib/validations";
 import { PackageForm } from "@/components/admin/PackageForm";
@@ -31,10 +31,12 @@ type PackageDetailRow = {
   is_founder_offer: boolean;
   is_active: boolean;
   sort_order: number;
+  entitlement_type: "credits" | "unlimited";
+  membership_duration_months: number | null;
 };
 
 export default async function EditPackagePage({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.from("packages").select("*").eq("id", id).single();
@@ -62,6 +64,8 @@ export default async function EditPackagePage({ params }: { params: Promise<{ id
     isFounderOffer: pkg.is_founder_offer,
     isActive: pkg.is_active,
     sortOrder: pkg.sort_order,
+    entitlementType: pkg.entitlement_type,
+    membershipDurationMonths: pkg.membership_duration_months ?? "",
   };
 
   return (

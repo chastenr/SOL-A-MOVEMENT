@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth/require-role";
+import { requireSuperAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { centavosToPeso } from "@/lib/money";
 import { sendPurchaseApprovedEmail, sendPurchaseRejectedEmail } from "@/lib/email";
@@ -32,7 +32,7 @@ function friendlyPurchaseActionError(message: string): string {
  * clicking Approve twice doesn't resend the confirmation.
  */
 export async function approvePurchaseAction(purchaseId: string): Promise<ActionResult> {
-  await requireAdmin();
+  await requireSuperAdmin();
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase.rpc("approve_purchase", { p_purchase_id: purchaseId }).single();
@@ -71,7 +71,7 @@ export async function approvePurchaseAction(purchaseId: string): Promise<ActionR
 }
 
 export async function rejectPurchaseAction(purchaseId: string, reason: string): Promise<ActionResult> {
-  await requireAdmin();
+  await requireSuperAdmin();
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase

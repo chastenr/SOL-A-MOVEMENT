@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { format } from "date-fns";
-import { requireAdmin } from "@/lib/auth/require-role";
+import { requireSuperAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getAdminPurchases, type AdminPurchaseStatus } from "@/lib/admin/payments";
 import { centavosToPeso } from "@/lib/money";
@@ -58,7 +58,7 @@ export default async function AdminPaymentsPage({
 }: {
   searchParams: Promise<{ status?: AdminPurchaseStatus }>;
 }) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const { status } = await searchParams;
   const supabase = await createSupabaseServerClient();
 
@@ -193,7 +193,7 @@ export default async function AdminPaymentsPage({
                 <th className="px-4 py-3">Method</th>
                 <th className="px-4 py-3">Receipt</th>
                 <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Submitted</th>
+                <th className="px-4 py-3">Created</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>

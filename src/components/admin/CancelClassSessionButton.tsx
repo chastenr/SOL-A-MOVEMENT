@@ -12,7 +12,7 @@ export function CancelClassSessionButton({ sessionId, bookedCount }: { sessionId
   async function handleCancel() {
     const message =
       bookedCount > 0
-        ? `Cancel this class?\n\n${bookedCount} customer${bookedCount === 1 ? "" : "s"} currently ${bookedCount === 1 ? "has" : "have"} a reservation. Their package credit${bookedCount === 1 ? "" : "s"} will be restored and they will be notified.`
+        ? `Cancel this class?\n\n${bookedCount} customer${bookedCount === 1 ? "" : "s"} currently ${bookedCount === 1 ? "has" : "have"} a reservation. Any deducted package credits will be restored and everyone will be notified.`
         : "Cancel this class? No one is currently booked.";
     if (!window.confirm(message)) return;
 

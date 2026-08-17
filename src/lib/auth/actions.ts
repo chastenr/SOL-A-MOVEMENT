@@ -21,6 +21,7 @@ type ActionResult = { error: string } | { requiresMfa: true } | { success: true 
 type SignUpResult = { error: string } | { success: true; needsEmailConfirmation: boolean };
 
 const GENERIC_ERROR = "Something went wrong. Please try again.";
+const WAIVER_VERSION = "2026-08-18";
 
 export async function signUpAction(values: SignUpFormValues, redirectTo?: string): Promise<SignUpResult> {
   const parsed = signUpSchema.safeParse(values);
@@ -56,6 +57,8 @@ export async function signUpAction(values: SignUpFormValues, redirectTo?: string
         last_name: data.lastName,
         mobile_number: mobileNumber,
         birthday: data.birthday || null,
+        waiver_accepted: true,
+        waiver_version: WAIVER_VERSION,
       },
       emailRedirectTo: `${authRedirectOrigin}/auth/callback?next=${encodeURIComponent(safeRedirectTo)}`,
     },

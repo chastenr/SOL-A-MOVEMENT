@@ -41,7 +41,9 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
         <div className="px-6 py-5">
           <p className="font-display text-lg tracking-[0.02em]">Veora Admin</p>
         </div>
-        <AdminSidebarNav items={NAV} />
+        <AdminSidebarNav
+          items={admin.role === "super_admin" ? NAV : NAV.filter((item) => item.href !== "/admin/payments" && item.href !== "/admin/settings")}
+        />
       </aside>
 
       <div className="flex-1">

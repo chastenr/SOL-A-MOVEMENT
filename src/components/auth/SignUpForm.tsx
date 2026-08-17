@@ -116,13 +116,13 @@ export function SignUpForm({ redirectTo }: { redirectTo?: string }) {
               <label className="flex items-start gap-2.5 text-sm text-charcoal/70">
                 <input type="checkbox" {...register("consent")} className="mt-0.5 h-4 w-4 shrink-0 accent-charcoal" />
                 <span>
-                  I agree to Veora Wellness&rsquo;s{" "}
+                  I have read and agree to the Veora Wellness waiver, studio policies, terms, and conditions.{" "}
                   <button
                     type="button"
                     onClick={() => setShowPolicies(true)}
                     className="underline underline-offset-2 hover:text-charcoal"
                   >
-                    Terms and Privacy Policy
+                    View the complete waiver and policies
                   </button>
                   .
                 </span>

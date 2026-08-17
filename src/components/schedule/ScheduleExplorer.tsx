@@ -25,9 +25,10 @@ export type ScheduleExplorerSession = {
   capacity: number;
   bookedCount: number;
   bookingEnabled: boolean;
+  status?: "scheduled" | "cancelled";
 };
 
-type MemberPackage = { id: string; name: string };
+type MemberPackage = { id: string; name: string; entitlementType?: "credits" | "membership" };
 
 const MANILA_TIME_ZONE = "Asia/Manila";
 const dateKeyFormatter = new Intl.DateTimeFormat("en-CA", {
@@ -57,12 +58,17 @@ const timeFormatter = new Intl.DateTimeFormat("en-PH", {
   minute: "2-digit",
 });
 
-function sessionState(session: ScheduleExplorerSession) {
+function sessionState(session: ScheduleExplorerSession, alreadyBooked = false) {
+  const isCancelled = session.status === "cancelled";
   const isFull = session.bookedCount >= session.capacity;
   const cutoffPassed = isPastBookingCutoff(new Date(session.startAt));
   const spotsLeft = Math.max(session.capacity - session.bookedCount, 0);
-  const canBook = session.bookingEnabled && !isFull && !cutoffPassed;
-  const label = !session.bookingEnabled
+  const canBook = !alreadyBooked && !isCancelled && session.bookingEnabled && !isFull && !cutoffPassed;
+  const label = alreadyBooked
+    ? "Booked"
+    : isCancelled
+      ? "Cancelled"
+      : !session.bookingEnabled
     ? "Unavailable"
     : isFull
       ? "Full"
@@ -115,12 +121,14 @@ export function ScheduleExplorer({
   sessions,
   memberPackage,
   memberPackagesBySessionId,
+  bookedSessionIds = [],
   uncoveredSessionHref,
 }: {
   sessions: ScheduleExplorerSession[];
   memberPackage?: MemberPackage;
   memberPackagesBySessionId?: Record<string, MemberPackage>;
   uncoveredSessionHref?: string;
+  bookedSessionIds?: string[];
 }) {
   const sessionsByDate = useMemo(() => {
     const groups = new Map<string, ScheduleExplorerSession[]>();
@@ -299,7 +307,7 @@ export function ScheduleExplorer({
                 {daySessions.length > 0 && (
                   <span className="mt-2 block space-y-1.5">
                     {daySessions.slice(0, 3).map((session) => {
-                      const state = sessionState(session);
+                      const state = sessionState(session, bookedSessionIds.includes(session.id));
                       return (
                         <span key={session.id} className="block rounded-lg border border-clay/20 bg-clay/8 px-2 py-1.5">
                           <span className="block truncate text-xs font-semibold text-charcoal">
@@ -335,7 +343,7 @@ export function ScheduleExplorer({
 
         <div className="overflow-hidden rounded-[1.5rem] border border-charcoal/10 bg-ivory">
           {selectedDay.map((session, index) => {
-            const state = sessionState(session);
+            const state = sessionState(session, bookedSessionIds.includes(session.id));
             return (
               <button
                 key={session.id}
@@ -376,6 +384,7 @@ export function ScheduleExplorer({
           session={selectedSession}
           memberPackage={memberPackagesBySessionId?.[selectedSession.id] ?? memberPackage}
           uncoveredSessionHref={uncoveredSessionHref}
+          alreadyBooked={bookedSessionIds.includes(selectedSession.id)}
           closeButtonRef={closeButtonRef}
           onClose={() => setSelectedSession(null)}
         />
@@ -388,18 +397,20 @@ function SessionDetailDialog({
   session,
   memberPackage,
   uncoveredSessionHref,
+  alreadyBooked,
   closeButtonRef,
   onClose,
 }: {
   session: ScheduleExplorerSession;
   memberPackage?: MemberPackage;
   uncoveredSessionHref?: string;
+  alreadyBooked: boolean;
   closeButtonRef: React.RefObject<HTMLButtonElement | null>;
   onClose: () => void;
 }) {
   const startAt = new Date(session.startAt);
   const endAt = new Date(session.endAt);
-  const state = sessionState(session);
+  const state = sessionState(session, alreadyBooked);
   const arrivalTime = timeFormatter.format(getArrivalTime(startAt));
   const bookingHref = `/book?${new URLSearchParams({ session: session.id, service: session.serviceSlug }).toString()}`;
   const coachInitial = session.instructor?.trim().charAt(0).toUpperCase() || "V";
@@ -474,7 +485,8 @@ function SessionDetailDialog({
               memberPackage ? (
                 <BookSessionButton
                   classSessionId={session.id}
-                  customerPackageId={memberPackage.id}
+                  customerPackageId={memberPackage.entitlementType === "membership" ? undefined : memberPackage.id}
+                  customerMembershipId={memberPackage.entitlementType === "membership" ? memberPackage.id : undefined}
                   sessionName={session.className}
                   coachName={session.instructor ?? "TBA"}
                   scheduleLabel={`${fullDateFormatter.format(startAt)} at ${timeFormatter.format(startAt)} · ${session.location}`}

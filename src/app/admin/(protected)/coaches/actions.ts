@@ -42,6 +42,11 @@ export async function upsertCoachAction(formData: FormData): Promise<ActionResul
   const name = String(formData.get("name") ?? "").trim();
   const bio = String(formData.get("bio") ?? "").trim();
   const active = formData.get("active") === "true";
+  const specialties = String(formData.get("specialties") ?? "")
+    .split("\n")
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .slice(0, 30);
   const photo = formData.get("photo");
 
   if (!name) return { error: "Name is required." };
@@ -74,7 +79,7 @@ export async function upsertCoachAction(formData: FormData): Promise<ActionResul
     photoUrl = supabase.storage.from("coach-photos").getPublicUrl(path).data.publicUrl;
   }
 
-  const row: Record<string, unknown> = { name, bio: bio || null, active };
+  const row: Record<string, unknown> = { name, bio: bio || null, active, specialties };
   if (photoUrl) row.photo_url = photoUrl;
 
   const { error } =

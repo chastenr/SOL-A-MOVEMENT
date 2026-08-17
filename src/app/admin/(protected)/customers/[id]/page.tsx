@@ -11,6 +11,8 @@ import {
 import { centavosToPeso } from "@/lib/money";
 import { AdjustCreditsForm } from "@/components/admin/AdjustCreditsForm";
 import { GrantPackageForm } from "@/components/admin/GrantPackageForm";
+import { getCustomerBookings, getCustomerMemberships } from "@/lib/customer/account";
+import { formatManilaDateTime } from "@/lib/manila-time";
 
 export const metadata: Metadata = {
   title: "Customer",
@@ -18,23 +20,26 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminCustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const { id } = await params;
 
   const customer = await getAdminCustomerDetail(id);
   if (!customer) notFound();
 
-  const [packages, purchases, grantablePackages] = await Promise.all([
+  const [packages, purchases, grantablePackages, memberships, bookings] = await Promise.all([
     getCustomerPackagesForAdmin(id),
-    getCustomerPurchasesForAdmin(id),
+    admin.role === "super_admin" ? getCustomerPurchasesForAdmin(id) : Promise.resolve([]),
     getGrantablePackages(),
+    getCustomerMemberships(id),
+    getCustomerBookings(id),
   ]);
 
   return (
     <div>
       <h1 className="font-display text-2xl text-charcoal">{`${customer.firstName} ${customer.lastName}`.trim()}</h1>
       <p className="mt-1 text-sm text-charcoal/55">
-        {customer.email} {customer.mobileNumber && `· ${customer.mobileNumber}`} · Joined{" "}
+        Member VEO-{String(customer.customerNumber).padStart(6, "0")} · {customer.email}{" "}
+        {customer.mobileNumber && `· ${customer.mobileNumber}`} · Joined{" "}
         {format(new Date(customer.createdAt), "MMM d, yyyy")}
       </p>
 
@@ -82,6 +87,49 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
       </section>
 
       <section className="mt-10">
+        <h2 className="font-display text-lg text-charcoal">Unlimited Memberships</h2>
+        {memberships.length === 0 ? (
+          <p className="mt-3 text-sm text-charcoal/55">No membership history.</p>
+        ) : (
+          <div className="mt-4 space-y-3">
+            {memberships.map((membership) => (
+              <div key={membership.id} className="rounded-xl border border-charcoal/10 bg-ivory p-4">
+                <p className="text-charcoal">{membership.membershipName}</p>
+                <p className="mt-1 text-sm text-charcoal/60">
+                  <span className="capitalize">{membership.status}</span> · {format(new Date(membership.startsAt), "MMM d, yyyy")}–{format(new Date(membership.expiresAt), "MMM d, yyyy")}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="mt-10">
+        <h2 className="font-display text-lg text-charcoal">Bookings</h2>
+        {bookings.length === 0 ? (
+          <p className="mt-3 text-sm text-charcoal/55">No booking history.</p>
+        ) : (
+          <div className="mt-4 overflow-x-auto rounded-xl border border-charcoal/10 bg-ivory">
+            <table className="w-full min-w-[680px] text-left text-sm">
+              <thead className="border-b border-charcoal/10 text-xs uppercase tracking-[0.08em] text-charcoal/45">
+                <tr><th className="px-4 py-3">Class</th><th className="px-4 py-3">Schedule</th><th className="px-4 py-3">Entitlement</th><th className="px-4 py-3">Status</th></tr>
+              </thead>
+              <tbody>
+                {bookings.map((booking) => (
+                  <tr key={booking.id} className="border-b border-charcoal/5 last:border-0">
+                    <td className="px-4 py-3 text-charcoal">{booking.session?.className ?? "—"}</td>
+                    <td className="px-4 py-3 text-charcoal/70">{booking.session ? formatManilaDateTime(booking.session.startAt) : "—"}</td>
+                    <td className="px-4 py-3 text-charcoal/70">{booking.packageName ?? "—"}</td>
+                    <td className="px-4 py-3 capitalize text-charcoal/70">{booking.status.replace("_", " ")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section className="mt-10">
         <h2 className="font-display text-lg text-charcoal">Grant a Package</h2>
         <p className="mt-1 text-sm text-charcoal/55">Give this customer a package for free — credits activate immediately.</p>
         <div className="mt-4 rounded-xl border border-charcoal/10 bg-ivory p-4">
@@ -89,7 +137,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
         </div>
       </section>
 
-      <section className="mt-10">
+      {admin.role === "super_admin" && <section className="mt-10">
         <h2 className="font-display text-lg text-charcoal">Payment History</h2>
         {purchases.length === 0 ? (
           <p className="mt-3 text-sm text-charcoal/55">No purchases yet.</p>
@@ -121,7 +169,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
             </table>
           </div>
         )}
-      </section>
+      </section>}
     </div>
   );
 }

@@ -70,13 +70,14 @@ export type AdminCustomerDetail = {
   mobileNumber: string;
   birthday: string | null;
   createdAt: string;
+  customerNumber: number;
 };
 
 export async function getAdminCustomerDetail(userId: string): Promise<AdminCustomerDetail | null> {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("profiles")
-    .select("id, first_name, last_name, email, mobile_number, birthday, created_at")
+    .select("id, first_name, last_name, email, mobile_number, birthday, created_at, customer_number")
     .eq("id", userId)
     .eq("role", "customer")
     .single();
@@ -90,6 +91,7 @@ export async function getAdminCustomerDetail(userId: string): Promise<AdminCusto
     mobileNumber: data.mobile_number,
     birthday: data.birthday,
     createdAt: data.created_at,
+    customerNumber: data.customer_number,
   };
 }
 
@@ -167,6 +169,7 @@ export async function getGrantablePackages(): Promise<AdminPackageOption[]> {
     .from("packages")
     .select("id, name")
     .eq("is_active", true)
+    .eq("entitlement_type", "credits")
     .order("sort_order");
 
   return data ?? [];

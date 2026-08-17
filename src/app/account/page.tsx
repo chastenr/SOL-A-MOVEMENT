@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { format } from "date-fns";
 import { requireUser } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getCustomerPackages, getCustomerBookings, getCustomerPurchases } from "@/lib/customer/account";
+import { getCustomerPackages, getCustomerMemberships, getCustomerBookings, getCustomerPurchases } from "@/lib/customer/account";
 import { centavosToPeso } from "@/lib/money";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -18,15 +18,17 @@ export const metadata: Metadata = {
 export default async function AccountPage() {
   const user = await requireUser();
   const supabase = await createSupabaseServerClient();
-  const { data: profile } = await supabase.from("profiles").select("first_name").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("first_name, customer_number").eq("id", user.id).single();
 
-  const [packages, bookings, purchases] = await Promise.all([
+  const [packages, memberships, bookings, purchases] = await Promise.all([
     getCustomerPackages(user.id),
+    getCustomerMemberships(user.id),
     getCustomerBookings(user.id),
     getCustomerPurchases(user.id),
   ]);
 
   const activePackage = packages.find((pkg) => pkg.status === "active");
+  const activeMembership = memberships.find((membership) => membership.isCurrentlyActive);
   const upcomingBooking = bookings
     .filter((booking) => booking.isUpcoming)
     .sort((a, b) => new Date(a.session!.startAt).getTime() - new Date(b.session!.startAt).getTime())[0];
@@ -37,7 +39,14 @@ export default async function AccountPage() {
   return (
     <div>
       <AnimatedSection className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
-        <SectionHeading eyebrow="My Account" heading={`Welcome, ${firstName}.`} />
+        <div>
+          <SectionHeading eyebrow="My Account" heading={`Welcome, ${firstName}.`} />
+          {profile?.customer_number && (
+            <p className="mt-3 text-sm text-charcoal/55">
+              Member ID: VEO-{String(profile.customer_number).padStart(6, "0")}
+            </p>
+          )}
+        </div>
         <form action={logoutAction}>
           <Button type="submit" variant="secondary">
             Log Out
@@ -45,7 +54,7 @@ export default async function AccountPage() {
         </form>
       </AnimatedSection>
 
-      <AnimatedSection delay={0.1} className="mt-10 grid gap-6 sm:grid-cols-2">
+      <AnimatedSection delay={0.1} className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-2xl border border-charcoal/10 bg-ivory p-6">
           <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">Active Package</p>
           {activePackage ? (
@@ -68,6 +77,29 @@ export default async function AccountPage() {
               <p className="mt-3 text-charcoal/70">You don&rsquo;t have an active package yet.</p>
               <Button href="/pricing" variant="secondary" size="md" className="mt-4">
                 View Packages
+              </Button>
+            </>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-charcoal/10 bg-ivory p-6">
+          <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">Active Membership</p>
+          {activeMembership ? (
+            <>
+              <p className="mt-3 text-charcoal">{activeMembership.membershipName}</p>
+              <p className="mt-1 text-sm text-charcoal/60">Unlimited class bookings while active</p>
+              <p className="text-sm text-charcoal/60">
+                Expires {format(new Date(activeMembership.expiresAt), "MMMM d, yyyy")}
+              </p>
+              <Button href="/account/book" variant="secondary" size="md" className="mt-4">
+                Book with Membership
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 text-charcoal/70">No active unlimited membership.</p>
+              <Button href="/pricing" variant="secondary" size="md" className="mt-4">
+                View Memberships
               </Button>
             </>
           )}

@@ -102,42 +102,33 @@ export default async function PricingPage() {
             as="h1"
             eyebrow="Pricing"
             heading="Move in a way that works for you."
-            body="All pricing below is published for your information — booking a session never requires online payment. Choose an option and we'll confirm the details with you directly."
+            body="Start with our pre-opening Intro Pass, or preview the class packages and unlimited memberships being prepared for launch."
           />
         </AnimatedSection>
       </section>
 
       <PricingSection
-        eyebrow="Founding Member Offers"
-        heading="Pre-opening rates, for a limited time."
-        body="Available only during our preselling period. After our official launch, pricing transitions to standard rates below."
+        eyebrow="Intro Pass"
+        heading="Your first Veora class for ₱999."
+        body="A one-class pre-opening offer, reduced from ₱1,100 and valid for 5 days from purchase. The introductory promotion ends after the September 18 launch."
         options={pricing.introOffers}
         ctaType="book"
-        groupByCategory
       />
 
       <PricingSection
-        eyebrow="Single Sessions"
-        heading="Try a class."
-        options={pricing.singleSessions}
-        ctaType="book"
-      />
-
-      <PricingSection
-        eyebrow="Class Packs"
-        heading="Build a practice."
+        eyebrow="Class Packages"
+        heading="Choose a simple class pack."
+        body="The 3-Class and 6-Class packages are configured and ready for Veora to add the final price and validity before activation."
         options={pricing.packages}
         ctaType="book"
-        groupByCategory
       />
 
       <PricingSection
-        id="studio-rentals"
-        eyebrow="Studio Rentals"
-        heading="Host your next event at Veora."
-        body="Private studio access for your own event, wellness gathering or private class — with or without an instructor."
-        options={pricing.specialOffers}
-        ctaType="inquire"
+        eyebrow="Unlimited Memberships"
+        heading="Make Veora part of your routine."
+        body="Six- and twelve-month unlimited memberships are prepared in the system. Final prices and membership policies will be published once confirmed."
+        options={pricing.memberships}
+        ctaType="book"
       />
 
       <section className="mx-auto max-w-3xl px-6 pb-14 text-center sm:px-8 sm:pb-16">

@@ -22,6 +22,10 @@ const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0009: { status: 409, message: "Bookings close at 10:00 PM the evening before class." },
   P0010: { status: 409, message: "Bookings are currently closed for this class." },
   P0011: { status: 409, message: "This class is not included with the selected package." },
+  P0012: { status: 404, message: "That membership could not be found." },
+  P0013: { status: 409, message: "This membership is not active." },
+  P0014: { status: 409, message: "This membership has not started yet." },
+  P0015: { status: 409, message: "This membership has expired." },
   // book_class_session() takes row locks on the package and session (see
   // migration 0013) so two overlapping requests for the same booking
   // normally just serialize and the second gets a proper P0005 above — but
@@ -103,12 +107,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Please select a class and package." }, { status: 400 });
     }
 
-    const { data, error } = await supabase
-      .rpc("book_class_session", {
-        p_class_session_id: parsed.data.classSessionId,
-        p_customer_package_id: parsed.data.customerPackageId,
-      })
-      .single();
+    const bookingRequest = parsed.data.customerMembershipId
+      ? supabase.rpc("book_class_session_with_membership", {
+          p_class_session_id: parsed.data.classSessionId,
+          p_customer_membership_id: parsed.data.customerMembershipId,
+        })
+      : supabase.rpc("book_class_session", {
+          p_class_session_id: parsed.data.classSessionId,
+          p_customer_package_id: parsed.data.customerPackageId as string,
+        });
+    const { data, error } = await bookingRequest.single();
 
     if (error) {
       const mapped = ERROR_MAP[error.code ?? ""];
@@ -117,6 +125,7 @@ export async function POST(request: Request) {
           userId: user.id,
           classSessionId: parsed.data.classSessionId,
           customerPackageId: parsed.data.customerPackageId,
+          customerMembershipId: parsed.data.customerMembershipId,
           code: error.code,
           message: error.message,
           details: error.details,
@@ -129,14 +138,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = data as { booking_id: string; remaining_credits: number };
+    const result = data as { booking_id: string; remaining_credits?: number };
 
     // after() runs once the response has been sent — the booking (already
     // committed by the RPC above) doesn't wait on two emails' worth of
     // network round-trips before the customer sees "booked."
-    after(() => notifyBookingCreated(supabase, result.booking_id, result.remaining_credits));
+    after(() => notifyBookingCreated(supabase, result.booking_id, result.remaining_credits ?? null));
 
-    return NextResponse.json({ success: true, bookingId: result.booking_id, remainingCredits: result.remaining_credits });
+    return NextResponse.json({
+      success: true,
+      bookingId: result.booking_id,
+      remainingCredits: result.remaining_credits ?? null,
+    });
   } catch (error) {
     console.error("[/api/bookings] unhandled error", { userId: user.id, error });
     return NextResponse.json({ message: "Something went wrong. Please try again." }, { status: 500 });
@@ -169,7 +182,7 @@ type BookingNotificationRow = {
 async function notifyBookingCreated(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
   bookingId: string,
-  remainingCredits: number
+  remainingCredits: number | null
 ) {
   const { data: booking } = await supabase
     .from("class_bookings")
@@ -200,6 +213,7 @@ async function notifyBookingCreated(
   const arrivalTime = startAt ? format(getArrivalTime(startAt), "h:mm a") : "—";
   const packageName = row.customer_package?.package_name_snapshot ?? "—";
   const originalSessions = row.customer_package?.credit_count ?? 0;
+  const displayedRemaining = remainingCredits ?? 0;
   const amountCentavos = row.customer_package?.purchase?.total_amount_centavos ?? 0;
 
   await Promise.allSettled([
@@ -214,7 +228,7 @@ async function notifyBookingCreated(
       arrivalTime,
       bookingReference: formatBookingReference(bookingId),
       packageName,
-      sessionsRemaining: remainingCredits,
+      sessionsRemaining: displayedRemaining,
     }),
     sendClassBookingNotificationEmail({
       customerFirstName: user?.first_name ?? "",
@@ -228,15 +242,15 @@ async function notifyBookingCreated(
       packageName,
       packageAmountFormatted: centavosToPeso(amountCentavos),
       originalSessions,
-      sessionsUsed: originalSessions - remainingCredits,
-      sessionsRemaining: remainingCredits,
+      sessionsUsed: Math.max(originalSessions - displayedRemaining, 0),
+      sessionsRemaining: displayedRemaining,
       status: "Confirmed",
     }),
     ...(isSmsConfigured && user?.mobile_number
       ? [
           sendSms({
             to: user.mobile_number,
-            body: `Veora Wellness: Your ${className} class is booked for ${formattedDate} at ${time}. Ref ${formatBookingReference(bookingId)}. Credits left: ${remainingCredits}.`,
+            body: `Veora Wellness: Your ${className} class is booked for ${formattedDate} at ${time}. Ref ${formatBookingReference(bookingId)}.${remainingCredits == null ? " Unlimited membership active." : ` Credits left: ${remainingCredits}.`}`,
           }),
         ]
       : []),

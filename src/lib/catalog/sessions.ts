@@ -16,6 +16,7 @@ export type UpcomingSessionRow = {
   capacity: number;
   bookedCount: number;
   bookingEnabled: boolean;
+  status: "scheduled" | "cancelled";
 };
 
 type RawSession = {
@@ -25,6 +26,7 @@ type RawSession = {
   capacity: number;
   booked_count: number;
   booking_enabled: boolean;
+  status: "scheduled" | "cancelled";
   class_type: { name: string; service_slug: string; level: string; description: string } | null;
   location: { name: string } | null;
   instructor: { name: string; photo_url: string | null; bio: string | null } | null;
@@ -42,9 +44,9 @@ export async function getUpcomingSessions(limit = 12): Promise<UpcomingSessionRo
   const { data, error } = await supabase
     .from("class_sessions")
     .select(
-      "id, start_at, end_at, capacity, booked_count, booking_enabled, class_type:class_types(name, service_slug, level, description), location:locations(name), instructor:instructors(name, photo_url, bio)"
+      "id, start_at, end_at, capacity, booked_count, booking_enabled, status, class_type:class_types(name, service_slug, level, description), location:locations(name), instructor:instructors(name, photo_url, bio)"
     )
-    .eq("status", "scheduled")
+    .in("status", ["scheduled", "cancelled"])
     .gt("start_at", new Date().toISOString())
     .order("start_at", { ascending: true })
     .limit(limit);
@@ -70,5 +72,6 @@ export async function getUpcomingSessions(limit = 12): Promise<UpcomingSessionRo
     capacity: row.capacity,
     bookedCount: row.booked_count,
     bookingEnabled: row.booking_enabled,
+    status: row.status,
   }));
 }

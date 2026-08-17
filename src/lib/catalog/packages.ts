@@ -1,6 +1,6 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { pricing as staticPricing, type PricingOption } from "@/data/pricing";
+import { launchPricing as staticPricing, type PricingOption } from "@/data/pricing";
 import { centavosToPeso } from "@/lib/money";
 
 type PricingGroups = typeof staticPricing;
@@ -19,6 +19,7 @@ type PackageRow = {
   conditions: string[] | null;
   is_recommended: boolean;
   recommended_label: string | null;
+  is_active: boolean;
 };
 
 const GROUP_TO_KEY = {
@@ -34,7 +35,7 @@ function mapRow(row: PackageRow): PricingOption {
   return {
     slug: row.slug,
     name: row.name,
-    price: centavosToPeso(row.price_centavos),
+    price: row.price_centavos > 0 ? centavosToPeso(row.price_centavos) : "To be confirmed",
     originalPrice: row.original_price_centavos != null ? centavosToPeso(row.original_price_centavos) : undefined,
     sessions: row.credit_count ?? undefined,
     validity: row.validity_description,
@@ -44,6 +45,7 @@ function mapRow(row: PackageRow): PricingOption {
     recommended: row.is_recommended || undefined,
     recommendedLabel: row.recommended_label ?? undefined,
     serviceSlug: row.service_slug ?? undefined,
+    available: row.is_active && row.price_centavos > 0,
   };
 }
 
@@ -58,9 +60,9 @@ export async function getPricingGroups(): Promise<PricingGroups> {
     const { data, error } = await supabase
       .from("packages")
       .select(
-        "slug, name, package_group, service_slug, price_centavos, original_price_centavos, credit_count, validity_description, description, included_services, conditions, is_recommended, recommended_label"
+        "slug, name, package_group, service_slug, price_centavos, original_price_centavos, credit_count, validity_description, description, included_services, conditions, is_recommended, recommended_label, is_active"
       )
-      .eq("is_active", true)
+      .in("slug", ["founding-classic-intro", "3-class-package", "6-class-package", "6-month-unlimited", "12-month-unlimited"])
       .order("sort_order");
 
     if (error || !data || data.length === 0) return staticPricing;
@@ -77,6 +79,15 @@ export async function getPricingGroups(): Promise<PricingGroups> {
     for (const row of data as PackageRow[]) {
       const key = GROUP_TO_KEY[row.package_group];
       if (key) grouped[key].push(mapRow(row));
+    }
+
+    // Inactive launch products are intentionally hidden by public RLS, but
+    // the pricing page still previews their names as "awaiting final details."
+    // Merge only the checked-in launch configuration for rows the public
+    // query cannot see; checkout still requires a real active database row.
+    for (const key of Object.values(GROUP_TO_KEY)) {
+      const existing = new Set(grouped[key].map((option) => option.slug));
+      grouped[key].push(...staticPricing[key].filter((option) => !existing.has(option.slug)));
     }
 
     return grouped;

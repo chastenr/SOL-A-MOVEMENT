@@ -14,6 +14,40 @@ export type CustomerPackageRow = {
   serviceSlug: string | null;
 };
 
+export type CustomerMembershipRow = {
+  id: string;
+  membershipName: string;
+  status: "active" | "expired" | "revoked";
+  startsAt: string;
+  expiresAt: string;
+  unlimitedBooking: boolean;
+  isCurrentlyActive: boolean;
+};
+
+export async function getCustomerMemberships(userId: string): Promise<CustomerMembershipRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("customer_memberships")
+    .select("id, membership_name_snapshot, status, starts_at, expires_at, unlimited_booking")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) console.error("[getCustomerMemberships] query failed", error);
+  const now = Date.now();
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    membershipName: row.membership_name_snapshot,
+    status: row.status,
+    startsAt: row.starts_at,
+    expiresAt: row.expires_at,
+    unlimitedBooking: row.unlimited_booking,
+    isCurrentlyActive:
+      row.status === "active" &&
+      row.unlimited_booking &&
+      new Date(row.starts_at).getTime() <= now &&
+      new Date(row.expires_at).getTime() > now,
+  }));
+}
+
 export async function getCustomerPackages(userId: string): Promise<CustomerPackageRow[]> {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
@@ -63,6 +97,7 @@ type RawCustomerBooking = {
     location: { name: string } | null;
   } | null;
   customer_package: { package_name_snapshot: string } | null;
+  customer_membership: { membership_name_snapshot: string } | null;
 };
 
 export async function getCustomerBookings(userId: string): Promise<CustomerBookingRow[]> {
@@ -72,7 +107,8 @@ export async function getCustomerBookings(userId: string): Promise<CustomerBooki
     .select(
       `id, status, booked_at,
        class_session:class_sessions(start_at, end_at, class_type:class_types(name), location:locations(name)),
-       customer_package:customer_packages(package_name_snapshot)`
+       customer_package:customer_packages(package_name_snapshot),
+       customer_membership:customer_memberships(membership_name_snapshot)`
     )
     .eq("user_id", userId)
     .order("booked_at", { ascending: false });
@@ -87,7 +123,7 @@ export async function getCustomerBookings(userId: string): Promise<CustomerBooki
     status: row.status,
     bookedAt: row.booked_at,
     isUpcoming: row.status === "booked" && !!row.class_session && new Date(row.class_session.start_at).getTime() > now,
-    packageName: row.customer_package?.package_name_snapshot ?? null,
+    packageName: row.customer_package?.package_name_snapshot ?? row.customer_membership?.membership_name_snapshot ?? null,
     session: row.class_session
       ? {
           startAt: row.class_session.start_at,
@@ -98,6 +134,20 @@ export async function getCustomerBookings(userId: string): Promise<CustomerBooki
         }
       : null,
   }));
+}
+
+export async function getCustomerBookedSessionIds(userId: string): Promise<string[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("class_bookings")
+    .select("class_session_id")
+    .eq("user_id", userId)
+    .eq("status", "booked");
+  if (error) {
+    console.error("[getCustomerBookedSessionIds] query failed", error);
+    return [];
+  }
+  return (data ?? []).map((row) => row.class_session_id);
 }
 
 export type CustomerPurchaseRow = {
@@ -230,4 +280,69 @@ export async function getEligibleSessions(customerPackageId: string, userId: str
       bookedCount: row.booked_count,
       bookingEnabled: row.booking_enabled,
     }));
+}
+
+export async function getEligibleSessionsForMembership(
+  customerMembershipId: string,
+  userId: string
+): Promise<EligibleSessionRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data: membership, error: membershipError } = await supabase
+    .from("customer_memberships")
+    .select("user_id, status, starts_at, expires_at, unlimited_booking")
+    .eq("id", customerMembershipId)
+    .single();
+  if (
+    membershipError ||
+    !membership ||
+    membership.user_id !== userId ||
+    membership.status !== "active" ||
+    !membership.unlimited_booking ||
+    new Date(membership.starts_at).getTime() > Date.now() ||
+    new Date(membership.expires_at).getTime() <= Date.now()
+  ) return [];
+
+  const { data, error } = await supabase
+    .from("class_sessions")
+    .select(
+      "id, start_at, end_at, capacity, booked_count, booking_enabled, class_type:class_types(name, slug, service_slug, level, description), location:locations(name), instructor:instructors(name, photo_url, bio)"
+    )
+    .eq("status", "scheduled")
+    .gt("start_at", new Date().toISOString())
+    .order("start_at", { ascending: true })
+    .limit(100);
+  if (error) {
+    console.error("[getEligibleSessionsForMembership] sessions query failed", error);
+    return [];
+  }
+
+  type RawSession = {
+    id: string;
+    start_at: string;
+    end_at: string;
+    capacity: number;
+    booked_count: number;
+    booking_enabled: boolean;
+    class_type: { name: string; slug: string; service_slug: string; level: string; description: string } | null;
+    location: { name: string } | null;
+    instructor: { name: string; photo_url: string | null; bio: string | null } | null;
+  };
+
+  return (((data as unknown as RawSession[]) ?? [])).map((row) => ({
+    id: row.id,
+    startAt: row.start_at,
+    endAt: row.end_at,
+    className: row.class_type?.name ?? "—",
+    classSlug: row.class_type?.slug ?? "",
+    serviceSlug: row.class_type?.service_slug ?? "",
+    level: row.class_type?.level ?? "",
+    location: row.location?.name ?? "—",
+    instructor: row.instructor?.name ?? null,
+    instructorPhotoUrl: row.instructor?.photo_url ?? null,
+    instructorBio: row.instructor?.bio ?? null,
+    classDescription: row.class_type?.description ?? "",
+    capacity: row.capacity,
+    bookedCount: row.booked_count,
+    bookingEnabled: row.booking_enabled,
+  }));
 }

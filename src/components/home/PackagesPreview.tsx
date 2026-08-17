@@ -6,7 +6,9 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
 
 function pickFeatured(groups: Awaited<ReturnType<typeof getPricingGroups>>): PricingOption[] {
-  const all = [...groups.introOffers, ...groups.singleSessions, ...groups.packages];
+  const all = [...groups.introOffers, ...groups.singleSessions, ...groups.packages].filter(
+    (option) => option.available !== false
+  );
   const recommended = all.filter((option) => option.recommended);
   if (recommended.length >= 2) return recommended.slice(0, 2);
   return all.slice(0, 2);
@@ -24,7 +26,7 @@ export async function PackagesPreview() {
         <AnimatedSection className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div>
             <SectionLabel index="05" label="Packages" className="mb-5" />
-            <SectionHeading heading="Choose your path." body="Single classes to unlimited months — pick what fits." />
+            <SectionHeading heading="Begin with one class." body="Try the pre-opening Intro Pass, then explore the packages being prepared for launch." />
           </div>
           <Button href="/pricing" variant="secondary" className="shrink-0">
             View All Pricing

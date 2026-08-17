@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/require-role";
-import { getCustomerPackages, getEligibleSessions } from "@/lib/customer/account";
+import {
+  getCustomerPackages,
+  getCustomerMemberships,
+  getEligibleSessions,
+  getEligibleSessionsForMembership,
+  getCustomerBookedSessionIds,
+} from "@/lib/customer/account";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -36,8 +42,16 @@ export default async function AccountBookPage({
     session: requestedSession,
   } = await searchParams;
 
-  const allPackages = await getCustomerPackages(user.id);
+  const [allPackages, allMemberships, bookedSessionIds] = await Promise.all([
+    getCustomerPackages(user.id),
+    getCustomerMemberships(user.id),
+    getCustomerBookedSessionIds(user.id),
+  ]);
   const activePackages = allPackages.filter((pkg) => pkg.status === "active" && pkg.remainingCredits > 0);
+  const activeMembership = allMemberships.find(
+    (membership) =>
+      membership.isCurrentlyActive
+  );
   const requestedPackage = requestedService
     ? activePackages.find((pkg) => packageSupportsService(pkg.serviceSlug, requestedService))
     : undefined;
@@ -51,7 +65,9 @@ export default async function AccountBookPage({
 
   const eligibleSessions = selectedPackage && !packageMismatch
     ? await getEligibleSessions(selectedPackage.id, user.id)
-    : [];
+    : activeMembership
+      ? await getEligibleSessionsForMembership(activeMembership.id, user.id)
+      : [];
   const sessions = requestedSession
     ? eligibleSessions.filter((session) => session.id === requestedSession)
     : requestedClass
@@ -63,10 +79,15 @@ export default async function AccountBookPage({
   const fallbackSessions = shouldShowScheduleFallback ? await getUpcomingSessions(100) : [];
   const fallbackPackagesBySessionId = Object.fromEntries(
     fallbackSessions.flatMap((session) => {
+      if (activeMembership) {
+        return [[session.id, {
+          id: activeMembership.id,
+          name: activeMembership.membershipName,
+          entitlementType: "membership" as const,
+        }]];
+      }
       const compatiblePackage = activePackages.find((pkg) => packageSupportsService(pkg.serviceSlug, session.serviceSlug));
-      return compatiblePackage
-        ? [[session.id, { id: compatiblePackage.id, name: compatiblePackage.packageName }]]
-        : [];
+      return compatiblePackage ? [[session.id, { id: compatiblePackage.id, name: compatiblePackage.packageName }]] : [];
     })
   );
 
@@ -74,7 +95,7 @@ export default async function AccountBookPage({
     <div>
       <SectionHeading eyebrow="Book a Class" heading="Choose a session." />
 
-      {activePackages.length === 0 ? (
+      {activePackages.length === 0 && !activeMembership ? (
         <div className="mt-8 rounded-2xl border border-charcoal/10 bg-ivory p-8 text-center">
           <p className="text-charcoal/60">You don&rsquo;t have an active package with credits available.</p>
           <Button href="/pricing" className="mt-4">
@@ -102,6 +123,16 @@ export default async function AccountBookPage({
               <Button href="/account/packages" variant="secondary" size="md">
                 View My Packages
               </Button>
+            </div>
+          )}
+
+          {!selectedPackage && activeMembership && (
+            <div className="mt-7 rounded-2xl border border-clay/25 bg-clay/8 p-5 sm:p-6">
+              <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-clay">Active unlimited membership</p>
+              <p className="font-display mt-2 text-3xl text-charcoal">{activeMembership.membershipName}</p>
+              <p className="mt-2 text-sm text-charcoal/65">
+                No class credits are deducted. Normal capacity, duplicate-booking, and booking-cutoff rules still apply.
+              </p>
             </div>
           )}
 
@@ -145,6 +176,7 @@ export default async function AccountBookPage({
               <AvailableScheduleFallback
                 sessions={fallbackSessions}
                 memberPackagesBySessionId={fallbackPackagesBySessionId}
+                bookedSessionIds={bookedSessionIds}
               />
             </>
           ) : (
@@ -177,13 +209,21 @@ export default async function AccountBookPage({
                   <AvailableScheduleFallback
                     sessions={fallbackSessions}
                     memberPackagesBySessionId={fallbackPackagesBySessionId}
+                    bookedSessionIds={bookedSessionIds}
                   />
                 </>
-              ) : selectedPackage ? (
+              ) : selectedPackage || activeMembership ? (
                 <div className="mt-7">
                   <ScheduleExplorer
                     sessions={sessions}
-                    memberPackage={{ id: selectedPackage.id, name: selectedPackage.packageName }}
+                    memberPackage={selectedPackage
+                      ? { id: selectedPackage.id, name: selectedPackage.packageName }
+                      : {
+                          id: activeMembership!.id,
+                          name: activeMembership!.membershipName,
+                          entitlementType: "membership",
+                        }}
+                    bookedSessionIds={bookedSessionIds}
                   />
                 </div>
               ) : null}
@@ -198,9 +238,11 @@ export default async function AccountBookPage({
 function AvailableScheduleFallback({
   sessions,
   memberPackagesBySessionId,
+  bookedSessionIds,
 }: {
   sessions: Awaited<ReturnType<typeof getUpcomingSessions>>;
-  memberPackagesBySessionId: Record<string, { id: string; name: string }>;
+  memberPackagesBySessionId: Record<string, { id: string; name: string; entitlementType?: "credits" | "membership" }>;
+  bookedSessionIds: string[];
 }) {
   if (sessions.length === 0) {
     return (
@@ -227,6 +269,7 @@ function AvailableScheduleFallback({
         sessions={sessions}
         memberPackagesBySessionId={memberPackagesBySessionId}
         uncoveredSessionHref="/pricing"
+        bookedSessionIds={bookedSessionIds}
       />
     </section>
   );

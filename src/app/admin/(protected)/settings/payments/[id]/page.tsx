@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { requireAdmin } from "@/lib/auth/require-role";
+import { requireSuperAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { PaymentSettingFormValues } from "@/lib/validations";
 import { PaymentSettingForm } from "@/components/admin/PaymentSettingForm";
@@ -24,7 +24,7 @@ type PaymentSettingDetailRow = {
 };
 
 export default async function EditPaymentSettingPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.from("payment_settings").select("*").eq("id", id).single();

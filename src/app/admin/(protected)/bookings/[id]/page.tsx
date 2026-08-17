@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminBookingById } from "@/lib/admin/bookings";
 import { centavosToPeso } from "@/lib/money";
 import { SubmitButton } from "@/components/ui/SubmitButton";
-import { cancelBookingAction, completeBookingAction, noShowBookingAction } from "../actions";
+import { cancelBookingAction, completeBookingAction, confirmBookingAction, noShowBookingAction } from "../actions";
 import { cn } from "@/lib/utils";
 import {
   formatManilaDateTime,
@@ -26,7 +26,7 @@ const PILL_BUTTON =
   "inline-flex items-center justify-center gap-2 rounded-full font-medium uppercase tracking-[0.2em] transition-colors duration-300 ease-out disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay bg-transparent text-charcoal border border-charcoal/30 hover:border-charcoal px-5 py-2.5 text-[0.72rem]";
 
 export default async function AdminBookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const { id } = await params;
   const booking = await getAdminBookingById(id);
   if (!booking) notFound();
@@ -41,6 +41,11 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
 
       <div className="mt-4 flex items-center justify-between gap-4">
         <h1 className="font-display text-2xl text-charcoal">{booking.reference}</h1>
+        {booking.status === "pending" && (
+          <form action={confirmBookingAction.bind(null, booking.id)}>
+            <SubmitButton pendingLabel="Confirming…" className={PILL_BUTTON}>Confirm Booking</SubmitButton>
+          </form>
+        )}
         {canAct && (
           <div className="flex gap-2">
             <form action={completeBookingAction.bind(null, booking.id)}>
@@ -103,15 +108,15 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
         <section className="rounded-2xl border border-charcoal/10 bg-ivory p-6">
           <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">Package</p>
           <dl className="mt-4 space-y-2 text-sm">
-            <Row label="Package" value={booking.package?.name ?? "—"} />
+            <Row label="Package / Membership" value={booking.package?.name ?? "—"} />
             <Row
               label="Credits Remaining"
-              value={booking.package ? `${booking.package.remainingCredits} / ${booking.package.creditCount}` : "—"}
+              value={booking.creditsUsed === 0 ? "Unlimited" : booking.package ? `${booking.package.remainingCredits} / ${booking.package.creditCount}` : "—"}
             />
           </dl>
         </section>
 
-        <section className="rounded-2xl border border-charcoal/10 bg-ivory p-6">
+        {admin.role === "super_admin" && <section className="rounded-2xl border border-charcoal/10 bg-ivory p-6">
           <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">Payment</p>
           <dl className="mt-4 space-y-2 text-sm">
             <Row label="Purchase Reference" value={booking.payment?.reference ?? "—"} />
@@ -119,7 +124,7 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
             <Row label="Method" value={booking.payment?.method ?? "—"} />
             <Row label="Payment Status" value={booking.payment?.status ?? "—"} />
           </dl>
-        </section>
+        </section>}
       </div>
 
       <div className="mt-6 text-xs text-charcoal/45">

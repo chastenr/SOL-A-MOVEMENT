@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { packageFormSchema, type PackageFormValues } from "@/lib/validations";
-import { requireAdmin } from "@/lib/auth/require-role";
+import { requireSuperAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type ActionResult = { error: string } | { success: true };
@@ -40,6 +40,9 @@ function toRow(data: PackageFormValues) {
     is_founder_offer: data.isFounderOffer,
     is_active: data.isActive,
     sort_order: data.sortOrder,
+    entitlement_type: data.entitlementType,
+    unlimited_booking: data.entitlementType === "unlimited",
+    membership_duration_months: data.entitlementType === "unlimited" ? Number(data.membershipDurationMonths) : null,
   };
 }
 
@@ -48,7 +51,7 @@ function toRow(data: PackageFormValues) {
 // layer — a bug in this check alone would not be enough to let a customer
 // write to the catalog.
 export async function createPackageAction(values: PackageFormValues): Promise<ActionResult> {
-  await requireAdmin();
+  await requireSuperAdmin();
   const parsed = packageFormSchema.safeParse(values);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
 
@@ -66,7 +69,7 @@ export async function createPackageAction(values: PackageFormValues): Promise<Ac
 }
 
 export async function updatePackageAction(id: string, values: PackageFormValues): Promise<ActionResult> {
-  await requireAdmin();
+  await requireSuperAdmin();
   const parsed = packageFormSchema.safeParse(values);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
 
@@ -87,7 +90,7 @@ export async function updatePackageAction(id: string, values: PackageFormValues)
 // so failures throw rather than returning a value — Next.js surfaces an
 // uncaught Server Action error via the nearest error boundary.
 export async function setPackageActiveAction(id: string, isActive: boolean): Promise<void> {
-  await requireAdmin();
+  await requireSuperAdmin();
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.from("packages").update({ is_active: isActive }).eq("id", id);
 

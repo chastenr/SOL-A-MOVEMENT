@@ -8,10 +8,11 @@ import { getAdminBookings, type AdminBookingRow } from "@/lib/admin/bookings";
 import { Button } from "@/components/ui/Button";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { cn } from "@/lib/utils";
-import { cancelBookingAction, completeBookingAction, noShowBookingAction } from "./bookings/actions";
+import { cancelBookingAction, completeBookingAction, confirmBookingAction, noShowBookingAction } from "./bookings/actions";
 import { formatManilaTime } from "@/lib/manila-time";
 
 const BOOKING_STATUS_LABEL: Record<AdminBookingRow["status"], string> = {
+  pending: "Pending",
   booked: "Confirmed",
   completed: "Completed",
   cancelled: "Cancelled",
@@ -19,6 +20,7 @@ const BOOKING_STATUS_LABEL: Record<AdminBookingRow["status"], string> = {
 };
 
 const BOOKING_STATUS_BADGE: Record<AdminBookingRow["status"], string> = {
+  pending: "bg-amber-100 text-amber-800",
   booked: "bg-clay/10 text-clay",
   completed: "bg-emerald-100 text-emerald-700",
   cancelled: "bg-charcoal/10 text-charcoal/50",
@@ -60,11 +62,13 @@ async function getTodayStats() {
   const sessions = (data as unknown as TodaySession[]) ?? [];
   const sessionIds = sessions.map((session) => session.id);
 
-  const [bookingsResult, todayBookings] = await Promise.all([
+  const [bookingsResult, todayBookings, customerCountResult, newCustomerCountResult] = await Promise.all([
     sessionIds.length
       ? supabase.from("class_bookings").select("status").in("class_session_id", sessionIds)
       : Promise.resolve({ data: [] as { status: string }[], error: null }),
     getAdminBookings({ from: start.toISOString(), to: end.toISOString() }),
+    supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "customer"),
+    supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "customer").gte("created_at", start.toISOString()).lt("created_at", end.toISOString()),
   ]);
   const { data: bookings, error: bookingsError } = bookingsResult;
   if (bookingsError) console.error("[getTodayStats] class_bookings query failed", bookingsError);
@@ -87,6 +91,8 @@ async function getTodayStats() {
     checkedIn: rows.filter((b) => b.status === "completed").length,
     noShows: rows.filter((b) => b.status === "no_show").length,
     upcoming: sessions.filter((s) => s.status === "scheduled" && new Date(s.start_at) > now).length,
+    totalCustomers: customerCountResult.count ?? 0,
+    newCustomersToday: newCustomerCountResult.count ?? 0,
   };
 }
 
@@ -110,6 +116,16 @@ export default async function AdminDashboardPage() {
       </p>
 
       <p className="mt-8 text-xs uppercase tracking-[0.15em] text-charcoal/45">Today</p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-2xl border border-charcoal/10 bg-ivory p-5">
+          <p className="font-display text-3xl text-charcoal">{today.totalCustomers}</p>
+          <p className="mt-1 text-xs uppercase tracking-[0.08em] text-charcoal/50">Total Client Signups</p>
+        </div>
+        <div className="rounded-2xl border border-charcoal/10 bg-ivory p-5">
+          <p className="font-display text-3xl text-charcoal">{today.newCustomersToday}</p>
+          <p className="mt-1 text-xs uppercase tracking-[0.08em] text-charcoal/50">New Clients Today</p>
+        </div>
+      </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {STAT_CARDS.map((card) => (
           <div key={card.key} className="rounded-2xl border border-charcoal/10 bg-ivory p-5">
@@ -207,6 +223,11 @@ export default async function AdminDashboardPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-3 whitespace-nowrap">
+                      {booking.status === "pending" && (
+                        <form action={confirmBookingAction.bind(null, booking.id)}>
+                          <SubmitButton pendingLabel="…" className="text-xs text-emerald-700 underline underline-offset-2">Confirm</SubmitButton>
+                        </form>
+                      )}
                       {booking.status === "booked" && (
                         <>
                           <form action={completeBookingAction.bind(null, booking.id)}>
@@ -242,13 +263,13 @@ export default async function AdminDashboardPage() {
       )}
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-charcoal/10 bg-ivory p-6">
+        {admin.role === "super_admin" && <div className="rounded-2xl border border-charcoal/10 bg-ivory p-6">
           <p className="font-display text-lg text-charcoal">Packages</p>
           <p className="mt-1 text-sm text-charcoal/60">Edit pricing, credits and offers shown on /pricing.</p>
           <Button href="/admin/packages" variant="secondary" size="md" className="mt-4">
             Manage Packages
           </Button>
-        </div>
+        </div>}
         <div className="rounded-2xl border border-charcoal/10 bg-ivory p-6">
           <p className="font-display text-lg text-charcoal">Services</p>
           <p className="mt-1 text-sm text-charcoal/60">Edit class descriptions and images shown on /services.</p>

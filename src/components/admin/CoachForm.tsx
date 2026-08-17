@@ -12,6 +12,7 @@ type Coach = {
   bio: string | null;
   photoUrl: string | null;
   active: boolean;
+  specialties: string[];
 };
 
 export function CoachForm({ coach }: { coach?: Coach }) {
@@ -19,6 +20,7 @@ export function CoachForm({ coach }: { coach?: Coach }) {
   const [name, setName] = useState(coach?.name ?? "");
   const [bio, setBio] = useState(coach?.bio ?? "");
   const [active, setActive] = useState(coach?.active ?? true);
+  const [specialties, setSpecialties] = useState(coach?.specialties.join("\n") ?? "");
   const [photoPreview, setPhotoPreview] = useState<string | null>(coach?.photoUrl ?? null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [previewError, setPreviewError] = useState(false);
@@ -47,6 +49,7 @@ export function CoachForm({ coach }: { coach?: Coach }) {
       formData.set("name", name.trim());
       formData.set("bio", bio.trim());
       formData.set("active", String(active));
+      formData.set("specialties", specialties);
       if (photoFile) formData.set("photo", photoFile);
 
       const result = await upsertCoachAction(formData);
@@ -76,6 +79,17 @@ export function CoachForm({ coach }: { coach?: Coach }) {
           rows={3}
           className={fieldInputClasses}
         />
+      </Field>
+
+      <Field label="Classes / Categories (optional)">
+        <textarea
+          value={specialties}
+          onChange={(event) => setSpecialties(event.target.value)}
+          rows={3}
+          className={fieldInputClasses}
+          placeholder={"Mat Pilates\nYoga\nBarre"}
+        />
+        <p className="mt-1 text-xs text-charcoal/40">One class or category per line. Leave blank until confirmed.</p>
       </Field>
 
       <Field label="Photo (optional)">

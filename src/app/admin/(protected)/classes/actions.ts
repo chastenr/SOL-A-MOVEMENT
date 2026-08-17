@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { addMinutes, addDays, format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -221,8 +222,8 @@ export async function cancelClassSessionAction(sessionId: string): Promise<Cance
 
   const rows = (affected ?? []) as {
     user_id: string;
-    customer_package_id: string;
-    remaining_credits: number;
+    customer_package_id: string | null;
+    remaining_credits: number | null;
   }[];
 
   if (rows.length > 0 && session) {
@@ -233,10 +234,12 @@ export async function cancelClassSessionAction(sessionId: string): Promise<Cance
     const time = format(startAt, "h:mm a");
 
     const userIds = [...new Set(rows.map((row) => row.user_id))];
-    const packageIds = [...new Set(rows.map((row) => row.customer_package_id))];
+    const packageIds = [...new Set(rows.flatMap((row) => row.customer_package_id ? [row.customer_package_id] : []))];
     const [{ data: profiles }, { data: packages }] = await Promise.all([
       supabase.from("profiles").select("id, first_name, email, mobile_number").in("id", userIds),
-      supabase.from("customer_packages").select("id, package_name_snapshot").in("id", packageIds),
+      packageIds.length
+        ? supabase.from("customer_packages").select("id, package_name_snapshot").in("id", packageIds)
+        : Promise.resolve({ data: [] as { id: string; package_name_snapshot: string }[] }),
     ]);
     const profileById = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
     const packageNameById = new Map((packages ?? []).map((pkg) => [pkg.id, pkg.package_name_snapshot]));
@@ -253,15 +256,15 @@ export async function cancelClassSessionAction(sessionId: string): Promise<Cance
             coachName,
             formattedDate,
             time,
-            packageName: packageNameById.get(row.customer_package_id) ?? "your package",
-            sessionsRemaining: row.remaining_credits,
+            packageName: row.customer_package_id ? packageNameById.get(row.customer_package_id) ?? "your package" : "your unlimited membership",
+            sessionsRemaining: row.remaining_credits ?? 0,
           }),
         ];
         if (isSmsConfigured && profile.mobile_number) {
           notifications.push(
             sendSms({
               to: profile.mobile_number,
-              body: `Veora Wellness: Your ${className} class on ${formattedDate} at ${time} was cancelled. Your credit has been returned.`,
+              body: `Veora Wellness: Your ${className} class on ${formattedDate} at ${time} was cancelled.${row.customer_package_id ? " Your credit has been returned." : " No membership credit was deducted."}`,
             })
           );
         }
@@ -401,4 +404,23 @@ export async function duplicateWeekAction(weekStartIso: string): Promise<ActionR
   revalidatePath("/admin/classes");
   revalidatePath("/admin/calendar");
   return { success: true };
+}
+
+/** Deletes only an unused session. Any booking history keeps the row intact. */
+export async function deleteClassSessionAction(sessionId: string): Promise<void> {
+  await requireAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { count } = await supabase
+    .from("class_bookings")
+    .select("id", { count: "exact", head: true })
+    .eq("class_session_id", sessionId);
+  if ((count ?? 0) > 0) {
+    throw new Error("This class has booking history and must be cancelled instead of deleted.");
+  }
+  const { error } = await supabase.from("class_sessions").delete().eq("id", sessionId);
+  if (error) throw new Error("This class could not be deleted.");
+  revalidatePath("/admin/classes");
+  revalidatePath("/admin/calendar");
+  revalidatePath("/schedule");
+  redirect("/admin/classes?deleted=1");
 }

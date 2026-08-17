@@ -33,7 +33,7 @@ export function PoliciesModal({ onClose }: { onClose: () => void }) {
       >
         <div className="flex items-start justify-between gap-4 border-b border-charcoal/10 px-6 py-5 sm:px-8">
           <h2 id="policies-modal-heading" className="font-display text-xl text-charcoal">
-            Terms &amp; Privacy Policy
+            Waiver, Studio Policies, Terms &amp; Privacy
           </h2>
           <button
             type="button"

@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminBookings, type AdminBookingStatus } from "@/lib/admin/bookings";
 import { fieldInputClasses } from "@/components/ui/Field";
 import { SubmitButton } from "@/components/ui/SubmitButton";
-import { cancelBookingAction, completeBookingAction, noShowBookingAction } from "./actions";
+import { cancelBookingAction, completeBookingAction, confirmBookingAction, noShowBookingAction } from "./actions";
 import { formatManilaDateTime } from "@/lib/manila-time";
 
 export const metadata: Metadata = {
@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 
 const STATUS_OPTIONS: { value: AdminBookingStatus | ""; label: string }[] = [
   { value: "", label: "All Statuses" },
+  { value: "pending", label: "Pending" },
   { value: "booked", label: "Confirmed" },
   { value: "completed", label: "Completed" },
   { value: "cancelled", label: "Cancelled" },
@@ -28,6 +29,7 @@ const RANGE_OPTIONS: { value: "" | "today" | "upcoming" | "past"; label: string 
 ];
 
 const STATUS_LABEL: Record<AdminBookingStatus, string> = {
+  pending: "Pending",
   booked: "Confirmed",
   completed: "Completed",
   cancelled: "Cancelled",
@@ -35,6 +37,7 @@ const STATUS_LABEL: Record<AdminBookingStatus, string> = {
 };
 
 const STATUS_BADGE: Record<AdminBookingStatus, string> = {
+  pending: "bg-amber-100 text-amber-800",
   booked: "bg-clay/10 text-clay",
   completed: "bg-emerald-100 text-emerald-700",
   cancelled: "bg-charcoal/10 text-charcoal/50",
@@ -141,6 +144,13 @@ export default async function AdminBookingsPage({
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-3 whitespace-nowrap">
+                      {booking.status === "pending" && (
+                        <form action={confirmBookingAction.bind(null, booking.id)}>
+                          <SubmitButton pendingLabel="…" className="text-xs text-emerald-700 underline underline-offset-2 hover:text-emerald-800">
+                            Confirm
+                          </SubmitButton>
+                        </form>
+                      )}
                       {booking.status === "booked" && (
                         <>
                           <form action={completeBookingAction.bind(null, booking.id)}>

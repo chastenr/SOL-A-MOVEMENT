@@ -13,6 +13,72 @@ export type PricingOption = {
   recommendedLabel?: string;
   /** Set only when this option redeems against exactly one services.ts slug (Restore, Ballet) — lets /book pre-select it. Classics-tier options span 4 services, so they're left unset. */
   serviceSlug?: string;
+  /** False for configured products that are awaiting final client pricing/policies. */
+  available?: boolean;
+};
+
+export const launchPricing: typeof pricing = {
+  introOffers: [
+    {
+      slug: "founding-classic-intro",
+      name: "Intro Pass",
+      price: "₱999",
+      originalPrice: "₱1,100",
+      sessions: 1,
+      validity: "5 days from purchase",
+      description: "A one-class pre-opening offer for your first Veora experience.",
+      includedServices: ["1 class credit", "Valid for 5 days from purchase"],
+      conditions: ["Pre-opening promotional offer", "Promotion ends after the September 18 launch"],
+      recommended: true,
+      recommendedLabel: "Pre-opening offer",
+      available: true,
+    },
+  ],
+  singleSessions: [],
+  packages: [
+    {
+      slug: "3-class-package",
+      name: "3-Class Package",
+      price: "To be confirmed",
+      sessions: 3,
+      validity: "Validity to be confirmed",
+      description: "Three class credits. Final price and validity are awaiting Veora confirmation.",
+      includedServices: ["3 class credits"],
+      available: false,
+    },
+    {
+      slug: "6-class-package",
+      name: "6-Class Package",
+      price: "To be confirmed",
+      sessions: 6,
+      validity: "Validity to be confirmed",
+      description: "Six class credits. Final price and validity are awaiting Veora confirmation.",
+      includedServices: ["6 class credits"],
+      available: false,
+    },
+  ],
+  memberships: [
+    {
+      slug: "6-month-unlimited",
+      name: "6-Month Unlimited",
+      price: "To be confirmed",
+      validity: "6 months from activation",
+      description: "Unlimited class booking entitlement for six months. Final pricing and policies are pending.",
+      includedServices: ["Unlimited bookings while active", "Normal capacity rules apply"],
+      available: false,
+    },
+    {
+      slug: "12-month-unlimited",
+      name: "12-Month Unlimited",
+      price: "To be confirmed",
+      validity: "12 months from activation",
+      description: "Unlimited class booking entitlement for twelve months. Final pricing and policies are pending.",
+      includedServices: ["Unlimited bookings while active", "Normal capacity rules apply"],
+      available: false,
+    },
+  ],
+  privateSessions: [],
+  specialOffers: [],
 };
 
 // Real, published pricing migrated from the studio's live booking platform.

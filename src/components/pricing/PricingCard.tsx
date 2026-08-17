@@ -64,9 +64,15 @@ export function PricingCard({ option, ctaType, className }: PricingCardProps) {
 
         <div className="mt-6 flex-1" />
 
-        <Button href={ctaHref} className="mt-6 w-full">
-          {ctaType === "book" ? "Avail Package" : "Inquire About This Package"}
-        </Button>
+        {option.available === false ? (
+          <div className="mt-6 rounded-full border border-charcoal/15 px-5 py-3 text-center text-[0.72rem] font-medium uppercase tracking-[0.16em] text-charcoal/55">
+            Awaiting final details
+          </div>
+        ) : (
+          <Button href={ctaHref} className="mt-6 w-full">
+            {ctaType === "book" ? "Avail Package" : "Inquire About This Package"}
+          </Button>
+        )}
       </div>
     </TiltCard>
   );

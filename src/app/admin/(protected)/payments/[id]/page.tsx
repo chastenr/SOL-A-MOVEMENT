@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import { requireAdmin } from "@/lib/auth/require-role";
+import { requireSuperAdmin } from "@/lib/auth/require-role";
 import { getAdminPurchaseDetail } from "@/lib/admin/payments";
 import { centavosToPeso } from "@/lib/money";
 import { PaymentReviewActions } from "@/components/admin/PaymentReviewActions";
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminPaymentDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const { id } = await params;
   const purchase = await getAdminPurchaseDetail(id);
   if (!purchase) notFound();
@@ -51,6 +51,8 @@ export default async function AdminPaymentDetailPage({ params }: { params: Promi
             <Row label="Method" value={purchase.method} />
             <Row label="Provider" value={purchase.provider} />
             <Row label="Status" value={purchase.status} />
+            <Row label="Created" value={format(new Date(purchase.createdAt), "MMM d, yyyy h:mm a")} />
+            <Row label="Purchase Date" value={format(new Date(purchase.approvedAt ?? purchase.createdAt), "MMM d, yyyy h:mm a")} />
             {purchase.approvedAt && <Row label="Approved" value={format(new Date(purchase.approvedAt), "MMM d, yyyy h:mm a")} />}
             {purchase.rejectedReason && <Row label="Rejected Reason" value={purchase.rejectedReason} />}
           </dl>

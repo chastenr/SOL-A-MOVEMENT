@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { formatBookingReference } from "@/lib/utils";
 
-type Confirmation = { bookingId: string; remainingCredits: number };
+type Confirmation = { bookingId: string; remainingCredits: number | null };
 
 export function BookSessionButton({
   classSessionId,
   customerPackageId,
+  customerMembershipId,
   sessionName,
   coachName,
   scheduleLabel,
@@ -20,7 +21,8 @@ export function BookSessionButton({
   onDone,
 }: {
   classSessionId: string;
-  customerPackageId: string;
+  customerPackageId?: string;
+  customerMembershipId?: string;
   sessionName: string;
   coachName: string;
   scheduleLabel: string;
@@ -43,7 +45,7 @@ export function BookSessionButton({
       const response = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ classSessionId, customerPackageId }),
+        body: JSON.stringify({ classSessionId, customerPackageId, customerMembershipId }),
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
@@ -54,7 +56,7 @@ export function BookSessionButton({
         setError(data?.message || "Something went wrong. Please try again.");
         return;
       }
-      setConfirmed({ bookingId: data.bookingId, remainingCredits: data.remainingCredits });
+      setConfirmed({ bookingId: data.bookingId, remainingCredits: data.remainingCredits ?? null });
       setConfirming(false);
       router.refresh();
     } catch {
@@ -105,8 +107,10 @@ export function BookSessionButton({
                 <td className="py-1 text-charcoal">{packageName}</td>
               </tr>
               <tr>
-                <td className="py-1 pr-3 text-charcoal/45">Credits Remaining</td>
-                <td className="py-1 text-charcoal">{confirmed.remainingCredits}</td>
+                <td className="py-1 pr-3 text-charcoal/45">Entitlement</td>
+                <td className="py-1 text-charcoal">
+                  {confirmed.remainingCredits == null ? "Unlimited membership" : `${confirmed.remainingCredits} credits remaining`}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -162,7 +166,11 @@ export function BookSessionButton({
             <p className="text-sm text-charcoal/55">{scheduleLabel}</p>
 
             <div className="mt-4 space-y-2 rounded-xl bg-cream/50 p-4 text-xs leading-relaxed text-charcoal/70">
-              <p>One session will be deducted from your package when this reservation is confirmed.</p>
+              <p>
+                {customerMembershipId
+                  ? "Your active unlimited membership will be validated. No class credit will be deducted."
+                  : "One session will be deducted from your package when this reservation is confirmed."}
+              </p>
               <p>Please arrive at least 10 minutes before class — by {arrivalTime}.</p>
               <p>Bookings close at 10:00 PM the evening before class.</p>
               <p>

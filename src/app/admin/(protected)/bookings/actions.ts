@@ -36,3 +36,8 @@ export async function completeBookingAction(bookingId: string): Promise<void> {
 export async function noShowBookingAction(bookingId: string): Promise<void> {
   return callBookingRpc("admin_mark_class_booking_no_show", bookingId);
 }
+
+/** Idempotent: an already-confirmed booking succeeds without deducting again. */
+export async function confirmBookingAction(bookingId: string): Promise<void> {
+  return callBookingRpc("admin_confirm_class_booking", bookingId);
+}

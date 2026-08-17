@@ -6,6 +6,7 @@ import { StudioExperience } from "@/components/home/StudioExperience";
 import { StudioGallery } from "@/components/home/StudioGallery";
 import { PackagesPreview } from "@/components/home/PackagesPreview";
 import { BookingCta } from "@/components/home/BookingCta";
+import { AmenitiesSection } from "@/components/home/AmenitiesSection";
 
 export const metadata = createPageMetadata({
   title: "Pilates & Wellness Studio in Bacoor, Cavite",
@@ -21,6 +22,7 @@ export default function HomePage() {
       <Introduction />
       <ServicesSection />
       <StudioExperience />
+      <AmenitiesSection />
       <StudioGallery />
       <PackagesPreview />
       <BookingCta />

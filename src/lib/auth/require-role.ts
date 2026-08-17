@@ -134,6 +134,13 @@ export async function requireAdmin(): Promise<AuthedUser> {
   return user;
 }
 
+/** Sensitive financial, staff-access, and business-configuration boundary. */
+export async function requireSuperAdmin(): Promise<AuthedUser> {
+  const user = await requireAdmin();
+  if (user.role !== "super_admin") redirect("/admin");
+  return user;
+}
+
 /** Variant for API Route Handlers, which can't cleanly `redirect()` a JSON caller. */
 export class AuthError extends Error {
   status: number;

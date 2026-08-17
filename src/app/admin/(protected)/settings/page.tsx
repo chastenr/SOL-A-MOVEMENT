@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { requireAdmin } from "@/lib/auth/require-role";
+import { requireSuperAdmin } from "@/lib/auth/require-role";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -23,7 +23,7 @@ const SUPER_ADMIN_LINKS = [
 ] as const;
 
 export default async function AdminSettingsPage() {
-  const admin = await requireAdmin();
+  const admin = await requireSuperAdmin();
   const links = admin.role === "super_admin" ? [...SETTINGS_LINKS, ...SUPER_ADMIN_LINKS] : SETTINGS_LINKS;
 
   return (

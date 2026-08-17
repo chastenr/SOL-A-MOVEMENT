@@ -40,7 +40,7 @@ export const signUpSchema = z
     password: passwordSchema,
     confirmPassword: z.string(),
     consent: z.boolean().refine((value) => value === true, {
-      message: "Please agree to the Terms and Privacy Policy to continue.",
+      message: "Please accept the waiver, studio policies, terms, and conditions to continue.",
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -134,6 +134,23 @@ export const packageFormSchema = z.object({
   isFounderOffer: z.boolean(),
   isActive: z.boolean(),
   sortOrder: z.coerce.number().int(),
+  entitlementType: z.enum(["credits", "unlimited"]),
+  membershipDurationMonths: z.coerce.number().int().min(1).max(120).optional().or(z.literal("")),
+}).superRefine((data, ctx) => {
+  if (data.isActive && data.price <= 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["price"], message: "Add the final price before activating this product." });
+  }
+  if (data.entitlementType === "unlimited") {
+    if (data.packageGroup !== "membership") {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["packageGroup"], message: "Unlimited entitlements must use the membership group." });
+    }
+    if (!data.membershipDurationMonths) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["membershipDurationMonths"], message: "Membership duration is required." });
+    }
+    if (data.creditCount) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["creditCount"], message: "Unlimited memberships do not use class credits." });
+    }
+  }
 });
 
 export type PackageFormValues = z.infer<typeof packageFormSchema>;
@@ -158,10 +175,15 @@ export const serviceFormSchema = z.object({
 
 export type ServiceFormValues = z.infer<typeof serviceFormSchema>;
 
-export const bookClassSchema = z.object({
-  classSessionId: z.string().uuid("Invalid class session."),
-  customerPackageId: z.string().uuid("Invalid package."),
-});
+export const bookClassSchema = z
+  .object({
+    classSessionId: z.string().uuid("Invalid class session."),
+    customerPackageId: z.string().uuid("Invalid package.").optional(),
+    customerMembershipId: z.string().uuid("Invalid membership.").optional(),
+  })
+  .refine((value) => Boolean(value.customerPackageId) !== Boolean(value.customerMembershipId), {
+    message: "Select exactly one active package or membership.",
+  });
 
 export type BookClassValues = z.infer<typeof bookClassSchema>;
 

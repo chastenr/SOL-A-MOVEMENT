@@ -38,6 +38,7 @@ export function PackageForm({
   });
 
   const isRecommended = useWatch({ control, name: "isRecommended" });
+  const entitlementType = useWatch({ control, name: "entitlementType" });
 
   async function onSubmit(values: PackageFormValues) {
     setSubmitting(true);
@@ -106,6 +107,18 @@ export function PackageForm({
           ))}
         </select>
       </Field>
+
+      <Field label="Entitlement" required error={errors.entitlementType?.message}>
+        <select {...register("entitlementType")} className={selectClasses}>
+          <option value="credits">Class credits</option>
+          <option value="unlimited">Unlimited membership</option>
+        </select>
+      </Field>
+      {entitlementType === "unlimited" && (
+        <Field label="Membership Duration (months)" required error={errors.membershipDurationMonths?.message}>
+          <input type="number" min="1" max="120" step="1" {...register("membershipDurationMonths")} className={fieldInputClasses} />
+        </Field>
+      )}
 
       <Field label="Price (₱)" required error={errors.price?.message}>
         <input type="number" step="0.01" min="0" {...register("price")} className={fieldInputClasses} />

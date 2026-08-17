@@ -9,6 +9,7 @@ import { getClassSessionRoster } from "@/lib/admin/bookings";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { completeBookingAction, noShowBookingAction } from "../../bookings/actions";
 import type { ClassSessionFormValues } from "@/lib/validations";
+import { deleteClassSessionAction } from "../actions";
 
 export const metadata: Metadata = {
   title: "Edit Session",
@@ -138,6 +139,17 @@ export default async function EditClassSessionPage({ params }: { params: Promise
           </div>
         )}
       </div>
+
+      {roster.length === 0 && (
+        <div className="mt-10 border-t border-charcoal/10 pt-6">
+          <p className="text-sm text-charcoal/55">This session has no booking history and can be safely deleted.</p>
+          <form action={deleteClassSessionAction.bind(null, id)} className="mt-3">
+            <SubmitButton pendingLabel="Deleting…" className="text-xs uppercase tracking-[0.1em] text-red-600 underline underline-offset-2">
+              Delete unused session
+            </SubmitButton>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

@@ -16,7 +16,7 @@ export default async function EditCoachPage({ params }: { params: Promise<{ id: 
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("instructors")
-    .select("id, name, bio, photo_url, active")
+    .select("id, name, bio, photo_url, active, specialties")
     .eq("id", id)
     .single();
 
@@ -27,7 +27,7 @@ export default async function EditCoachPage({ params }: { params: Promise<{ id: 
       <h1 className="font-display text-2xl text-charcoal">Edit Coach</h1>
       <div className="mt-6">
         <CoachForm
-          coach={{ id: data.id, name: data.name, bio: data.bio, photoUrl: data.photo_url, active: data.active }}
+          coach={{ id: data.id, name: data.name, bio: data.bio, photoUrl: data.photo_url, active: data.active, specialties: data.specialties ?? [] }}
         />
       </div>
     </div>

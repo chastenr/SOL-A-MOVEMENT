@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireAdmin } from "@/lib/auth/require-role";
+import { requireSuperAdmin } from "@/lib/auth/require-role";
 import type { PackageFormValues } from "@/lib/validations";
 import { PackageForm } from "@/components/admin/PackageForm";
 
@@ -28,10 +28,12 @@ const DEFAULT_VALUES: PackageFormValues = {
   isFounderOffer: false,
   isActive: true,
   sortOrder: 0,
+  entitlementType: "credits",
+  membershipDurationMonths: "",
 };
 
 export default async function NewPackagePage() {
-  await requireAdmin();
+  await requireSuperAdmin();
   return (
     <div>
       <h1 className="font-display text-2xl text-charcoal">Create Package</h1>

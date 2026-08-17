@@ -1,7 +1,7 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export type AdminBookingStatus = "booked" | "cancelled" | "completed" | "no_show";
+export type AdminBookingStatus = "pending" | "booked" | "cancelled" | "completed" | "no_show";
 
 export type AdminBookingRow = {
   id: string;
@@ -84,6 +84,7 @@ type RawBookingRow = {
       purchase_status: string;
     } | null;
   } | null;
+  customer_membership: { membership_name_snapshot: string } | null;
 };
 
 type ProfileRow = {
@@ -116,7 +117,8 @@ export async function getAdminBookings(filters: AdminBookingFilters = {}): Promi
        customer_package:customer_packages (
          package_name_snapshot, remaining_credits, credit_count,
          purchase:purchases ( reference_number, total_amount_centavos, credit_count_snapshot, payment_method, purchase_status )
-       )`
+       ),
+       customer_membership:customer_memberships ( membership_name_snapshot )`
     )
     .order("booked_at", { ascending: false })
     .limit(200);
@@ -185,7 +187,9 @@ export async function getAdminBookings(filters: AdminBookingFilters = {}): Promi
             remainingCredits: row.customer_package.remaining_credits,
             creditCount: row.customer_package.credit_count,
           }
-        : null,
+        : row.customer_membership
+          ? { name: row.customer_membership.membership_name_snapshot, remainingCredits: 0, creditCount: 0 }
+          : null,
       payment: purchase
         ? {
             reference: purchase.reference_number,
@@ -273,7 +277,7 @@ export async function getClassSessionRoster(sessionId: string): Promise<ClassSes
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("class_bookings")
-    .select("id, status, user_id, customer_package:customer_packages(package_name_snapshot)")
+    .select("id, status, user_id, customer_package:customer_packages(package_name_snapshot), customer_membership:customer_memberships(membership_name_snapshot)")
     .eq("class_session_id", sessionId)
     .order("booked_at", { ascending: true });
 
@@ -282,6 +286,7 @@ export async function getClassSessionRoster(sessionId: string): Promise<ClassSes
     status: AdminBookingStatus;
     user_id: string;
     customer_package: { package_name_snapshot: string } | null;
+    customer_membership: { membership_name_snapshot: string } | null;
   }[];
   if (rows.length === 0) return [];
 
@@ -303,7 +308,7 @@ export async function getClassSessionRoster(sessionId: string): Promise<ClassSes
       status: row.status,
       customerName: profile ? `${profile.first_name} ${profile.last_name}`.trim() || profile.email : "—",
       customerEmail: profile?.email ?? "—",
-      packageName: row.customer_package?.package_name_snapshot ?? "—",
+      packageName: row.customer_package?.package_name_snapshot ?? row.customer_membership?.membership_name_snapshot ?? "—",
     };
   });
 }

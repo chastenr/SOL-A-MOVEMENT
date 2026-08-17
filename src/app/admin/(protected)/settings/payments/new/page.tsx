@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireAdmin } from "@/lib/auth/require-role";
+import { requireSuperAdmin } from "@/lib/auth/require-role";
 import type { PaymentSettingFormValues } from "@/lib/validations";
 import { PaymentSettingForm } from "@/components/admin/PaymentSettingForm";
 
@@ -21,7 +21,7 @@ const DEFAULT_VALUES: PaymentSettingFormValues = {
 };
 
 export default async function NewPaymentSettingPage() {
-  await requireAdmin();
+  await requireSuperAdmin();
   return (
     <div>
       <h1 className="font-display text-2xl text-charcoal">Add Payment Method</h1>
