@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
 import { contactSchema, type ContactFormValues } from "@/lib/validations";
 import { Button } from "@/components/ui/Button";
+import { Field, fieldInputClasses } from "@/components/ui/Field";
 import { cn } from "@/lib/utils";
 
 const TOPICS = [
@@ -16,9 +17,6 @@ const TOPICS = [
   "Press or Partnership",
   "Other",
 ];
-
-const inputClasses =
-  "w-full rounded-xl border border-charcoal/20 bg-ivory px-4 py-3 text-base leading-normal text-charcoal placeholder:text-charcoal/60 transition-colors focus:border-charcoal focus:outline-none";
 
 export function ContactForm({ initialTopic }: { initialTopic?: string }) {
   const [submitted, setSubmitted] = useState(false);
@@ -96,19 +94,19 @@ export function ContactForm({ initialTopic }: { initialTopic?: string }) {
           className="grid gap-5 sm:grid-cols-2"
         >
           <Field label="First Name" required error={errors.firstName?.message}>
-            <input {...register("firstName")} className={inputClasses} autoComplete="given-name" />
+            <input {...register("firstName")} className={fieldInputClasses} autoComplete="given-name" />
           </Field>
           <Field label="Last Name" required error={errors.lastName?.message}>
-            <input {...register("lastName")} className={inputClasses} autoComplete="family-name" />
+            <input {...register("lastName")} className={fieldInputClasses} autoComplete="family-name" />
           </Field>
           <Field label="Email" required error={errors.email?.message}>
-            <input type="email" {...register("email")} className={inputClasses} autoComplete="email" />
+            <input type="email" {...register("email")} className={fieldInputClasses} autoComplete="email" />
           </Field>
           <Field label="Phone" error={errors.phone?.message}>
-            <input type="tel" {...register("phone")} className={inputClasses} autoComplete="tel" />
+            <input type="tel" {...register("phone")} className={fieldInputClasses} autoComplete="tel" />
           </Field>
           <Field label="Topic" required error={errors.topic?.message} className="sm:col-span-2">
-            <select {...register("topic")} className={cn(inputClasses, "appearance-none")} defaultValue={validInitialTopic}>
+            <select {...register("topic")} className={cn(fieldInputClasses, "appearance-none")} defaultValue={validInitialTopic}>
               <option value="" disabled>
                 Select a topic
               </option>
@@ -120,11 +118,11 @@ export function ContactForm({ initialTopic }: { initialTopic?: string }) {
             </select>
           </Field>
           <Field label="Message" required error={errors.message?.message} className="sm:col-span-2">
-            <textarea {...register("message")} rows={5} className={cn(inputClasses, "resize-none")} />
+            <textarea {...register("message")} rows={5} className={cn(fieldInputClasses, "resize-none")} />
           </Field>
 
           {serverError && (
-            <p className="text-sm text-red-600 sm:col-span-2">{serverError}</p>
+            <p className="text-sm text-red-600 sm:col-span-2" role="alert">{serverError}</p>
           )}
 
           <div className="sm:col-span-2">
@@ -135,30 +133,5 @@ export function ContactForm({ initialTopic }: { initialTopic?: string }) {
         </motion.form>
       )}
     </AnimatePresence>
-  );
-}
-
-function Field({
-  label,
-  required,
-  error,
-  children,
-  className,
-}: {
-  label: string;
-  required?: boolean;
-  error?: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={className}>
-      <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-charcoal/70">
-        {label}
-        {required && <span className="text-clay"> *</span>}
-      </label>
-      {children}
-      {error && <p className="mt-1.5 text-sm text-red-600">{error}</p>}
-    </div>
   );
 }

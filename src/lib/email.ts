@@ -30,6 +30,16 @@ export const isEmailConfigured = Boolean(resendApiKey);
 
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
+/** Keep customer-entered text as text when it is inserted into HTML emails. */
+export function escapeEmailHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
 function wrapper(title: string, bodyHtml: string) {
   return `
   <div style="background:#faf7f2;padding:32px 16px;font-family:Georgia,'Times New Roman',serif;">
@@ -38,11 +48,11 @@ function wrapper(title: string, bodyHtml: string) {
         <p style="margin:0;color:#f3ecdf;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;">Veora Wellness</p>
       </div>
       <div style="padding:32px;">
-        <h1 style="margin:0 0 16px;font-size:20px;color:#221f1c;letter-spacing:0.02em;">${title}</h1>
+        <h1 style="margin:0 0 16px;font-size:20px;color:#221f1c;letter-spacing:0.02em;">${escapeEmailHtml(title)}</h1>
         ${bodyHtml}
       </div>
       <div style="padding:20px 32px;background:#f3ecdf;">
-        <p style="margin:0;font-size:12px;color:#8f8375;">Veora Wellness · ${siteConfig.contact.address.full}</p>
+        <p style="margin:0;font-size:12px;color:#8f8375;">Veora Wellness · ${escapeEmailHtml(siteConfig.contact.address.full)}</p>
       </div>
     </div>
   </div>`;
@@ -51,8 +61,8 @@ function wrapper(title: string, bodyHtml: string) {
 function row(label: string, value: string) {
   return `
     <tr>
-      <td style="padding:6px 0;font-size:13px;color:#8f8375;text-transform:uppercase;letter-spacing:0.08em;vertical-align:top;width:120px;">${label}</td>
-      <td style="padding:6px 0;font-size:15px;color:#221f1c;">${value}</td>
+      <td style="padding:6px 0;font-size:13px;color:#8f8375;text-transform:uppercase;letter-spacing:0.08em;vertical-align:top;width:120px;">${escapeEmailHtml(label)}</td>
+      <td style="padding:6px 0;font-size:15px;color:#221f1c;">${escapeEmailHtml(value)}</td>
     </tr>`;
 }
 
@@ -87,7 +97,7 @@ export async function sendPaymentProofSubmittedEmail(purchase: PurchaseEmailPayl
     </table>
     ${
       purchase.reviewUrl
-        ? `<p style="margin:20px 0 0;"><a href="${purchase.reviewUrl}" style="color:#a97456;font-size:15px;">Review and approve this payment →</a></p>`
+        ? `<p style="margin:20px 0 0;"><a href="${escapeEmailHtml(purchase.reviewUrl)}" style="color:#a97456;font-size:15px;">Review and approve this payment →</a></p>`
         : `<p style="margin:20px 0 0;font-size:15px;color:#221f1c;">Review and approve in the admin dashboard.</p>`
     }`
   );
@@ -105,7 +115,7 @@ export async function sendPurchaseApprovedEmail(purchase: PurchaseEmailPayload) 
 
   const html = wrapper(
     "Payment Approved",
-    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${purchase.customerFirstName},</p>
+    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${escapeEmailHtml(purchase.customerFirstName)},</p>
      <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Your payment has been confirmed and your credits are now active.</p>
      <table style="width:100%;border-collapse:collapse;margin:16px 0;">
        ${row("Package", purchase.packageName)}
@@ -128,7 +138,7 @@ export async function sendPurchaseRejectedEmail(purchase: PurchaseEmailPayload &
 
   const html = wrapper(
     "Payment Could Not Be Verified",
-    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${purchase.customerFirstName},</p>
+    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${escapeEmailHtml(purchase.customerFirstName)},</p>
      <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">We weren't able to verify your recent payment.</p>
      <table style="width:100%;border-collapse:collapse;margin:16px 0;">
        ${row("Package", purchase.packageName)}
@@ -221,7 +231,7 @@ export async function sendClassBookingConfirmationEmail(booking: ClassScheduleEm
 
   const html = wrapper(
     "Your Reservation is In",
-    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${booking.customerFirstName},</p>
+    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${escapeEmailHtml(booking.customerFirstName)},</p>
      <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">We've received your reservation. One credit was deducted from your package.</p>
      <table style="width:100%;border-collapse:collapse;margin:16px 0;">
        ${row("Class", booking.className)}
@@ -234,7 +244,7 @@ export async function sendClassBookingConfirmationEmail(booking: ClassScheduleEm
      </table>
      ${
        booking.arrivalTime
-         ? `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;"><strong>Please arrive at least 10 minutes before your class begins</strong> — by ${booking.arrivalTime}.</p>`
+         ? `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;"><strong>Please arrive at least 10 minutes before your class begins</strong> — by ${escapeEmailHtml(booking.arrivalTime)}.</p>`
          : ""
      }
      <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">Bookings close at 10:00 PM the evening before class. If we need to cancel your class, your session credit will automatically be returned.</p>
@@ -268,8 +278,8 @@ export async function sendClassCancelledByStudioEmail(
 
   const html = wrapper(
     "Class Cancellation",
-    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${booking.customerFirstName},</p>
-     <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">${reasonLine}</p>
+    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${escapeEmailHtml(booking.customerFirstName)},</p>
+     <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">${escapeEmailHtml(reasonLine)}</p>
      <table style="width:100%;border-collapse:collapse;margin:16px 0;">
        ${row("Class", booking.className)}
        ${row("Coach", booking.coachName)}
@@ -299,7 +309,7 @@ export async function sendClassConfirmedEmail(booking: ClassScheduleEmailPayload
 
   const html = wrapper(
     "Your Class is Confirmed",
-    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${booking.customerFirstName},</p>
+    `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Hi ${escapeEmailHtml(booking.customerFirstName)},</p>
      <p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Good news — your class is confirmed and will run as scheduled.</p>
      <table style="width:100%;border-collapse:collapse;margin:16px 0;">
        ${row("Class", booking.className)}
@@ -309,7 +319,7 @@ export async function sendClassConfirmedEmail(booking: ClassScheduleEmailPayload
      </table>
      ${
        booking.arrivalTime
-         ? `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Please arrive by <strong>${booking.arrivalTime}</strong>, which is 10 minutes before your class starts.</p>`
+         ? `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Please arrive by <strong>${escapeEmailHtml(booking.arrivalTime)}</strong>, which is 10 minutes before your class starts.</p>`
          : ""
      }
      <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">We look forward to seeing you.</p>
@@ -338,7 +348,7 @@ export async function sendContactEmail(contact: ContactEmailPayload) {
       ${row("Submitted", contact.submittedAt)}
     </table>
     <p style="margin:20px 0 0;font-size:13px;color:#8f8375;text-transform:uppercase;letter-spacing:0.08em;">Message</p>
-    <p style="margin:8px 0 0;font-size:15px;color:#221f1c;white-space:pre-wrap;">${contact.message}</p>`
+    <p style="margin:8px 0 0;font-size:15px;color:#221f1c;white-space:pre-wrap;">${escapeEmailHtml(contact.message)}</p>`
   );
 
   return resend.emails.send({

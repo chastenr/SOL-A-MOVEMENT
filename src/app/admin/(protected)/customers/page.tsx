@@ -31,6 +31,7 @@ export default async function AdminCustomersPage({
           name="search"
           defaultValue={params.search}
           placeholder="Search by name or email"
+          aria-label="Search customers"
           className={`${fieldInputClasses} max-w-sm`}
         />
       </form>

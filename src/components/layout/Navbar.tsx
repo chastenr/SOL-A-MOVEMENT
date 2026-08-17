@@ -245,7 +245,7 @@ export function Navbar() {
       </header>
 
       <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} signedIn={signedIn} />
-      <MobileDock pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+      {!mobileOpen && <MobileDock pathname={pathname} onNavigate={() => setMobileOpen(false)} />}
     </>
   );
 }

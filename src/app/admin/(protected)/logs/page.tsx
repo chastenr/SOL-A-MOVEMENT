@@ -49,9 +49,10 @@ export default async function AdminLogsPage({
           name="search"
           defaultValue={params.search}
           placeholder="Search by staff email or action"
+          aria-label="Search activity log"
           className={`${fieldInputClasses} max-w-xs`}
         />
-        <select name="action" defaultValue={params.action ?? ""} className={`${fieldInputClasses} w-auto appearance-none`}>
+        <select aria-label="Filter by action" name="action" defaultValue={params.action ?? ""} className={`${fieldInputClasses} w-auto appearance-none`}>
           <option value="">All Actions</option>
           {actions.map((action) => (
             <option key={action} value={action}>

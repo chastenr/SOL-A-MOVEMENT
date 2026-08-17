@@ -104,10 +104,10 @@ export function PaymentSettingForm({
         />
       </Field>
 
-      <div className="flex items-center gap-2">
+      <label className="flex items-center gap-2 text-sm text-charcoal/70">
         <input type="checkbox" {...register("isActive")} className="h-4 w-4 accent-charcoal" />
-        <label className="text-sm text-charcoal/70">Active (shown at checkout)</label>
-      </div>
+        <span>Active (shown at checkout)</span>
+      </label>
       <Field label="Sort Order" required error={errors.sortOrder?.message}>
         <input type="number" step="1" {...register("sortOrder")} className={fieldInputClasses} />
       </Field>

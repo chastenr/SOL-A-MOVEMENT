@@ -45,21 +45,21 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
       </aside>
 
       <div className="flex-1">
-        <header className="flex items-center justify-between border-b border-charcoal/10 bg-ivory px-6 py-4 sm:px-8">
-          <p className="text-sm text-charcoal/45">Signed in</p>
-          <div className="flex items-center gap-4 text-sm text-charcoal/60">
-            <span className="flex items-center gap-2">
-              {admin.email}
+        <header className="flex items-center justify-end border-b border-charcoal/10 bg-ivory px-4 py-4 sm:justify-between sm:px-8">
+          <p className="hidden text-sm text-charcoal/45 sm:block">Signed in</p>
+          <div className="flex min-w-0 items-center gap-2 text-sm text-charcoal/60 sm:gap-4">
+            <span className="flex min-w-0 items-center gap-2">
+              <span className="max-w-32 truncate sm:max-w-none">{admin.email}</span>
               <span
                 className={cn(
-                  "rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em]",
+                  "shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em]",
                   ROLE_BADGE[admin.role] ?? "bg-charcoal/10 text-charcoal/70"
                 )}
               >
                 {ROLE_LABEL[admin.role]}
               </span>
             </span>
-            <form action={logoutAction}>
+            <form action={logoutAction} className="shrink-0">
               <button type="submit" className="underline underline-offset-2 hover:text-charcoal">
                 Log Out
               </button>

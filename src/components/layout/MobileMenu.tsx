@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { siteConfig } from "@/data/site";
@@ -22,20 +22,44 @@ export function MobileMenu({
   const reduceMotion = usePrefersReducedMotion();
   const pathname = usePathname();
   const stagger = reduceMotion ? 0 : STAGGER;
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
+    const background = [document.querySelector("main"), document.querySelector("footer")].filter(
+      (element): element is HTMLElement => element instanceof HTMLElement
+    );
+
     document.body.style.overflow = "hidden";
+    background.forEach((element) => {
+      element.inert = true;
+    });
+    menuRef.current?.focus();
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+
     return () => {
       document.body.style.overflow = previousOverflow;
+      background.forEach((element) => {
+        element.inert = false;
+      });
+      document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [open]);
+  }, [onClose, open]);
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
+          ref={menuRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Site menu"
+          tabIndex={-1}
           initial={{ opacity: 0, scale: reduceMotion ? 1 : 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.98 }}

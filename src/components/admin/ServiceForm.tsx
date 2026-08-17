@@ -110,10 +110,10 @@ export function ServiceForm({
         <input {...register("imageAlt")} className={fieldInputClasses} />
       </Field>
 
-      <div className="flex items-center gap-2">
+      <label className="flex items-center gap-2 text-sm text-charcoal/70">
         <input type="checkbox" {...register("isActive")} className="h-4 w-4 accent-charcoal" />
-        <label className="text-sm text-charcoal/70">Active (visible on /services)</label>
-      </div>
+        <span>Active (visible on /services)</span>
+      </label>
       <Field label="Sort Order" required error={errors.sortOrder?.message}>
         <input type="number" step="1" {...register("sortOrder")} className={fieldInputClasses} />
       </Field>

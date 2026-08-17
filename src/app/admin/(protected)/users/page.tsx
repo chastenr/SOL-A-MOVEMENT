@@ -79,9 +79,10 @@ export default async function AdminUsersPage({
           name="search"
           defaultValue={params.search}
           placeholder="Search name or email"
+          aria-label="Search users"
           className={`${fieldInputClasses} max-w-xs`}
         />
-        <select name="role" defaultValue={params.role ?? ""} className={`${fieldInputClasses} w-auto appearance-none`}>
+        <select aria-label="Filter by role" name="role" defaultValue={params.role ?? ""} className={`${fieldInputClasses} w-auto appearance-none`}>
           {ROLE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}

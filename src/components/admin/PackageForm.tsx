@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { packageFormSchema, type PackageFormValues } from "@/lib/validations";
 import { createPackageAction, updatePackageAction } from "@/app/admin/(protected)/packages/actions";
@@ -30,14 +30,14 @@ export function PackageForm({
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors },
   } = useForm<PackageFormValues>({
     resolver: zodResolver(packageFormSchema),
     defaultValues,
   });
 
-  const isRecommended = watch("isRecommended");
+  const isRecommended = useWatch({ control, name: "isRecommended" });
 
   async function onSubmit(values: PackageFormValues) {
     setSubmitting(true);
@@ -136,24 +136,24 @@ export function PackageForm({
         <textarea {...register("conditions")} rows={2} className={fieldInputClasses} />
       </Field>
 
-      <div className="flex items-center gap-2">
+      <label className="flex items-center gap-2 text-sm text-charcoal/70">
         <input type="checkbox" {...register("isRecommended")} className="h-4 w-4 accent-charcoal" />
-        <label className="text-sm text-charcoal/70">Recommended (shows a highlight badge)</label>
-      </div>
+        <span>Recommended (shows a highlight badge)</span>
+      </label>
       {isRecommended && (
         <Field label="Recommended Label" error={errors.recommendedLabel?.message}>
           <input {...register("recommendedLabel")} className={fieldInputClasses} placeholder="Most Popular" />
         </Field>
       )}
 
-      <div className="flex items-center gap-2">
+      <label className="flex items-center gap-2 text-sm text-charcoal/70">
         <input type="checkbox" {...register("isFounderOffer")} className="h-4 w-4 accent-charcoal" />
-        <label className="text-sm text-charcoal/70">Founding Member offer</label>
-      </div>
-      <div className="flex items-center gap-2">
+        <span>Founding Member offer</span>
+      </label>
+      <label className="flex items-center gap-2 text-sm text-charcoal/70">
         <input type="checkbox" {...register("isActive")} className="h-4 w-4 accent-charcoal" />
-        <label className="text-sm text-charcoal/70">Active (visible on /pricing)</label>
-      </div>
+        <span>Active (visible on /pricing)</span>
+      </label>
 
       <Field label="Sort Order" required error={errors.sortOrder?.message}>
         <input type="number" step="1" {...register("sortOrder")} className={fieldInputClasses} />

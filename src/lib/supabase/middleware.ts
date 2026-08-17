@@ -106,8 +106,10 @@ export async function updateSession(request: NextRequest) {
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("redirectTo", path);
+    const isAdminRoute = path === "/admin" || path.startsWith("/admin/");
+    url.pathname = isAdminRoute ? "/admin/login" : "/login";
+    url.search = "";
+    if (!isAdminRoute) url.searchParams.set("redirectTo", path);
     return NextResponse.redirect(url);
   }
 

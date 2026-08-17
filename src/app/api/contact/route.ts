@@ -36,7 +36,13 @@ export async function POST(request: Request) {
   const contact = parsed.data;
   const submittedAt = format(new Date(), "MMMM d, yyyy 'at' h:mm a");
 
-  await sendContactEmail({ ...contact, submittedAt });
+  const emailResult = await sendContactEmail({ ...contact, submittedAt });
+  if ("skipped" in emailResult || emailResult.error) {
+    return NextResponse.json(
+      { message: "Messaging is temporarily unavailable. Please email bookings@veora.ph directly." },
+      { status: 503 }
+    );
+  }
 
   return NextResponse.json({ success: true });
 }

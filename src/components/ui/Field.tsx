@@ -16,12 +16,18 @@ export function Field({
 }) {
   return (
     <div className={className}>
-      <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-charcoal/70">
-        {label}
-        {required && <span className="text-clay"> *</span>}
+      <label className="block">
+        <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-charcoal/70">
+          {label}
+          {required && <span className="text-clay"> *</span>}
+        </span>
+        {children}
       </label>
-      {children}
-      {error && <p className="mt-1.5 text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="mt-1.5 text-sm text-red-600" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

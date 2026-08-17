@@ -74,16 +74,17 @@ export default async function AdminBookingsPage({
           name="search"
           defaultValue={params.search}
           placeholder="Search name, email, phone or reference"
+          aria-label="Search bookings"
           className={`${fieldInputClasses} max-w-xs`}
         />
-        <select name="status" defaultValue={params.status ?? ""} className={`${fieldInputClasses} w-auto appearance-none`}>
+        <select aria-label="Filter by booking status" name="status" defaultValue={params.status ?? ""} className={`${fieldInputClasses} w-auto appearance-none`}>
           {STATUS_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
           ))}
         </select>
-        <select name="range" defaultValue={params.range ?? ""} className={`${fieldInputClasses} w-auto appearance-none`}>
+        <select aria-label="Filter by date range" name="range" defaultValue={params.range ?? ""} className={`${fieldInputClasses} w-auto appearance-none`}>
           {RANGE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}

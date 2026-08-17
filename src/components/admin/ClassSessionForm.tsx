@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { classSessionFormSchema, type ClassSessionFormValues } from "@/lib/validations";
 import { createClassSessionAction, updateClassSessionAction } from "@/app/admin/(protected)/classes/actions";
@@ -42,7 +42,7 @@ export function ClassSessionForm({
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     formState: { errors },
   } = useForm<ClassSessionFormValues>({
@@ -58,8 +58,8 @@ export function ClassSessionForm({
     },
   });
 
-  const selectedClassTypeId = watch("classTypeId");
-  const selectedLocationId = watch("locationId");
+  const selectedClassTypeId = useWatch({ control, name: "classTypeId" });
+  const selectedLocationId = useWatch({ control, name: "locationId" });
   const selectedClassType = classTypes.find((option) => option.id === selectedClassTypeId);
   // Ballet keeps a free-typed start time + duration (60/90 min); every other
   // class type is fixed at 50 minutes, on the hour — see studio-hours.ts.
@@ -80,6 +80,7 @@ export function ClassSessionForm({
       )].sort((a, b) => a - b),
     [selectedLocationId, selectedWeekday, timeSlots]
   );
+  const selectedHour = hour !== "" && openHours.includes(Number(hour)) ? hour : "";
 
   useEffect(() => {
     if (!isFixedSchedule) return;
@@ -90,14 +91,10 @@ export function ClassSessionForm({
     if (!isFixedSchedule) return;
     setValue(
       "startAt",
-      date && hour !== "" ? `${date}T${String(hour).padStart(2, "0")}:00` : "",
-      { shouldValidate: date !== "" && hour !== "" }
+      date && selectedHour !== "" ? `${date}T${String(selectedHour).padStart(2, "0")}:00` : "",
+      { shouldValidate: date !== "" && selectedHour !== "" }
     );
-  }, [isFixedSchedule, date, hour, setValue]);
-
-  useEffect(() => {
-    if (hour !== "" && !openHours.includes(Number(hour))) setHour("");
-  }, [hour, openHours]);
+  }, [isFixedSchedule, date, selectedHour, setValue]);
 
   async function onSubmit(values: ClassSessionFormValues) {
     setSubmitting(true);
@@ -172,7 +169,7 @@ export function ClassSessionForm({
           </Field>
           <Field label="Start Time" required>
             <select
-              value={hour}
+              value={selectedHour}
               onChange={(event) => setHour(event.target.value === "" ? "" : Number(event.target.value))}
               disabled={selectedWeekday === null || openHours.length === 0}
               className={`${fieldInputClasses} appearance-none`}
