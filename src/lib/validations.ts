@@ -42,6 +42,8 @@ export const signUpSchema = z
     consent: z.boolean().refine((value) => value === true, {
       message: "Please accept the waiver, studio policies, terms, and conditions to continue.",
     }),
+    // Optional — unlike `consent`, signup succeeds whether this is checked or not.
+    marketingConsent: z.boolean(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match.",

@@ -59,6 +59,7 @@ export async function signUpAction(values: SignUpFormValues, redirectTo?: string
         birthday: data.birthday || null,
         waiver_accepted: true,
         waiver_version: WAIVER_VERSION,
+        marketing_consent: data.marketingConsent,
       },
       emailRedirectTo: `${authRedirectOrigin}/auth/callback?next=${encodeURIComponent(safeRedirectTo)}`,
     },

@@ -35,6 +35,7 @@ export function SignUpForm({ redirectTo }: { redirectTo?: string }) {
       password: "",
       confirmPassword: "",
       consent: false,
+      marketingConsent: false,
     },
   });
 
@@ -128,6 +129,19 @@ export function SignUpForm({ redirectTo }: { redirectTo?: string }) {
                 </span>
               </label>
               {errors.consent && <p className="mt-1.5 text-sm text-red-600">{errors.consent.message}</p>}
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="flex items-start gap-2.5 text-sm text-charcoal/70">
+                <input
+                  type="checkbox"
+                  {...register("marketingConsent")}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-charcoal"
+                />
+                <span>
+                  Send me promotions and updates by SMS and email. (Optional — you can unsubscribe anytime.)
+                </span>
+              </label>
             </div>
 
             {serverError && <p className="text-sm text-red-600 sm:col-span-2">{serverError}</p>}

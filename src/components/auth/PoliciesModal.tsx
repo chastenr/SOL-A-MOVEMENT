@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { X } from "lucide-react";
 import { policyDocuments } from "@/data/policies";
 import { Button } from "@/components/ui/Button";
@@ -32,9 +33,19 @@ export function PoliciesModal({ onClose }: { onClose: () => void }) {
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4 border-b border-charcoal/10 px-6 py-5 sm:px-8">
-          <h2 id="policies-modal-heading" className="font-display text-xl text-charcoal">
-            Waiver, Studio Policies, Terms &amp; Privacy
-          </h2>
+          <div>
+            <h2 id="policies-modal-heading" className="font-display text-xl text-charcoal">
+              Waiver, Studio Policies, Terms &amp; Privacy
+            </h2>
+            <Link
+              href="/waiver"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-block text-xs text-charcoal/50 underline underline-offset-2 hover:text-charcoal"
+            >
+              Open as a full page ↗
+            </Link>
+          </div>
           <button
             type="button"
             onClick={onClose}

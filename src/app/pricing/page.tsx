@@ -5,6 +5,7 @@ import { getPricingGroups } from "@/lib/catalog/packages";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { PricingCard } from "@/components/pricing/PricingCard";
+import { AmenitiesSection } from "@/components/home/AmenitiesSection";
 
 export const metadata = createPageMetadata({
   title: "Class Packages & Pilates Pricing in Bacoor",
@@ -130,6 +131,8 @@ export default async function PricingPage() {
         options={pricing.memberships}
         ctaType="book"
       />
+
+      <AmenitiesSection />
 
       <section className="mx-auto max-w-3xl px-6 pb-14 text-center sm:px-8 sm:pb-16">
         <AnimatedSection>
