@@ -2,6 +2,7 @@ import { ArrowRight, ArrowUpRight, Check, ChevronDown, Clock3, Sparkles } from "
 import { ImageReveal } from "@/components/ui/ImageReveal";
 import { TiltCard } from "@/components/ui/TiltCard";
 import { Button } from "@/components/ui/Button";
+import { ExpandableDescription } from "@/components/services/ExpandableDescription";
 import type { Service } from "@/data/services";
 import { cn } from "@/lib/utils";
 
@@ -52,7 +53,10 @@ export function ServiceCard({ service, variant = "compact", className, priority 
 
         <div className="flex flex-1 flex-col p-6 sm:p-7">
           <h3 className="font-display text-[2rem] leading-none text-charcoal sm:text-4xl">{service.name}</h3>
-          <p className="mt-4 text-base leading-[1.7] text-charcoal/75">{service.description}</p>
+          <ExpandableDescription
+            shortDescription={service.shortDescription}
+            description={service.description}
+          />
 
           <dl className="mt-5 grid grid-cols-2 gap-2 text-sm">
             <div className="rounded-xl bg-cream/65 px-3.5 py-3">
