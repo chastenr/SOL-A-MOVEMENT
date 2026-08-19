@@ -21,22 +21,22 @@ export default async function ServicesPage() {
   return (
     <>
       <ServiceSchema />
-      <section className="px-4 pt-36 pb-12 sm:px-6 sm:pt-40 lg:px-8">
-        <AnimatedSection className="texture-plaster relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-walnut px-6 py-12 text-ivory shadow-[0_28px_80px_-48px_rgba(34,31,28,0.8)] sm:px-10 sm:py-16 lg:px-16">
+      <section className="px-4 pt-32 pb-8 sm:px-6 sm:pt-36 sm:pb-10 lg:px-8">
+        <AnimatedSection className="texture-plaster relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-walnut px-6 py-9 text-ivory shadow-[0_28px_80px_-48px_rgba(34,31,28,0.8)] sm:px-10 sm:py-11 lg:px-14 lg:py-12">
           <div className="pointer-events-none absolute -top-32 right-0 h-80 w-80 rounded-full bg-clay/25 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-40 left-1/3 h-72 w-72 rounded-full bg-cream/10 blur-3xl" />
-          <div className="relative z-10 grid items-end gap-10 lg:grid-cols-[1fr_auto]">
+          <div className="relative z-10 grid items-end gap-8 lg:grid-cols-[1fr_auto]">
             <div className="max-w-3xl">
-              <p className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-cream/85">
+              <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-cream/85">
                 <Sparkles size={14} aria-hidden /> Our Classes
               </p>
-              <h1 className="font-display balance text-[clamp(2.5rem,5vw,4.75rem)] leading-[1.05] tracking-[-0.02em]">
+              <h1 className="font-display balance text-[clamp(2.5rem,4.25vw,4.25rem)] leading-[1.02] tracking-[-0.02em]">
                 Find the movement that feels like you.
               </h1>
-              <p className="mt-5 max-w-[62ch] text-base leading-[1.7] text-ivory/85 sm:text-[1.0625rem]">
+              <p className="mt-4 max-w-[62ch] text-base leading-[1.6] text-ivory/85">
                 From mindful flow to energizing strength, there is a Veora class for every body and every mood. All levels are welcome.
               </p>
-              <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-ivory/85" aria-label="Class benefits">
+              <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-ivory/85" aria-label="Class benefits">
                 <li className="flex items-center gap-2"><Check size={14} className="text-cream" aria-hidden /> Beginner-friendly</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-cream" aria-hidden /> Expert-led sessions</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-cream" aria-hidden /> Small-group guidance</li>
@@ -66,7 +66,7 @@ export default async function ServicesPage() {
                 Live studio schedule
               </p>
               <h2 className="font-display balance mt-3 text-3xl leading-tight text-charcoal sm:text-4xl md:text-5xl">
-                See what&rsquo;s available before you sign in.
+                Find your next class.
               </h2>
               <p className="mt-4 max-w-[62ch] text-base leading-[1.7] text-charcoal/75">
                 Browse real upcoming classes, coaches, times and remaining spots. You&rsquo;ll only be asked to sign in when you choose to reserve.
