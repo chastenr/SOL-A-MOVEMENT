@@ -2,16 +2,47 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Bell,
+  CalendarDays,
+  ClipboardCheck,
+  CreditCard,
+  Dumbbell,
+  LayoutDashboard,
+  Settings2,
+  UserRoundCheck,
+  UsersRound,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type NavItem = { href: string; label: string; matchPrefixes?: readonly string[] };
+const ICONS = {
+  dashboard: LayoutDashboard,
+  notifications: Bell,
+  calendar: CalendarDays,
+  bookings: ClipboardCheck,
+  customers: UsersRound,
+  payments: CreditCard,
+  classes: Dumbbell,
+  coaches: UserRoundCheck,
+  settings: Settings2,
+} satisfies Record<string, LucideIcon>;
+
+type NavItem = {
+  href: string;
+  label: string;
+  icon: keyof typeof ICONS;
+  badge?: number;
+  matchPrefixes?: readonly string[];
+};
 
 export function AdminSidebarNav({ items }: { items: readonly NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-1 overflow-x-auto px-4 pb-4 lg:flex-col lg:overflow-visible lg:px-3">
+    <nav aria-label="Admin navigation" className="flex gap-1.5 overflow-x-auto px-3 pb-4 lg:flex-col lg:overflow-visible">
       {items.map((item) => {
+        const Icon = ICONS[item.icon];
         // /admin itself must match exactly — every other admin route starts
         // with /admin, which would otherwise make "Dashboard" look active
         // everywhere. matchPrefixes covers grouped hubs (e.g. "Settings"
@@ -25,15 +56,33 @@ export function AdminSidebarNav({ items }: { items: readonly NavItem[] }) {
           <Link
             key={item.href}
             href={item.href}
+            aria-current={isActive ? "page" : undefined}
             className={cn(
-              "relative whitespace-nowrap rounded-lg px-3 py-2 text-sm transition-colors",
-              isActive ? "bg-ivory/10 text-ivory" : "text-ivory/60 hover:bg-ivory/5 hover:text-ivory"
+              "group relative flex min-h-11 items-center gap-3 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium transition-all",
+              isActive
+                ? "bg-ivory/10 text-ivory shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                : "text-ivory/65 hover:bg-ivory/[0.06] hover:text-ivory"
             )}
           >
             {isActive && (
-              <span className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-clay lg:inset-y-2" aria-hidden />
+              <span className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-clay" aria-hidden />
             )}
-            {item.label}
+            <span
+              className={cn(
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors",
+                isActive
+                  ? "bg-clay/20 text-clay"
+                  : "bg-ivory/[0.04] text-ivory/45 group-hover:bg-ivory/[0.08] group-hover:text-ivory"
+              )}
+            >
+              <Icon size={17} strokeWidth={1.8} aria-hidden />
+            </span>
+            <span className="flex-1">{item.label}</span>
+            {(item.badge ?? 0) > 0 && (
+              <span className="min-w-5 rounded-full bg-clay px-1.5 text-center text-[10px] font-semibold leading-5 text-ivory">
+                {(item.badge ?? 0) > 99 ? "99+" : item.badge}
+              </span>
+            )}
           </Link>
         );
       })}
