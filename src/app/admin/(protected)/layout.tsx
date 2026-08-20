@@ -12,18 +12,19 @@ import { Sparkles } from "lucide-react";
 // account security, staff access) lives one click deeper, under Settings,
 // instead of getting its own row here.
 const NAV = [
-  { href: "/admin", label: "Dashboard", icon: "dashboard" },
-  { href: "/admin/notifications", label: "Notifications", icon: "notifications" },
-  { href: "/admin/calendar", label: "Calendar", icon: "calendar" },
-  { href: "/admin/bookings", label: "Bookings", icon: "bookings" },
-  { href: "/admin/customers", label: "Customers", icon: "customers" },
-  { href: "/admin/payments", label: "Payments", icon: "payments" },
-  { href: "/admin/classes", label: "Classes", icon: "classes" },
-  { href: "/admin/coaches", label: "Coaches", icon: "coaches" },
+  { href: "/admin", label: "Dashboard", icon: "dashboard", section: "Overview" },
+  { href: "/admin/notifications", label: "Notifications", icon: "notifications", section: "Overview" },
+  { href: "/admin/calendar", label: "Calendar", icon: "calendar", section: "Schedule" },
+  { href: "/admin/bookings", label: "Bookings", icon: "bookings", section: "Schedule" },
+  { href: "/admin/classes", label: "Classes", icon: "classes", section: "Schedule" },
+  { href: "/admin/customers", label: "Customers", icon: "customers", section: "People" },
+  { href: "/admin/coaches", label: "Coaches", icon: "coaches", section: "People" },
+  { href: "/admin/payments", label: "Payments", icon: "payments", section: "Management" },
   {
     href: "/admin/settings",
     label: "Settings",
     icon: "settings",
+    section: "Management",
     matchPrefixes: ["/admin/packages", "/admin/services", "/admin/security", "/admin/users", "/admin/logs"],
   },
 ] as const;
