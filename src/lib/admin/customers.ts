@@ -6,12 +6,16 @@ export type AdminCustomerRow = {
   name: string;
   email: string;
   mobileNumber: string;
+  phoneVerified: boolean;
   createdAt: string;
   activeCredits: number;
 };
 
+export type AdminCustomerStatus = "all" | "verified" | "unverified" | "with_credits" | "no_credits";
+
 export type AdminCustomerFilters = {
   search?: string;
+  status?: AdminCustomerStatus;
 };
 
 /** Every registered customer account (role = 'customer') — staff/admin accounts live at /admin/users instead. */
@@ -20,7 +24,7 @@ export async function getAdminCustomers(filters: AdminCustomerFilters = {}): Pro
 
   let query = supabase
     .from("profiles")
-    .select("id, first_name, last_name, email, mobile_number, created_at")
+    .select("id, first_name, last_name, email, mobile_number, phone_verified_at, created_at")
     .eq("role", "customer")
     .order("created_at", { ascending: false })
     .limit(500);
@@ -32,7 +36,9 @@ export async function getAdminCustomers(filters: AdminCustomerFilters = {}): Pro
     // fails the query rather than matching too much. Same guard as
     // getAdminUsers() in ./users.ts.
     const term = `%${filters.search.replace(/[%,]/g, "")}%`;
-    query = query.or(`email.ilike.${term},first_name.ilike.${term},last_name.ilike.${term}`);
+    query = query.or(
+      `email.ilike.${term},first_name.ilike.${term},last_name.ilike.${term},mobile_number.ilike.${term}`
+    );
   }
 
   const { data, error } = await query;
@@ -43,23 +49,38 @@ export async function getAdminCustomers(filters: AdminCustomerFilters = {}): Pro
   // portable across PostgREST versions instead of depending on its
   // aggregate-function support in `select`.
   const userIds = rows.map((row) => row.id);
-  const { data: activePackages } = userIds.length
+  const { data: activePackages, error: activePackagesError } = userIds.length
     ? await supabase.from("customer_packages").select("user_id, remaining_credits").eq("status", "active").in("user_id", userIds)
-    : { data: [] as { user_id: string; remaining_credits: number }[] };
+    : { data: [] as { user_id: string; remaining_credits: number }[], error: null };
+  if (activePackagesError) console.error("[getAdminCustomers] active package query failed", activePackagesError);
 
   const creditsByUser = new Map<string, number>();
   for (const pkg of activePackages ?? []) {
     creditsByUser.set(pkg.user_id, (creditsByUser.get(pkg.user_id) ?? 0) + pkg.remaining_credits);
   }
 
-  return rows.map((row) => ({
+  const customers = rows.map((row) => ({
     id: row.id,
     name: `${row.first_name} ${row.last_name}`.trim() || row.email,
     email: row.email,
     mobileNumber: row.mobile_number,
+    phoneVerified: Boolean(row.phone_verified_at),
     createdAt: row.created_at,
     activeCredits: creditsByUser.get(row.id) ?? 0,
   }));
+
+  switch (filters.status) {
+    case "verified":
+      return customers.filter((customer) => customer.phoneVerified);
+    case "unverified":
+      return customers.filter((customer) => !customer.phoneVerified);
+    case "with_credits":
+      return customers.filter((customer) => customer.activeCredits > 0);
+    case "no_credits":
+      return customers.filter((customer) => customer.activeCredits === 0);
+    default:
+      return customers;
+  }
 }
 
 export type AdminCustomerDetail = {
