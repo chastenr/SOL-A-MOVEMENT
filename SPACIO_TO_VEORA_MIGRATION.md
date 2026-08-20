@@ -23,7 +23,7 @@ spacioblnc.com is a client-rendered app — its HTML has no visible content; eve
 
 - **Description/positioning:** "a premium boutique movement and wellness studio offering Pilates, yoga, barre, ballet and specialty heated and infrared recovery classes. We believe movement should be accessible, intentional and enjoyable for every body" — rebranded from SPACIO BLNC to Veora, used on the homepage, About and site metadata.
 - **Address:** 2nd Floor, EMRADEE Building, Daang Hari Road, Molino IV, Bacoor, Cavite, 4102, Philippines.
-- **Phone/mobile:** +63 917 319 4772.
+- **Phone/mobile:** +63 917 324 4355.
 - **Geo coordinates:** 14.4108087, 120.9503414 (used in structured data and the `/locations` map link).
 - **Email:** the confirmed public booking address is `bookings@veora.ph`.
 - **Social:** real, active Instagram and Facebook (`@spacioblnc`) — linked as-is pending the client's rename/replace decision.

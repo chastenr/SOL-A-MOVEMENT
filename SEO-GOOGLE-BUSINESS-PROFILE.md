@@ -8,7 +8,7 @@ Use the website's exact NAP everywhere. Do not abbreviate or create a second ver
 - Website: **https://www.veora.ph**
 - Booking URL: **https://www.veora.ph/book**
 - Address: **2nd Floor, EMRADEE Building, Daang Hari Road, Molino IV, Bacoor, Cavite, 4102, Philippines**
-- Phone: **+63 917 319 4772**
+- Phone: **+63 917 324 4355**
 - Email: **bookings@veora.ph**
 - Hours: **Monday–Sunday, 7:00 AM–8:00 PM**
 

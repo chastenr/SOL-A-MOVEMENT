@@ -44,7 +44,7 @@ export const locations: Location[] = [
       postalCode: "4102",
       addressCountry: "PH",
     },
-    phone: "+63 917 319 4772",
+    phone: "+63 917 324 4355",
     email: "bookings@veora.ph",
     bookingEmail: "bookings@veora.ph",
     mapUrl: "https://www.google.com/maps/search/?api=1&query=14.4108087,120.9503414",

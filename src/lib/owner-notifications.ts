@@ -3,7 +3,7 @@ import { sendNewCustomerSignupNotificationEmail } from "@/lib/email";
 import { isSmsConfigured, sendSms } from "@/lib/sms";
 import { newCustomerSignupSms } from "@/lib/sms-templates";
 
-const DEFAULT_OWNER_NOTIFICATION_PHONE = "+639173194772";
+const DEFAULT_OWNER_NOTIFICATION_PHONE = "+639173244355";
 
 export async function notifyOwnerOfNewCustomerSignup(input: {
   userId: string;
