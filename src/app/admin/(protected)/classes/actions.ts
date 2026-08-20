@@ -2,12 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { addMinutes, addDays, format } from "date-fns";
+import { addMinutes, addDays } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { classSessionFormSchema, type ClassSessionFormValues } from "@/lib/validations";
 import { sendClassCancelledByStudioEmail } from "@/lib/email";
 import { isSmsConfigured, sendSms } from "@/lib/sms";
+import { formatManilaLongDate, formatManilaTime } from "@/lib/manila-time";
 import {
   CLASS_DURATION_MINUTES,
   getMinutesSinceMidnight,
@@ -230,8 +231,8 @@ export async function cancelClassSessionAction(sessionId: string): Promise<Cance
     const className = (session.class_type as unknown as { name: string } | null)?.name ?? "Class";
     const coachName = (session.instructor as unknown as { name: string } | null)?.name ?? "TBA";
     const startAt = new Date(session.start_at);
-    const formattedDate = format(startAt, "MMMM d, yyyy");
-    const time = format(startAt, "h:mm a");
+    const formattedDate = formatManilaLongDate(startAt);
+    const time = formatManilaTime(startAt);
 
     const userIds = [...new Set(rows.map((row) => row.user_id))];
     const packageIds = [...new Set(rows.flatMap((row) => row.customer_package_id ? [row.customer_package_id] : []))];
@@ -264,7 +265,7 @@ export async function cancelClassSessionAction(sessionId: string): Promise<Cance
           notifications.push(
             sendSms({
               to: profile.mobile_number,
-              body: `Veora Wellness: Your ${className} class on ${formattedDate} at ${time} was cancelled.${row.customer_package_id ? " Your credit has been returned." : " No membership credit was deducted."}`,
+              body: `Veora Wellness: Your ${className} class on ${formattedDate} at ${time} PHT was cancelled.${row.customer_package_id ? " Your credit has been returned." : " No membership credit was deducted."}`,
             })
           );
         }

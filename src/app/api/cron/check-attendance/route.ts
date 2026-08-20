@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { format } from "date-fns";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase/admin";
 import { getManilaDayRange } from "@/lib/booking-cutoff";
 import { getArrivalTime } from "@/lib/studio-hours";
 import { sendClassCancelledByStudioEmail, sendClassConfirmedEmail } from "@/lib/email";
 import { isSmsConfigured, sendSms } from "@/lib/sms";
+import { formatManilaLongDate, formatManilaTime } from "@/lib/manila-time";
 
 type CandidateSession = {
   id: string;
@@ -72,10 +72,10 @@ export async function GET(request: Request) {
     const coachName = session.instructor?.name ?? "TBA";
     const startAt = new Date(session.start_at);
     const endAt = new Date(session.end_at);
-    const formattedDate = format(startAt, "MMMM d, yyyy");
-    const time = format(startAt, "h:mm a");
-    const endTime = format(endAt, "h:mm a");
-    const arrivalTime = format(getArrivalTime(startAt), "h:mm a");
+    const formattedDate = formatManilaLongDate(startAt);
+    const time = formatManilaTime(startAt);
+    const endTime = formatManilaTime(endAt);
+    const arrivalTime = formatManilaTime(getArrivalTime(startAt));
 
     const belowMinimum = session.booked_count < (session.minimum_participants ?? 0);
 
@@ -116,7 +116,7 @@ export async function GET(request: Request) {
             tasks.push(
               sendSms({
                 to: profile.mobile_number,
-                body: `Veora Wellness: Your ${className} class on ${formattedDate} at ${time} has been cancelled due to low enrollment. Your credit has been returned.`,
+                body: `Veora Wellness: Your ${className} class on ${formattedDate} at ${time} PHT has been cancelled due to low enrollment. Your credit has been returned.`,
               }).catch(() => undefined)
             );
           }
@@ -159,7 +159,7 @@ export async function GET(request: Request) {
             tasks.push(
               sendSms({
                 to: profile.mobile_number,
-                body: `Veora Wellness: Your ${className} class on ${formattedDate} at ${time} is confirmed. See you there!`,
+                body: `Veora Wellness: Your ${className} class on ${formattedDate} at ${time} PHT is confirmed. See you there!`,
               }).catch(() => undefined)
             );
           }

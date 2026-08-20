@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { format } from "date-fns";
 import { requireUser } from "@/lib/auth/require-role";
 import { getCustomerPackages } from "@/lib/customer/account";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
+import { formatManilaDate } from "@/lib/manila-time";
 
 export const metadata: Metadata = {
   title: "My Packages",
@@ -50,13 +50,13 @@ export default async function AccountPackagesPage() {
                 {pkg.activatedAt && (
                   <div className="flex justify-between">
                     <dt className="text-charcoal/55">Activated</dt>
-                    <dd className="text-charcoal">{format(new Date(pkg.activatedAt), "MMM d, yyyy")}</dd>
+                    <dd className="text-charcoal">{formatManilaDate(pkg.activatedAt)}</dd>
                   </div>
                 )}
                 {pkg.expiresAt && (
                   <div className="flex justify-between">
                     <dt className="text-charcoal/55">Expires</dt>
-                    <dd className="text-charcoal">{format(new Date(pkg.expiresAt), "MMM d, yyyy")}</dd>
+                    <dd className="text-charcoal">{formatManilaDate(pkg.expiresAt)}</dd>
                   </div>
                 )}
               </dl>

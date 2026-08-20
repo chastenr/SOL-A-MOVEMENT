@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { format } from "date-fns";
 import { requireSuperAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getAdminPurchases, type AdminPurchaseStatus } from "@/lib/admin/payments";
@@ -8,6 +7,7 @@ import { centavosToPeso } from "@/lib/money";
 import { Button } from "@/components/ui/Button";
 import { setPaymentSettingActiveAction, deletePaymentSettingAction } from "@/app/admin/(protected)/settings/payments/actions";
 import { cn } from "@/lib/utils";
+import { formatManilaDateTime } from "@/lib/manila-time";
 
 export const metadata: Metadata = {
   title: "Payments",
@@ -219,7 +219,7 @@ export default async function AdminPaymentsPage({
                       {STATUS_LABEL[purchase.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-charcoal/60">{format(new Date(purchase.createdAt), "MMM d, h:mm a")}</td>
+                  <td className="px-4 py-3 text-charcoal/60">{formatManilaDateTime(purchase.createdAt)} PHT</td>
                   <td className="px-4 py-3 text-right">
                     <Link href={`/admin/payments/${purchase.id}`} className="text-xs underline underline-offset-2 hover:text-charcoal">
                       Review

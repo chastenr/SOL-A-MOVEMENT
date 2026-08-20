@@ -1,5 +1,6 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getManilaDayRange } from "@/lib/booking-cutoff";
 
 export type AdminBookingStatus = "pending" | "booked" | "cancelled" | "completed" | "no_show";
 
@@ -232,15 +233,12 @@ export async function getAdminBookings(filters: AdminBookingFilters = {}): Promi
 
   if (filters.range) {
     const now = Date.now();
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
+    const { start: startOfToday, end: endOfToday } = getManilaDayRange();
 
     mapped = mapped.filter((row) => {
       if (!row.session) return false;
       const start = new Date(row.session.startAt).getTime();
-      if (filters.range === "today") return start >= startOfToday.getTime() && start <= endOfToday.getTime();
+      if (filters.range === "today") return start >= startOfToday.getTime() && start < endOfToday.getTime();
       if (filters.range === "upcoming") return start > now;
       if (filters.range === "past") return start <= now;
       return true;

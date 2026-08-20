@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { format } from "date-fns";
 import { requireUser } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getCustomerPackages, getCustomerMemberships, getCustomerBookings, getCustomerPurchases } from "@/lib/customer/account";
@@ -8,7 +7,7 @@ import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { logoutAction } from "@/lib/auth/actions";
-import { formatManilaFullDateTime } from "@/lib/manila-time";
+import { formatManilaFullDateTime, formatManilaLongDate } from "@/lib/manila-time";
 
 export const metadata: Metadata = {
   title: "My Account",
@@ -65,7 +64,7 @@ export default async function AccountPage() {
               </p>
               {activePackage.expiresAt && (
                 <p className="text-sm text-charcoal/60">
-                  Expires {format(new Date(activePackage.expiresAt), "MMMM d, yyyy")}
+                  Expires {formatManilaLongDate(activePackage.expiresAt)}
                 </p>
               )}
               <Button href="/account/book" variant="secondary" size="md" className="mt-4">
@@ -89,7 +88,7 @@ export default async function AccountPage() {
               <p className="mt-3 text-charcoal">{activeMembership.membershipName}</p>
               <p className="mt-1 text-sm text-charcoal/60">Unlimited class bookings while active</p>
               <p className="text-sm text-charcoal/60">
-                Expires {format(new Date(activeMembership.expiresAt), "MMMM d, yyyy")}
+                Expires {formatManilaLongDate(activeMembership.expiresAt)}
               </p>
               <Button href="/account/book" variant="secondary" size="md" className="mt-4">
                 Book with Membership
@@ -111,7 +110,7 @@ export default async function AccountPage() {
             <>
               <p className="mt-3 text-charcoal">{upcomingBooking.session.className}</p>
               <p className="text-sm text-charcoal/60">
-                {formatManilaFullDateTime(upcomingBooking.session.startAt)}
+                {formatManilaFullDateTime(upcomingBooking.session.startAt)} PHT
               </p>
               <p className="text-sm text-charcoal/60">{upcomingBooking.session.location}</p>
             </>

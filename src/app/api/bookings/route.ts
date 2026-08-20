@@ -1,5 +1,4 @@
 import { NextResponse, after } from "next/server";
-import { format } from "date-fns";
 import { requireUserApi, AuthError } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isPhoneVerificationRequired } from "@/lib/feature-flags";
@@ -10,6 +9,7 @@ import { getArrivalTime } from "@/lib/studio-hours";
 import { formatBookingReference } from "@/lib/utils";
 import { sendClassBookingConfirmationEmail, sendClassBookingNotificationEmail } from "@/lib/email";
 import { isSmsConfigured, sendSms } from "@/lib/sms";
+import { formatManilaLongDate, formatManilaTime } from "@/lib/manila-time";
 
 const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0000: { status: 401, message: "Please sign in." },
@@ -207,10 +207,10 @@ async function notifyBookingCreated(
   const coachName = row.class_session?.instructor?.name ?? "TBA";
   const startAt = row.class_session?.start_at ? new Date(row.class_session.start_at) : null;
   const endAt = row.class_session?.end_at ? new Date(row.class_session.end_at) : null;
-  const formattedDate = startAt ? format(startAt, "MMMM d, yyyy") : "—";
-  const time = startAt ? format(startAt, "h:mm a") : "—";
-  const endTime = endAt ? format(endAt, "h:mm a") : "—";
-  const arrivalTime = startAt ? format(getArrivalTime(startAt), "h:mm a") : "—";
+  const formattedDate = startAt ? formatManilaLongDate(startAt) : "—";
+  const time = startAt ? formatManilaTime(startAt) : "—";
+  const endTime = endAt ? formatManilaTime(endAt) : "—";
+  const arrivalTime = startAt ? formatManilaTime(getArrivalTime(startAt)) : "—";
   const packageName = row.customer_package?.package_name_snapshot ?? "—";
   const originalSessions = row.customer_package?.credit_count ?? 0;
   const displayedRemaining = remainingCredits ?? 0;
@@ -250,7 +250,7 @@ async function notifyBookingCreated(
       ? [
           sendSms({
             to: user.mobile_number,
-            body: `Veora Wellness: Your ${className} class is booked for ${formattedDate} at ${time}. Ref ${formatBookingReference(bookingId)}.${remainingCredits == null ? " Unlimited membership active." : ` Credits left: ${remainingCredits}.`}`,
+            body: `Veora Wellness: Your ${className} class is booked for ${formattedDate} at ${time} PHT. Ref ${formatBookingReference(bookingId)}.${remainingCredits == null ? " Unlimited membership active." : ` Credits left: ${remainingCredits}.`}`,
           }),
         ]
       : []),

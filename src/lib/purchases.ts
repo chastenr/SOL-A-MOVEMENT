@@ -1,7 +1,7 @@
 import "server-only";
-import { format } from "date-fns";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { PackageDbRow } from "@/lib/catalog/packages";
+import { formatManilaDateKey } from "@/lib/manila-time";
 
 // No 0/O/1/I/L — avoids visual ambiguity when a customer reads this back to
 // support or types it into a bank transfer memo.
@@ -13,7 +13,7 @@ function randomSuffix(length = 5): string {
 }
 
 export function buildReferenceNumber(now: Date): string {
-  return `VEO-${format(now, "yyyyMMdd")}-${randomSuffix()}`;
+  return `VEO-${formatManilaDateKey(now).replaceAll("-", "")}-${randomSuffix()}`;
 }
 
 export type CreatePurchaseResult = { error: string } | { purchaseId: string };

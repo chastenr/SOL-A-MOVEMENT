@@ -12,13 +12,14 @@ import {
   addMonths,
   addWeeks,
   addDays,
-  isSameDay,
   isSameMonth,
   parseISO,
 } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminCalendarSessions, type AdminCalendarSession } from "@/lib/admin/calendar";
 import { cn } from "@/lib/utils";
+import { getManilaDayRange } from "@/lib/booking-cutoff";
+import { formatManilaDateKey, formatManilaTime } from "@/lib/manila-time";
 
 export const metadata: Metadata = {
   title: "Calendar",
@@ -28,12 +29,12 @@ export const metadata: Metadata = {
 type ViewMode = "month" | "week" | "day";
 
 function parseAnchorDate(value: string | undefined): Date {
-  if (!value) return new Date();
+  const fallback = formatManilaDateKey(new Date());
   try {
-    const parsed = parseISO(value);
-    return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+    const parsed = parseISO(`${value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : fallback}T12:00:00Z`);
+    return Number.isNaN(parsed.getTime()) ? parseISO(`${fallback}T12:00:00Z`) : parsed;
   } catch {
-    return new Date();
+    return parseISO(`${fallback}T12:00:00Z`);
   }
 }
 
@@ -50,8 +51,9 @@ function shiftAnchor(view: ViewMode, anchor: Date, direction: 1 | -1): Date {
 }
 
 function sessionsOnDay(sessions: AdminCalendarSession[], day: Date): AdminCalendarSession[] {
+  const dayKey = format(day, "yyyy-MM-dd");
   return sessions
-    .filter((session) => isSameDay(new Date(session.startAt), day))
+    .filter((session) => formatManilaDateKey(session.startAt) === dayKey)
     .sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
 }
 
@@ -71,12 +73,14 @@ export default async function AdminCalendarPage({
   const view: ViewMode = params.view === "week" || params.view === "day" ? params.view : "month";
   const anchor = parseAnchorDate(params.date);
   const { from, to } = rangeFor(view, anchor);
+  const queryFrom = getManilaDayRange(from).start;
+  const queryTo = getManilaDayRange(to).end;
 
-  const sessions = await getAdminCalendarSessions(from.toISOString(), to.toISOString());
+  const sessions = await getAdminCalendarSessions(queryFrom.toISOString(), queryTo.toISOString());
 
   const prevHref = `/admin/calendar?view=${view}&date=${format(shiftAnchor(view, anchor, -1), "yyyy-MM-dd")}`;
   const nextHref = `/admin/calendar?view=${view}&date=${format(shiftAnchor(view, anchor, 1), "yyyy-MM-dd")}`;
-  const todayHref = `/admin/calendar?view=${view}&date=${format(new Date(), "yyyy-MM-dd")}`;
+  const todayHref = `/admin/calendar?view=${view}&date=${formatManilaDateKey(new Date())}`;
 
   return (
     <div>
@@ -162,7 +166,7 @@ function MonthGrid({ anchor, from, to, sessions }: { anchor: Date; from: Date; t
                   <div key={session.id} className="flex items-center gap-1 truncate rounded bg-cream/60 px-1.5 py-0.5 text-[11px] text-charcoal/75">
                     <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", STATUS_DOT[session.status])} />
                     <span className="truncate">
-                      {format(new Date(session.startAt), "h:mma")} {session.className} · {session.bookedCount}/{session.capacity}
+                      {formatManilaTime(session.startAt).replace(" ", "")} {session.className} · {session.bookedCount}/{session.capacity}
                     </span>
                   </div>
                 ))}
@@ -194,7 +198,7 @@ function WeekAgenda({ from, sessions }: { from: Date; sessions: AdminCalendarSes
                   href={`/admin/classes/${session.id}`}
                   className="block rounded-lg bg-cream/50 px-2 py-1.5 text-xs text-charcoal/75 hover:bg-cream"
                 >
-                  <span className="font-medium">{format(new Date(session.startAt), "h:mm a")}</span>
+                  <span className="font-medium">{formatManilaTime(session.startAt)} PHT</span>
                   <br />
                   {session.className} · {session.bookedCount}/{session.capacity}
                   <br />
@@ -225,7 +229,7 @@ function DayAgenda({ day, sessions }: { day: Date; sessions: AdminCalendarSessio
               <span className={cn("mt-2 h-2 w-2 shrink-0 rounded-full", STATUS_DOT[session.status])} />
               <div>
                 <p className="font-medium text-charcoal">
-                  {format(new Date(session.startAt), "h:mm a")}–{format(new Date(session.endAt), "h:mm a")} · {session.className}
+                  {formatManilaTime(session.startAt)}–{formatManilaTime(session.endAt)} PHT · {session.className}
                 </p>
                 <p className="text-sm text-charcoal/55">
                   {session.location} · Coach {session.instructor ?? "TBA"}

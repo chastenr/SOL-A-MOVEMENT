@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminCustomers } from "@/lib/admin/customers";
 import { fieldInputClasses } from "@/components/ui/Field";
+import { formatManilaDate } from "@/lib/manila-time";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -71,7 +71,7 @@ export default async function AdminCustomersPage({
                       {customer.activeCredits}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-charcoal/70">{format(new Date(customer.createdAt), "MMM d, yyyy")}</td>
+                  <td className="px-4 py-3 text-charcoal/70">{formatManilaDate(customer.createdAt)}</td>
                   <td className="px-4 py-3 text-right">
                     <Link
                       href={`/admin/customers/${customer.id}`}

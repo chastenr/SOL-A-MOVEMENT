@@ -1,4 +1,4 @@
-const MANILA_TIME_ZONE = "Asia/Manila";
+export const MANILA_TIME_ZONE = "Asia/Manila";
 
 type DateValue = Date | string | number;
 
@@ -21,6 +21,27 @@ export function formatManilaDate(value: DateValue): string {
     day: "numeric",
     year: "numeric",
   }).format(toDate(value));
+}
+
+export function formatManilaLongDate(value: DateValue): string {
+  return new Intl.DateTimeFormat("en-PH", {
+    timeZone: MANILA_TIME_ZONE,
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(toDate(value));
+}
+
+/** Stable YYYY-MM-DD key for grouping UTC timestamps by Manila calendar day. */
+export function formatManilaDateKey(value: DateValue): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: MANILA_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(toDate(value));
+  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((item) => item.type === type)?.value ?? "";
+  return `${part("year")}-${part("month")}-${part("day")}`;
 }
 
 export function formatManilaFullDate(value: DateValue): string {

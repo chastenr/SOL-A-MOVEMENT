@@ -113,7 +113,7 @@ export default async function AdminBookingsPage({
                 <th className="px-4 py-3">Customer</th>
                 <th className="px-4 py-3">Class</th>
                 <th className="px-4 py-3">Location</th>
-                <th className="px-4 py-3">Date &amp; Time</th>
+                <th className="px-4 py-3">Date &amp; Time (PHT)</th>
                 <th className="px-4 py-3">Package</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3" />

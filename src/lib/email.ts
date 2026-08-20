@@ -193,7 +193,7 @@ export async function sendClassBookingNotificationEmail(booking: ClassBookingEma
       ${row("Class", booking.className)}
       ${row("Coach", booking.coachName)}
       ${row("Date", booking.formattedDate)}
-      ${row("Time", booking.time)}
+      ${row("Time (PHT)", booking.time)}
       ${row("Package", booking.packageName)}
       ${row("Package Purchase", booking.packageAmountFormatted)}
       ${row("Original Credits", String(booking.originalSessions))}
@@ -237,17 +237,17 @@ export async function sendClassBookingConfirmationEmail(booking: ClassScheduleEm
        ${row("Class", booking.className)}
        ${row("Coach", booking.coachName)}
        ${row("Date", booking.formattedDate)}
-       ${row("Time", booking.endTime ? `${booking.time} – ${booking.endTime}` : booking.time)}
+       ${row("Time (PHT)", booking.endTime ? `${booking.time} – ${booking.endTime}` : booking.time)}
        ${booking.bookingReference ? row("Booking ID", booking.bookingReference) : ""}
        ${row("Package", booking.packageName)}
        ${booking.sessionsRemaining !== undefined ? row("Credits Remaining", String(booking.sessionsRemaining)) : ""}
      </table>
      ${
        booking.arrivalTime
-         ? `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;"><strong>Please arrive at least 10 minutes before your class begins</strong> — by ${escapeEmailHtml(booking.arrivalTime)}.</p>`
+         ? `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;"><strong>Please arrive at least 10 minutes before your class begins</strong> — by ${escapeEmailHtml(booking.arrivalTime)} PHT.</p>`
          : ""
      }
-     <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">Bookings close at 10:00 PM the evening before class. If we need to cancel your class, your session credit will automatically be returned.</p>
+     <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">Bookings close at 10:00 PM PHT the evening before class. If we need to cancel your class, your session credit will automatically be returned.</p>
      <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">We look forward to seeing you.</p>
      <p style="margin:24px 0 0;font-size:15px;color:#221f1c;">Veora Wellness</p>`
   );
@@ -284,7 +284,7 @@ export async function sendClassCancelledByStudioEmail(
        ${row("Class", booking.className)}
        ${row("Coach", booking.coachName)}
        ${row("Date", booking.formattedDate)}
-       ${row("Time", booking.time)}
+       ${row("Time (PHT)", booking.time)}
      </table>
      <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">Your reservation credit has automatically been returned to your package.</p>
      <table style="width:100%;border-collapse:collapse;margin:16px 0;">
@@ -315,11 +315,11 @@ export async function sendClassConfirmedEmail(booking: ClassScheduleEmailPayload
        ${row("Class", booking.className)}
        ${row("Coach", booking.coachName)}
        ${row("Date", booking.formattedDate)}
-       ${row("Time", booking.endTime ? `${booking.time} – ${booking.endTime}` : booking.time)}
+       ${row("Time (PHT)", booking.endTime ? `${booking.time} – ${booking.endTime}` : booking.time)}
      </table>
      ${
        booking.arrivalTime
-         ? `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Please arrive by <strong>${escapeEmailHtml(booking.arrivalTime)}</strong>, which is 10 minutes before your class starts.</p>`
+         ? `<p style="margin:0 0 16px;font-size:15px;color:#221f1c;">Please arrive by <strong>${escapeEmailHtml(booking.arrivalTime)} PHT</strong>, which is 10 minutes before your class starts.</p>`
          : ""
      }
      <p style="margin:16px 0 0;font-size:15px;color:#221f1c;">We look forward to seeing you.</p>

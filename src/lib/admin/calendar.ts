@@ -47,7 +47,7 @@ export async function getAdminCalendarSessions(from: string, to: string): Promis
       "id, start_at, end_at, capacity, booked_count, minimum_participants, booking_enabled, status, class_type:class_types(name), location:locations(name), instructor:instructors(name)"
     )
     .gte("start_at", from)
-    .lte("start_at", to)
+    .lt("start_at", to)
     .order("start_at", { ascending: true })
     .limit(500);
 

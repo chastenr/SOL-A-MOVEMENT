@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { format } from "date-fns";
 import { requireUser } from "@/lib/auth/require-role";
 import { getCustomerPurchases } from "@/lib/customer/account";
 import { centavosToPeso } from "@/lib/money";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { formatManilaDate } from "@/lib/manila-time";
 
 export const metadata: Metadata = {
   title: "Payment History",
@@ -41,7 +41,7 @@ export default async function AccountPaymentsPage() {
               <div>
                 <p className="text-charcoal">{purchase.packageName}</p>
                 <p className="text-xs text-charcoal/45">
-                  {purchase.referenceNumber} · {format(new Date(purchase.createdAt), "MMM d, yyyy")}
+                  {purchase.referenceNumber} · {formatManilaDate(purchase.createdAt)}
                 </p>
               </div>
               <div className="text-right">

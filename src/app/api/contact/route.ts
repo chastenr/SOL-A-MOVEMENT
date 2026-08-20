@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { format } from "date-fns";
 import { contactSchema } from "@/lib/validations";
 import { sendContactEmail } from "@/lib/email";
 import { getClientKey, isRateLimited } from "@/lib/rate-limit";
 import { isRateLimitedDb } from "@/lib/rate-limit-db";
+import { formatManilaLongDate, formatManilaTime } from "@/lib/manila-time";
 
 export async function POST(request: Request) {
   const rateLimitKey = getClientKey(request, "contact");
@@ -34,7 +34,8 @@ export async function POST(request: Request) {
   }
 
   const contact = parsed.data;
-  const submittedAt = format(new Date(), "MMMM d, yyyy 'at' h:mm a");
+  const now = new Date();
+  const submittedAt = `${formatManilaLongDate(now)} at ${formatManilaTime(now)} PHT`;
 
   const emailResult = await sendContactEmail({ ...contact, submittedAt });
   if ("skipped" in emailResult || emailResult.error) {

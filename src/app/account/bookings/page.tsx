@@ -42,12 +42,12 @@ export default async function AccountBookingsPage() {
                 <div>
                   <p className="text-charcoal">{booking.session?.className ?? "—"}</p>
                   <p className="text-sm text-charcoal/55">
-                    {booking.session ? formatManilaFullDateTime(booking.session.startAt) : "—"}
+                    {booking.session ? `${formatManilaFullDateTime(booking.session.startAt)} PHT` : "—"}
                     {booking.session ? ` · ${booking.session.location}` : ""}
                   </p>
                   {isUpcoming && booking.session && (
                     <p className="mt-1 text-xs text-charcoal/40">
-                      Arrive by {formatManilaTime(booking.session.arrivalTime)}
+                      Arrive by {formatManilaTime(booking.session.arrivalTime)} PHT
                     </p>
                   )}
                   <p className="mt-1 text-xs text-charcoal/40">

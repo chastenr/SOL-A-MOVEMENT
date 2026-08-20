@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { format } from "date-fns";
 import { requireSuperAdmin } from "@/lib/auth/require-role";
 import { getAdminPurchaseDetail } from "@/lib/admin/payments";
 import { centavosToPeso } from "@/lib/money";
 import { PaymentReviewActions } from "@/components/admin/PaymentReviewActions";
+import { formatManilaDateTime } from "@/lib/manila-time";
 
 export const metadata: Metadata = {
   title: "Payment Detail",
@@ -51,9 +51,9 @@ export default async function AdminPaymentDetailPage({ params }: { params: Promi
             <Row label="Method" value={purchase.method} />
             <Row label="Provider" value={purchase.provider} />
             <Row label="Status" value={purchase.status} />
-            <Row label="Created" value={format(new Date(purchase.createdAt), "MMM d, yyyy h:mm a")} />
-            <Row label="Purchase Date" value={format(new Date(purchase.approvedAt ?? purchase.createdAt), "MMM d, yyyy h:mm a")} />
-            {purchase.approvedAt && <Row label="Approved" value={format(new Date(purchase.approvedAt), "MMM d, yyyy h:mm a")} />}
+            <Row label="Created (PHT)" value={formatManilaDateTime(purchase.createdAt)} />
+            <Row label="Purchase Date (PHT)" value={formatManilaDateTime(purchase.approvedAt ?? purchase.createdAt)} />
+            {purchase.approvedAt && <Row label="Approved (PHT)" value={formatManilaDateTime(purchase.approvedAt)} />}
             {purchase.rejectedReason && <Row label="Rejected Reason" value={purchase.rejectedReason} />}
           </dl>
         </section>

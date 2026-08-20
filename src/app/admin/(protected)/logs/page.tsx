@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { getAuditLogs, getAuditLogActions } from "@/lib/admin/audit-logs";
 import { fieldInputClasses } from "@/components/ui/Field";
+import { formatManilaDateTime } from "@/lib/manila-time";
 
 export const metadata: Metadata = {
   title: "Activity Log",
@@ -86,7 +86,7 @@ export default async function AdminLogsPage({
               {logs.map((log) => (
                 <tr key={log.id} className="border-b border-charcoal/5 align-top last:border-0">
                   <td className="whitespace-nowrap px-4 py-3 text-charcoal/70">
-                    {format(new Date(log.createdAt), "MMM d, yyyy · h:mm a")}
+                    {formatManilaDateTime(log.createdAt)} PHT
                   </td>
                   <td className="px-4 py-3">
                     <p className="text-charcoal">{log.actorEmail}</p>

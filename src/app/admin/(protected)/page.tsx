@@ -196,7 +196,7 @@ export default async function AdminDashboardPage() {
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="border-b border-charcoal/10 text-xs uppercase tracking-[0.08em] text-charcoal/45">
               <tr>
-                <th className="px-4 py-3">Time</th>
+                <th className="px-4 py-3">Time (PHT)</th>
                 <th className="px-4 py-3">Customer</th>
                 <th className="px-4 py-3">Class</th>
                 <th className="px-4 py-3">Coach</th>

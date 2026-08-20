@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import {
   getAdminCustomerDetail,
@@ -12,7 +11,7 @@ import { centavosToPeso } from "@/lib/money";
 import { AdjustCreditsForm } from "@/components/admin/AdjustCreditsForm";
 import { GrantPackageForm } from "@/components/admin/GrantPackageForm";
 import { getCustomerBookings, getCustomerMemberships } from "@/lib/customer/account";
-import { formatManilaDateTime } from "@/lib/manila-time";
+import { formatManilaDate, formatManilaDateTime } from "@/lib/manila-time";
 
 export const metadata: Metadata = {
   title: "Customer",
@@ -40,7 +39,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
       <p className="mt-1 text-sm text-charcoal/55">
         Member VEO-{String(customer.customerNumber).padStart(6, "0")} · {customer.email}{" "}
         {customer.mobileNumber && `· ${customer.mobileNumber}`} · Joined{" "}
-        {format(new Date(customer.createdAt), "MMM d, yyyy")}
+        {formatManilaDate(customer.createdAt)}
       </p>
 
       <section className="mt-10">
@@ -64,7 +63,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
                     <p className="text-sm text-charcoal/60">
                       {pkg.remainingCredits} / {pkg.creditCount} credits remaining ·{" "}
                       <span className="capitalize">{pkg.status}</span>
-                      {pkg.expiresAt && ` · expires ${format(new Date(pkg.expiresAt), "MMM d, yyyy")}`}
+                      {pkg.expiresAt && ` · expires ${formatManilaDate(pkg.expiresAt)}`}
                     </p>
                   </div>
                 </div>
@@ -96,7 +95,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
               <div key={membership.id} className="rounded-xl border border-charcoal/10 bg-ivory p-4">
                 <p className="text-charcoal">{membership.membershipName}</p>
                 <p className="mt-1 text-sm text-charcoal/60">
-                  <span className="capitalize">{membership.status}</span> · {format(new Date(membership.startsAt), "MMM d, yyyy")}–{format(new Date(membership.expiresAt), "MMM d, yyyy")}
+                  <span className="capitalize">{membership.status}</span> · {formatManilaDate(membership.startsAt)}–{formatManilaDate(membership.expiresAt)}
                 </p>
               </div>
             ))}
@@ -162,7 +161,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
                     <td className="px-4 py-3 text-charcoal/70">{purchase.creditCount ?? "—"}</td>
                     <td className="px-4 py-3 text-charcoal/70">{centavosToPeso(purchase.amountCentavos)}</td>
                     <td className="px-4 py-3 text-charcoal/70 capitalize">{purchase.status.replace("_", " ")}</td>
-                    <td className="px-4 py-3 text-charcoal/70">{format(new Date(purchase.createdAt), "MMM d, yyyy")}</td>
+                    <td className="px-4 py-3 text-charcoal/70">{formatManilaDate(purchase.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>

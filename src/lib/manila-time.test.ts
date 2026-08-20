@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   formatManilaDate,
+  formatManilaDateKey,
   formatManilaDateTime,
   formatManilaFullDateTime,
+  formatManilaLongDate,
   formatManilaTime,
 } from "@/lib/manila-time";
 
@@ -17,5 +19,13 @@ describe("Manila date and time formatting", () => {
 
   it("includes the correct Manila weekday in long labels", () => {
     expect(formatManilaFullDateTime(utcInstant)).toBe("Friday, August 14, 2026 at 12:00 PM");
+  });
+
+  it("uses the Manila calendar date when UTC is still on the previous day", () => {
+    const afterMidnightInManila = "2026-08-14T17:30:00.000Z";
+
+    expect(formatManilaLongDate(afterMidnightInManila)).toBe("August 15, 2026");
+    expect(formatManilaDateKey(afterMidnightInManila)).toBe("2026-08-15");
+    expect(formatManilaTime(afterMidnightInManila)).toBe("1:30 AM");
   });
 });

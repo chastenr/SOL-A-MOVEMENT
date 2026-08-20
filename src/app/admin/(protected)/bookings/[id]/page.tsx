@@ -93,7 +93,7 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
               value={booking.session ? formatManilaFullDate(booking.session.startAt) : "—"}
             />
             <Row
-              label="Time"
+              label="Time (PHT)"
               value={
                 booking.session
                   ? `${formatManilaTime(booking.session.startAt)} – ${formatManilaTime(booking.session.endAt)}`

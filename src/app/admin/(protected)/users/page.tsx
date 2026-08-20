@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { format } from "date-fns";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { getAdminUsers, type AdminUserRole } from "@/lib/admin/users";
 import { ROLE_LABEL } from "@/lib/admin/role-labels";
 import { fieldInputClasses } from "@/components/ui/Field";
+import { formatManilaDate } from "@/lib/manila-time";
 import { RoleSelect } from "@/components/admin/RoleSelect";
 import { DeleteUserButton } from "@/components/admin/DeleteUserButton";
 import { InviteStaffForm } from "@/components/admin/InviteStaffForm";
@@ -119,7 +119,7 @@ export default async function AdminUsersPage({
                     {user.firstName || user.lastName ? `${user.firstName} ${user.lastName}`.trim() : "—"}
                   </td>
                   <td className="px-4 py-3 text-charcoal/70">{user.email}</td>
-                  <td className="px-4 py-3 text-charcoal/70">{format(new Date(user.createdAt), "MMM d, yyyy")}</td>
+                  <td className="px-4 py-3 text-charcoal/70">{formatManilaDate(user.createdAt)}</td>
                   <td className="px-4 py-3">
                     <span className={`rounded-full px-2.5 py-1 text-xs uppercase tracking-[0.06em] ${ROLE_BADGE[user.role]}`}>
                       {ROLE_LABEL[user.role]}

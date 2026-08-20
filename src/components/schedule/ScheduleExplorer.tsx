@@ -472,7 +472,7 @@ function SessionDetailDialog({
 
           <dl className="mt-6 grid gap-3 rounded-2xl bg-cream/55 p-4 text-base leading-relaxed sm:grid-cols-2 sm:p-5">
             <div className="flex gap-3"><CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-clay" aria-hidden /><div><dt className="text-charcoal/40">Date</dt><dd className="mt-0.5 text-charcoal">{fullDateFormatter.format(startAt)}</dd></div></div>
-            <div className="flex gap-3"><Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-clay" aria-hidden /><div><dt className="text-charcoal/40">Time</dt><dd className="mt-0.5 text-charcoal">{timeFormatter.format(startAt)}–{timeFormatter.format(endAt)} · {differenceInMinutes(endAt, startAt)} min</dd></div></div>
+            <div className="flex gap-3"><Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-clay" aria-hidden /><div><dt className="text-charcoal/40">Time (PHT)</dt><dd className="mt-0.5 text-charcoal">{timeFormatter.format(startAt)}–{timeFormatter.format(endAt)} · {differenceInMinutes(endAt, startAt)} min</dd></div></div>
             <div className="flex gap-3"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-clay" aria-hidden /><div><dt className="text-charcoal/40">Studio</dt><dd className="mt-0.5 text-charcoal">{session.location}</dd></div></div>
             <div className="flex gap-3"><Users className="mt-0.5 h-4 w-4 shrink-0 text-clay" aria-hidden /><div><dt className="text-charcoal/40">Arrival</dt><dd className="mt-0.5 text-charcoal">Please arrive by {arrivalTime}</dd></div></div>
           </dl>
@@ -520,7 +520,7 @@ function SessionDetailDialog({
             ) : (
               <p className="rounded-xl bg-charcoal/5 px-4 py-3 text-center text-base text-charcoal/75">This session is currently {state.label.toLowerCase()}.</p>
             )}
-            <p className="mt-3 text-center text-sm leading-relaxed text-charcoal/70">Bookings close at 10:00 PM the evening before class. The 12-hour cancellation policy applies.</p>
+            <p className="mt-3 text-center text-sm leading-relaxed text-charcoal/70">Bookings close at 10:00 PM PHT the evening before class. The 12-hour cancellation policy applies.</p>
           </div>
         </div>
       </div>
