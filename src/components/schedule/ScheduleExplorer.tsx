@@ -45,6 +45,10 @@ const calendarMonthFormatter = new Intl.DateTimeFormat("en-PH", {
   month: "long",
   year: "numeric",
 });
+
+// Five sessions still fit in a calendar row while remaining readable. Any
+// additional sessions stay available in the full day list directly below.
+const MAX_CALENDAR_SESSIONS = 5;
 const fullDateFormatter = new Intl.DateTimeFormat("en-PH", {
   timeZone: MANILA_TIME_ZONE,
   weekday: "long",
@@ -292,7 +296,7 @@ export function ScheduleExplorer({
                   setSelectedSession(null);
                 }}
                 className={cn(
-                  "min-h-36 border-b border-r border-charcoal/10 p-2.5 text-left align-top transition-colors focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-clay",
+                  "min-h-44 border-b border-r border-charcoal/10 p-2.5 text-left align-top transition-colors focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-clay",
                   index % 7 === 6 && "border-r-0",
                   index >= 35 && "border-b-0",
                   !cell.inMonth && "bg-cream/20 text-charcoal/30",
@@ -306,21 +310,33 @@ export function ScheduleExplorer({
                 </span>
                 {daySessions.length > 0 && (
                   <span className="mt-2 block space-y-1.5">
-                    {daySessions.slice(0, 3).map((session) => {
+                    <span className="block px-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-charcoal/55">
+                      {daySessions.length} {daySessions.length === 1 ? "class" : "classes"}
+                    </span>
+                    {daySessions.slice(0, MAX_CALENDAR_SESSIONS).map((session) => {
                       const state = sessionState(session, bookedSessionIds.includes(session.id));
                       return (
-                        <span key={session.id} className="block rounded-lg border border-clay/20 bg-clay/8 px-2 py-1.5">
-                          <span className="block truncate text-xs font-semibold text-charcoal">
-                            {timeFormatter.format(new Date(session.startAt))} · {session.className}
+                        <span
+                          key={session.id}
+                          title={`${timeFormatter.format(new Date(session.startAt))} · ${session.className} · ${state.label}`}
+                          className="block rounded-lg border border-clay/20 bg-clay/8 px-2 py-1.5"
+                        >
+                          <span className="block text-[10px] font-semibold uppercase tracking-[0.04em] text-clay">
+                            {timeFormatter.format(new Date(session.startAt))}
                           </span>
-                          <span className={cn("mt-0.5 block truncate text-[10px] font-medium uppercase tracking-[0.06em]", state.canBook ? "text-clay" : "text-charcoal/50")}>
+                          <span className="mt-0.5 block line-clamp-2 text-xs font-semibold leading-[1.25] text-charcoal">
+                            {session.className}
+                          </span>
+                          <span className={cn("mt-1 block text-[10px] font-medium uppercase tracking-[0.04em]", state.canBook ? "text-clay" : "text-charcoal/50")}>
                             {state.label}
                           </span>
                         </span>
                       );
                     })}
-                    {daySessions.length > 3 && (
-                      <span className="block px-1 text-[11px] font-medium text-charcoal/55">+{daySessions.length - 3} more</span>
+                    {daySessions.length > MAX_CALENDAR_SESSIONS && (
+                      <span className="block px-1 text-[11px] font-medium text-charcoal/55">
+                        +{daySessions.length - MAX_CALENDAR_SESSIONS} more in the day list
+                      </span>
                     )}
                   </span>
                 )}
@@ -359,7 +375,7 @@ export function ScheduleExplorer({
                   {timeFormatter.format(new Date(session.startAt))}
                 </p>
                 <div className="min-w-0">
-                  <p className="truncate text-base text-charcoal sm:text-lg">{session.className}</p>
+                  <p className="line-clamp-2 text-base leading-snug text-charcoal sm:text-lg">{session.className}</p>
                   <p className="mt-1 truncate text-sm text-charcoal/70">
                     {session.instructor ? `with ${session.instructor}` : "Coach to be announced"}
                   </p>
