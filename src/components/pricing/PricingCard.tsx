@@ -3,6 +3,7 @@ import { TiltCard } from "@/components/ui/TiltCard";
 import { Button } from "@/components/ui/Button";
 import type { PricingOption } from "@/data/pricing";
 import { cn } from "@/lib/utils";
+import { isPromotionActive } from "@/lib/promotion-window";
 
 type PricingCardProps = {
   option: PricingOption;
@@ -15,22 +16,24 @@ export function PricingCard({ option, ctaType, className }: PricingCardProps) {
   // checkout (auth + phone verification gated there). "inquire" (studio
   // rentals) still routes to contact.
   const ctaHref = ctaType === "book" ? `/checkout/${option.slug}` : `/contact?topic=Studio+Rental`;
-  const promotionExpired = option.promotionEndsAt
-    ? Date.now() >= new Date(option.promotionEndsAt).getTime()
-    : false;
-  const displayedPrice = promotionExpired && option.originalPrice ? option.originalPrice : option.price;
-  const displayedOriginalPrice = promotionExpired ? undefined : option.originalPrice;
+  const promotionActive = Boolean(
+    option.originalPrice
+      && isPromotionActive(option.promotionStartsAt, option.promotionEndsAt)
+  );
+  const displayedPrice = promotionActive ? option.price : option.originalPrice ?? option.price;
+  const displayedOriginalPrice = promotionActive ? option.originalPrice : undefined;
+  const showRecommendation = option.recommended && (option.recommendedLabel !== "September offer" || promotionActive);
 
   return (
     <TiltCard
       maxTilt={3}
       className={cn(
         "h-full rounded-2xl border bg-ivory p-8",
-        option.recommended ? "border-clay/50 shadow-[0_20px_45px_-24px_rgba(169,116,86,0.4)]" : "border-charcoal/10",
+        showRecommendation ? "border-clay/50 shadow-[0_20px_45px_-24px_rgba(169,116,86,0.4)]" : "border-charcoal/10",
         className
       )}
     >
-      {option.recommended && (
+      {showRecommendation && (
         <span className="absolute -top-3 left-8 rounded-full bg-clay px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-ivory">
           {option.recommendedLabel ?? "Most Popular"}
         </span>

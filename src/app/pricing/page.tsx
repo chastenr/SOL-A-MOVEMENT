@@ -94,6 +94,13 @@ function PricingSection({
 
 export default async function PricingPage() {
   const pricing = await getPricingGroups();
+  const infratoneMemberships = pricing.memberships.filter(
+    (option) => option.serviceSlug === "recovery-restore"
+  );
+  const veoraMemberships = pricing.memberships.filter(
+    (option) => option.serviceSlug !== "recovery-restore"
+  );
+  const infratoneOptions = [...pricing.singleSessions, ...infratoneMemberships];
 
   return (
     <>
@@ -103,23 +110,23 @@ export default async function PricingPage() {
             as="h1"
             eyebrow="Pricing"
             heading="Move in a way that works for you."
-            body="Start with our Intro Pass, choose a class package, or explore Veora Signature and Veora Prestige memberships."
+            body="Choose from Discovery, class-credit packages, monthly memberships and dedicated Infratone options."
           />
         </AnimatedSection>
       </section>
 
       <PricingSection
-        eyebrow="Intro Pass"
+        eyebrow="Discovery Pass"
         heading="Your first Veora class for ₱999."
-        body="A one-class pre-opening offer, reduced from ₱1,100 and valid for 5 days from purchase. The introductory promotion ends after the September 18 launch."
+        body="The Discovery Pass keeps its existing introductory price and is not included in the September 10% promotion."
         options={pricing.introOffers}
         ctaType="book"
       />
 
       <PricingSection
         eyebrow="Class Packages"
-        heading="Choose a simple class pack."
-        body="The 3-Class and 6-Class packages are configured and ready for Veora to add the final price and validity before activation."
+        heading="Choose the rhythm that works for you."
+        body="Veora Essence includes 3 classes and Veora Flow includes 6. The 10% promotional rates apply during September only."
         options={pricing.packages}
         ctaType="book"
       />
@@ -127,8 +134,16 @@ export default async function PricingPage() {
       <PricingSection
         eyebrow="Unlimited Memberships"
         heading="Make Veora part of your routine."
-        body="Save 10% on Signature and Prestige monthly membership rates during September. Memberships are personal, non-transferable and limited to one class per day. Enrollment opens when monthly auto-payment is available."
-        options={pricing.memberships}
+        body="Veora Unlimited, Signature and Prestige receive 10% off during September. Memberships are personal, non-transferable and limited to one class per day. Contract enrollment opens when monthly auto-payment is available."
+        options={veoraMemberships}
+        ctaType="book"
+      />
+
+      <PricingSection
+        eyebrow="Infratone"
+        heading="Dedicated Infratone options."
+        body="Choose an introductory session or unlimited access. Infratone packages keep their regular prices and are not included in the September promotion."
+        options={infratoneOptions}
         ctaType="book"
       />
 

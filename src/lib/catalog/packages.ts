@@ -2,6 +2,7 @@ import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { launchPricing as staticPricing, type PricingOption } from "@/data/pricing";
 import { centavosToPeso } from "@/lib/money";
+import { isPromotionActive } from "@/lib/promotion-window";
 
 type PricingGroups = typeof staticPricing;
 
@@ -12,8 +13,10 @@ type PackageRow = {
   service_slug: string | null;
   price_centavos: number;
   original_price_centavos: number | null;
+  sale_starts_at: string | null;
   sale_ends_at: string | null;
   credit_count: number | null;
+  membership_duration_months: number | null;
   validity_description: string;
   description: string;
   included_services: string[] | null;
@@ -33,7 +36,7 @@ const GROUP_TO_KEY = {
 } as const;
 
 function mapRow(row: PackageRow): PricingOption {
-  const monthlySuffix = row.package_group === "membership" ? "/month" : "";
+  const monthlySuffix = (row.membership_duration_months ?? 0) > 1 ? "/month" : "";
   return {
     slug: row.slug,
     name: row.name,
@@ -43,6 +46,7 @@ function mapRow(row: PackageRow): PricingOption {
         ? `${centavosToPeso(row.original_price_centavos)}${monthlySuffix}`
         : undefined,
     promotionEndsAt: row.sale_ends_at ?? undefined,
+    promotionStartsAt: row.sale_starts_at ?? undefined,
     sessions: row.credit_count ?? undefined,
     validity: row.validity_description,
     description: row.description,
@@ -66,9 +70,18 @@ export async function getPricingGroups(): Promise<PricingGroups> {
     const { data, error } = await supabase
       .from("packages")
       .select(
-        "slug, name, package_group, service_slug, price_centavos, original_price_centavos, sale_ends_at, credit_count, validity_description, description, included_services, conditions, is_recommended, recommended_label, is_active"
+        "slug, name, package_group, service_slug, price_centavos, original_price_centavos, sale_starts_at, sale_ends_at, credit_count, membership_duration_months, validity_description, description, included_services, conditions, is_recommended, recommended_label, is_active"
       )
-      .in("slug", ["founding-classic-intro", "3-class-package", "6-class-package", "6-month-unlimited", "12-month-unlimited"])
+      .in("slug", [
+        "founding-classic-intro",
+        "3-class-package",
+        "6-class-package",
+        "veora-unlimited",
+        "6-month-unlimited",
+        "12-month-unlimited",
+        "infratone-intro-class",
+        "infratone-unlimited",
+      ])
       .order("sort_order");
 
     if (error || !data || data.length === 0) return staticPricing;
@@ -119,6 +132,12 @@ export type PackageDbRow = {
   included_services: string[];
 };
 
+type PackageCheckoutRow = PackageDbRow & {
+  original_price_centavos: number | null;
+  sale_starts_at: string | null;
+  sale_ends_at: string | null;
+};
+
 /**
  * Raw DB row (with the real `id`/`price_centavos`) for checkout — unlike
  * `getPricingOptionBySlug`, this has NO static fallback: a purchase must
@@ -132,13 +151,21 @@ export async function getPackageRowBySlug(slug: string): Promise<PackageDbRow | 
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase
       .from("packages")
-      .select("id, slug, name, price_centavos, credit_count, validity_description, included_services")
+      .select(
+        "id, slug, name, price_centavos, original_price_centavos, sale_starts_at, sale_ends_at, credit_count, validity_description, included_services"
+      )
       .eq("slug", slug)
       .eq("is_active", true)
       .single();
 
     if (error || !data) return null;
-    return data as PackageDbRow;
+
+    const row = data as PackageCheckoutRow;
+    const effectivePrice = isPromotionActive(row.sale_starts_at, row.sale_ends_at)
+      ? row.price_centavos
+      : row.original_price_centavos ?? row.price_centavos;
+
+    return { ...row, price_centavos: effectivePrice };
   } catch {
     return null;
   }
