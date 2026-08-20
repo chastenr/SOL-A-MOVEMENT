@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/require-role";
-import { getAdminBookingById } from "@/lib/admin/bookings";
+import { getAdminBookingById, getAdminBookingNotifications } from "@/lib/admin/bookings";
 import { centavosToPeso } from "@/lib/money";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { cancelBookingAction, completeBookingAction, confirmBookingAction, noShowBookingAction } from "../actions";
@@ -28,7 +28,10 @@ const PILL_BUTTON =
 export default async function AdminBookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const admin = await requireAdmin();
   const { id } = await params;
-  const booking = await getAdminBookingById(id);
+  const [booking, notifications] = await Promise.all([
+    getAdminBookingById(id),
+    getAdminBookingNotifications(id),
+  ]);
   if (!booking) notFound();
 
   const canAct = booking.status === "booked";
@@ -131,6 +134,28 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
         <p>Booked: {formatManilaDateTime(booking.bookedAt)}</p>
         {booking.cancelledAt && <p>Cancelled: {formatManilaDateTime(booking.cancelledAt)}</p>}
       </div>
+
+      <section className="mt-6 rounded-2xl border border-charcoal/10 bg-ivory p-6">
+        <p className="text-xs uppercase tracking-[0.14em] text-charcoal/45">SMS Notifications</p>
+        <dl className="mt-4 space-y-2 text-sm">
+          {([
+            ["booking_confirmation", "Booking confirmation"],
+            ["reminder_24h", "24-hour reminder"],
+            ["reminder_2h", "2-hour reminder"],
+            ["booking_cancelled", "Cancellation"],
+          ] as const).map(([type, label]) => {
+            const notification = notifications.find((item) => item.type === type);
+            const value = notification?.status === "sent"
+              ? `Sent${notification.sentAt ? ` · ${formatManilaDateTime(notification.sentAt)} PHT` : ""}`
+              : notification?.status === "failed"
+                ? `Failed · ${notification.attemptCount}/3 attempts`
+                : notification?.status === "pending"
+                  ? "Sending"
+                  : "Pending";
+            return <Row key={type} label={label} value={value} />;
+          })}
+        </dl>
+      </section>
     </div>
   );
 }

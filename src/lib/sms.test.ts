@@ -7,6 +7,8 @@ describe("Semaphore SMS", () => {
     vi.resetModules();
     vi.stubEnv("SEMAPHORE_API_KEY", "private-key");
     vi.stubEnv("SEMAPHORE_SENDER_NAME", "VEORA");
+    vi.stubEnv("SMS_ENABLED", "true");
+    vi.stubEnv("SMS_TEST_NUMBER", "09171234567");
   });
 
   afterEach(() => {
@@ -63,5 +65,23 @@ describe("Semaphore SMS", () => {
     await expect(sendSms({ to: "09171234567", body: "Hello" })).rejects.toThrow(
       "Sender name is not active"
     );
+  });
+
+  it("uses Semaphore's OTP endpoint with a server-generated code", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify([{ message_id: 99, recipient: "639171234567", status: "Pending", code: 123456 }]), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const { sendOtp } = await import("@/lib/sms");
+
+    await sendOtp("09171234567", "123456");
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const form = init.body as URLSearchParams;
+    expect(url).toBe("https://api.semaphore.co/api/v4/otp");
+    expect(form.get("code")).toBe("123456");
+    expect(form.get("message")).toContain("{otp}");
   });
 });

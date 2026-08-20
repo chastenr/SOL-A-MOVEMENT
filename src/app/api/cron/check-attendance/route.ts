@@ -5,6 +5,7 @@ import { getArrivalTime } from "@/lib/studio-hours";
 import { sendClassCancelledByStudioEmail, sendClassConfirmedEmail } from "@/lib/email";
 import { isSmsConfigured, sendSms } from "@/lib/sms";
 import { formatManilaLongDate, formatManilaTime } from "@/lib/manila-time";
+import { sendBookingCancellationSms } from "@/lib/booking-sms";
 
 type CandidateSession = {
   id: string;
@@ -85,13 +86,13 @@ export async function GET(request: Request) {
       });
       cancelled += 1;
 
-      const rows = (affected ?? []) as { user_id: string; remaining_credits: number }[];
+      const rows = (affected ?? []) as { booking_id: string; user_id: string; remaining_credits: number }[];
       if (rows.length === 0) continue;
 
       const userIds = [...new Set(rows.map((row) => row.user_id))];
       const { data: profiles } = await supabaseAdmin
         .from("profiles")
-        .select("id, first_name, email, mobile_number")
+        .select("id, first_name, email, mobile_number, phone_verified_at")
         .in("id", userIds);
       const profileById = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
 
@@ -112,11 +113,13 @@ export async function GET(request: Request) {
               reason: "low_enrollment",
             }),
           ];
-          if (isSmsConfigured && profile.mobile_number) {
+          if (profile.mobile_number && profile.phone_verified_at) {
             tasks.push(
-              sendSms({
+              sendBookingCancellationSms({
+                bookingId: row.booking_id,
                 to: profile.mobile_number,
-                body: `Veora Wellness: Your ${className} class on ${formattedDate} at ${time} PHT has been cancelled due to low enrollment. Your credit has been returned.`,
+                className,
+                startAt,
               }).catch(() => undefined)
             );
           }
@@ -137,7 +140,7 @@ export async function GET(request: Request) {
 
       const { data: profiles } = await supabaseAdmin
         .from("profiles")
-        .select("id, first_name, email, mobile_number")
+        .select("id, first_name, email, mobile_number, phone_verified_at")
         .in("id", userIds);
 
       await Promise.allSettled(
@@ -155,7 +158,7 @@ export async function GET(request: Request) {
               packageName: "",
             }),
           ];
-          if (isSmsConfigured && profile.mobile_number) {
+          if (isSmsConfigured && profile.mobile_number && profile.phone_verified_at) {
             tasks.push(
               sendSms({
                 to: profile.mobile_number,

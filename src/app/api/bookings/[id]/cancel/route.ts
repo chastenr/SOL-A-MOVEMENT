@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { requireUserApi, AuthError } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRateLimited } from "@/lib/rate-limit";
 import { isUuid } from "@/lib/utils";
+import { sendBookingCancellationSmsForId } from "@/lib/booking-sms";
 
 const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0000: { status: 401, message: "Please sign in." },
@@ -39,6 +40,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const mapped = ERROR_MAP[error.code ?? ""] ?? { status: 500, message: "Something went wrong. Please try again." };
     return NextResponse.json({ message: mapped.message }, { status: mapped.status });
   }
+
+  after(() => sendBookingCancellationSmsForId(bookingId));
 
   return NextResponse.json({ success: true });
 }

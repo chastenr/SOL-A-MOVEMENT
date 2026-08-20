@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import {
   signUpSchema,
@@ -16,6 +17,7 @@ import { isRateLimited, getActionClientKey } from "@/lib/rate-limit";
 import { normalizePhoneE164 } from "@/lib/phone";
 import { sanitizeRedirectTo } from "@/lib/utils";
 import { getAuthRedirectOrigin } from "@/lib/auth/request-origin";
+import { notifyOwnerOfNewCustomerSignup } from "@/lib/owner-notifications";
 
 type ActionResult = { error: string } | { requiresMfa: true } | { success: true };
 type SignUpResult = { error: string } | { success: true; needsEmailConfirmation: boolean };
@@ -70,6 +72,18 @@ export async function signUpAction(values: SignUpFormValues, redirectTo?: string
     // pass it through rather than leaking implementation details, but keep
     // a safe fallback for anything unexpected.
     return { error: error.message || GENERIC_ERROR };
+  }
+
+  // New email users have an identity. Supabase may return an obfuscated user
+  // without identities for an existing address, which must not alert the owner.
+  if (signUpData.user?.identities?.length) {
+    after(() => notifyOwnerOfNewCustomerSignup({
+      userId: signUpData.user!.id,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      mobileNumber,
+    }));
   }
 
   // If email confirmation is required (the project default), signUp()

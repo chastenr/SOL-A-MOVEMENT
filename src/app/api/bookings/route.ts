@@ -8,8 +8,8 @@ import { centavosToPeso } from "@/lib/money";
 import { getArrivalTime } from "@/lib/studio-hours";
 import { formatBookingReference } from "@/lib/utils";
 import { sendClassBookingConfirmationEmail, sendClassBookingNotificationEmail } from "@/lib/email";
-import { isSmsConfigured, sendSms } from "@/lib/sms";
 import { formatManilaLongDate, formatManilaTime } from "@/lib/manila-time";
+import { sendBookingConfirmationSms } from "@/lib/booking-sms";
 
 const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0000: { status: 401, message: "Please sign in." },
@@ -199,7 +199,7 @@ async function notifyBookingCreated(
 
   const { data: user } = await supabase
     .from("profiles")
-    .select("first_name, last_name, email, mobile_number")
+    .select("first_name, last_name, email, mobile_number, phone_verified_at")
     .eq("id", row.user_id)
     .single();
 
@@ -246,11 +246,14 @@ async function notifyBookingCreated(
       sessionsRemaining: displayedRemaining,
       status: "Confirmed",
     }),
-    ...(isSmsConfigured && user?.mobile_number
+    ...(user?.mobile_number && user.phone_verified_at && startAt
       ? [
-          sendSms({
+          sendBookingConfirmationSms({
+            bookingId,
             to: user.mobile_number,
-            body: `Veora Wellness: Your ${className} class is booked for ${formattedDate} at ${time} PHT. Ref ${formatBookingReference(bookingId)}.${remainingCredits == null ? " Unlimited membership active." : ` Credits left: ${remainingCredits}.`}`,
+            className,
+            coachName,
+            startAt,
           }),
         ]
       : []),

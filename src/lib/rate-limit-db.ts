@@ -4,10 +4,9 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 /**
  * Distributed rate limit backed by the `check_rate_limit()` Postgres
  * function (migration 0007) — unlike the in-memory limiter in
- * `rate-limit.ts`, this is consistent across serverless instances. Scoped to
- * the two anonymous, email-triggering routes that have no other backstop
- * (see the migration's own comment for why the rest of the app doesn't need
- * this). Fails OPEN (returns true / "allowed") if the database is
+ * `rate-limit.ts`, this is consistent across serverless instances. Used by
+ * anonymous email-triggering routes and Semaphore OTP issuance, where a
+ * per-instance limiter is not enough. Fails open (returns false / "not rate limited") if the database is
  * unreachable — the in-memory limiter that already guards these same routes
  * is the fallback, not a hard dependency on this succeeding.
  */

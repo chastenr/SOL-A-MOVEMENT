@@ -1,25 +1,18 @@
-const DEFAULT_COUNTRY_CODE = "63"; // Philippines
-
 /**
- * Normalizes a customer-typed phone number to E.164 (e.g. "09171234567" or
- * "0917 123 4567" -> "+639171234567"). Returns null when the input can't be
- * confidently normalized — callers must treat that as a validation failure,
- * never guess or pass the raw string through to Supabase's phone APIs.
+ * Normalizes a Philippine mobile number to E.164. VEORA serves Philippine
+ * customers, so accepting arbitrary international-looking strings here would
+ * only defer invalid-recipient failures to Semaphore.
  */
-export function normalizePhoneE164(raw: string, defaultCountryCode = DEFAULT_COUNTRY_CODE): string | null {
+export function normalizePhoneE164(raw: string): string | null {
   const trimmed = raw.trim();
-  const digitsAndPlus = trimmed.replace(/[^\d+]/g, "");
-  if (!digitsAndPlus) return null;
+  if (!trimmed || !/^[+\d\s().-]+$/.test(trimmed)) return null;
+  const compact = trimmed.replace(/[\s().-]/g, "");
 
-  if (digitsAndPlus.startsWith("+")) {
-    const numeric = digitsAndPlus.slice(1);
-    if (!/^\d{8,15}$/.test(numeric)) return null;
-    return `+${numeric}`;
-  }
-
-  const withoutLeadingZero = digitsAndPlus.replace(/^0+/, "");
-  if (!/^\d{7,13}$/.test(withoutLeadingZero)) return null;
-  return `+${defaultCountryCode}${withoutLeadingZero}`;
+  if (/^09\d{9}$/.test(compact)) return `+63${compact.slice(1)}`;
+  if (/^9\d{9}$/.test(compact)) return `+63${compact}`;
+  if (/^639\d{9}$/.test(compact)) return `+${compact}`;
+  if (/^\+639\d{9}$/.test(compact)) return compact;
+  return null;
 }
 
 /** True when `value` is already a normalizable phone number. */

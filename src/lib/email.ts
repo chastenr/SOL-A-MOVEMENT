@@ -16,6 +16,11 @@ const bookingNotificationRecipients = [
   ),
 ];
 
+// New-account alerts belong in the same operational inbox as bookings. Keep
+// the real inbox as a fallback so signup notices do not require another env var.
+const signupNotificationRecipient = process.env.BOOKING_NOTIFICATION_EMAIL?.trim()
+  || "bookings@veora.ph";
+
 // Anything that needs an owner's judgment call — a payment to approve or
 // reject, a contact-form inquiry — goes to both Bianca and Ashley.
 const ownerDecisionRecipients = [
@@ -83,6 +88,38 @@ export type PurchaseEmailPayload = {
   referenceNumber: string;
   amountFormatted: string;
 };
+
+export type NewCustomerSignupEmailPayload = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  mobileNumber: string;
+};
+
+export async function sendNewCustomerSignupNotificationEmail(customer: NewCustomerSignupEmailPayload) {
+  if (!resend) return { skipped: true as const };
+
+  const fullName = `${customer.firstName} ${customer.lastName}`.trim();
+  const html = wrapper(
+    "New Customer Signup",
+    `<table style="width:100%;border-collapse:collapse;">
+      ${row("Customer", fullName)}
+      ${row("Email", customer.email)}
+      ${row("Mobile", customer.mobileNumber)}
+    </table>`
+  );
+
+  const result = await resend.emails.send({
+    from: fromEmail,
+    to: signupNotificationRecipient,
+    replyTo: customer.email,
+    subject: `New Customer Signup — ${fullName}`,
+    html,
+  });
+
+  if (result.error) throw new Error(result.error.message);
+  return result;
+}
 
 export async function sendPaymentProofSubmittedEmail(purchase: PurchaseEmailPayload & { reviewUrl?: string }) {
   if (!resend || ownerDecisionRecipients.length === 0) return { skipped: true as const };

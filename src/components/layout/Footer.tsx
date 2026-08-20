@@ -183,12 +183,9 @@ export function Footer() {
               href="https://elevenchase.com"
               target="_blank"
               rel="noreferrer noopener"
-              className="group inline-flex items-center gap-2 text-ivory/75 transition-colors hover:text-ivory"
+              className="inline-flex items-center text-ivory/75 transition-colors hover:text-ivory"
             >
-              <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-ivory/30 text-[9px] font-medium text-ivory/60 transition-colors group-hover:border-ivory/50 group-hover:text-ivory">
-                C
-              </span>
-              <span className="text-[10px] font-medium uppercase tracking-[0.14em]">ElevenChase</span>
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em]">Powered by ElevenChase</span>
               <span className="sr-only">website; opens in a new tab</span>
             </Link>
           </div>

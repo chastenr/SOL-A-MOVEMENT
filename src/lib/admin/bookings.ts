@@ -253,6 +253,34 @@ export async function getAdminBookingById(id: string): Promise<AdminBookingRow |
   return bookings[0] ?? null;
 }
 
+export type AdminBookingNotification = {
+  type: "booking_confirmation" | "reminder_24h" | "reminder_2h" | "booking_cancelled";
+  status: "pending" | "sent" | "failed";
+  attemptCount: number;
+  sentAt: string | null;
+  error: string | null;
+};
+
+export async function getAdminBookingNotifications(bookingId: string): Promise<AdminBookingNotification[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("booking_notifications")
+    .select("type, status, attempt_count, sent_at, error")
+    .eq("booking_id", bookingId)
+    .eq("channel", "sms");
+  if (error) {
+    console.error("[getAdminBookingNotifications] query failed", { bookingId, error: error.message });
+    return [];
+  }
+  return (data ?? []).map((row) => ({
+    type: row.type as AdminBookingNotification["type"],
+    status: row.status as AdminBookingNotification["status"],
+    attemptCount: row.attempt_count,
+    sentAt: row.sent_at,
+    error: row.error,
+  }));
+}
+
 export type ClassSessionRosterRow = {
   id: string;
   reference: string;

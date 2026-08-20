@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { sendBookingCancellationSmsForId } from "@/lib/booking-sms";
 
 // Used as plain `<form action={...}>` handlers (no client-side error UI),
 // so failures throw rather than returning a value — Next.js surfaces an
@@ -24,7 +25,8 @@ async function callBookingRpc(fnName: string, bookingId: string): Promise<void> 
 // Refunds the credit and frees the session slot — see
 // admin_cancel_class_booking() in migration 0004.
 export async function cancelBookingAction(bookingId: string): Promise<void> {
-  return callBookingRpc("admin_cancel_class_booking", bookingId);
+  await callBookingRpc("admin_cancel_class_booking", bookingId);
+  await sendBookingCancellationSmsForId(bookingId);
 }
 
 export async function completeBookingAction(bookingId: string): Promise<void> {

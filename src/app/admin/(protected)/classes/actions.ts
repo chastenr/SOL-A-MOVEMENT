@@ -7,8 +7,8 @@ import { requireAdmin } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { classSessionFormSchema, type ClassSessionFormValues } from "@/lib/validations";
 import { sendClassCancelledByStudioEmail } from "@/lib/email";
-import { isSmsConfigured, sendSms } from "@/lib/sms";
 import { formatManilaLongDate, formatManilaTime } from "@/lib/manila-time";
+import { sendBookingCancellationSms } from "@/lib/booking-sms";
 import {
   CLASS_DURATION_MINUTES,
   getMinutesSinceMidnight,
@@ -222,6 +222,7 @@ export async function cancelClassSessionAction(sessionId: string): Promise<Cance
   if (error) return { error: error.message || "Something went wrong. Please try again." };
 
   const rows = (affected ?? []) as {
+    booking_id: string;
     user_id: string;
     customer_package_id: string | null;
     remaining_credits: number | null;
@@ -237,7 +238,7 @@ export async function cancelClassSessionAction(sessionId: string): Promise<Cance
     const userIds = [...new Set(rows.map((row) => row.user_id))];
     const packageIds = [...new Set(rows.flatMap((row) => row.customer_package_id ? [row.customer_package_id] : []))];
     const [{ data: profiles }, { data: packages }] = await Promise.all([
-      supabase.from("profiles").select("id, first_name, email, mobile_number").in("id", userIds),
+      supabase.from("profiles").select("id, first_name, email, mobile_number, phone_verified_at").in("id", userIds),
       packageIds.length
         ? supabase.from("customer_packages").select("id, package_name_snapshot").in("id", packageIds)
         : Promise.resolve({ data: [] as { id: string; package_name_snapshot: string }[] }),
@@ -261,11 +262,13 @@ export async function cancelClassSessionAction(sessionId: string): Promise<Cance
             sessionsRemaining: row.remaining_credits ?? 0,
           }),
         ];
-        if (isSmsConfigured && profile.mobile_number) {
+        if (profile.mobile_number && profile.phone_verified_at) {
           notifications.push(
-            sendSms({
+            sendBookingCancellationSms({
+              bookingId: row.booking_id,
               to: profile.mobile_number,
-              body: `Veora Wellness: Your ${className} class on ${formattedDate} at ${time} PHT was cancelled.${row.customer_package_id ? " Your credit has been returned." : " No membership credit was deducted."}`,
+              className,
+              startAt,
             })
           );
         }

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/auth/require-role";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { isPhoneVerificationRequired } from "@/lib/feature-flags";
 import { maskPhone } from "@/lib/phone";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
@@ -34,7 +33,7 @@ export default async function AccountSecurityPage() {
         {profile?.mobile_number && (
           <p className="mt-1 text-sm text-charcoal/60">{maskPhone(profile.mobile_number)}</p>
         )}
-        {!profile?.phone_verified_at && isPhoneVerificationRequired() && (
+        {!profile?.phone_verified_at && (
           <Button href="/verify-phone?redirectTo=/account/security" variant="secondary" size="md" className="mt-4">
             Verify Number
           </Button>

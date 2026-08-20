@@ -1,8 +1,6 @@
 /**
- * Both default to `false` — the safe state while no SMS provider is
- * configured in the Supabase dashboard (Authentication → Providers →
- * Phone). Flipping either to `true` enforces the corresponding gate;
- * neither is ever bypassed silently just because an SMS send fails.
+ * Both default to `false`. Customer verification is backed by Semaphore;
+ * admin phone MFA remains Supabase Auth AAL2 (TOTP is also available).
  */
 export function isPhoneVerificationRequired(): boolean {
   return process.env.PHONE_VERIFICATION_REQUIRED === "true";

@@ -23,6 +23,14 @@ export function formatManilaDate(value: DateValue): string {
   }).format(toDate(value));
 }
 
+export function formatManilaShortDate(value: DateValue): string {
+  return new Intl.DateTimeFormat("en-PH", {
+    timeZone: MANILA_TIME_ZONE,
+    month: "short",
+    day: "numeric",
+  }).format(toDate(value));
+}
+
 export function formatManilaLongDate(value: DateValue): string {
   return new Intl.DateTimeFormat("en-PH", {
     timeZone: MANILA_TIME_ZONE,

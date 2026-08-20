@@ -18,8 +18,12 @@ describe("normalizePhoneE164", () => {
     expect(normalizePhoneE164("+639171234567")).toBe("+639171234567");
   });
 
-  it("normalizes a non-PH E.164-formatted number with spaces/dashes", () => {
-    expect(normalizePhoneE164("+1 555-123-4567")).toBe("+15551234567");
+  it("normalizes a PH number starting with 63", () => {
+    expect(normalizePhoneE164("639171234567")).toBe("+639171234567");
+  });
+
+  it("rejects non-Philippine numbers", () => {
+    expect(normalizePhoneE164("+1 555-123-4567")).toBeNull();
   });
 
   it("rejects an empty string", () => {

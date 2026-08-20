@@ -9,7 +9,7 @@ import {
   resendPhoneCodeAction,
   verifyPhoneCodeAction,
 } from "@/lib/auth/phone-mfa-actions";
-import { maskPhone } from "@/lib/phone";
+import { maskPhone, normalizePhoneE164 } from "@/lib/phone";
 import { Button } from "@/components/ui/Button";
 import { Field, fieldInputClasses } from "@/components/ui/Field";
 import { OtpInput } from "@/components/auth/OtpInput";
@@ -22,10 +22,12 @@ export function PhoneMfaFlow({
   initialPhone = "",
   redirectTo,
   heading = "Verify your mobile number",
+  verificationMode = "supabase-mfa",
 }: {
   initialPhone?: string;
   redirectTo: string;
   heading?: string;
+  verificationMode?: "semaphore" | "supabase-mfa";
 }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("phone");
@@ -58,6 +60,32 @@ export function PhoneMfaFlow({
     setSubmitting(true);
     setError(null);
     try {
+      if (verificationMode === "semaphore") {
+        const response = await fetch("/api/auth/phone-otp/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone }),
+        });
+        const result = await response.json() as { success?: boolean; message?: string; retryAfter?: number };
+        if (!response.ok || !result.success) {
+          setError(result.message ?? "Something went wrong. Please try again.");
+          if (result.retryAfter) setCooldown(result.retryAfter);
+          return;
+        }
+        const normalized = normalizePhoneE164(phone);
+        if (!normalized) {
+          setError("Enter a valid Philippine mobile number.");
+          return;
+        }
+        setFactorId("semaphore");
+        setChallengeId("semaphore");
+        setMaskedPhone(maskPhone(normalized));
+        setCode("");
+        setCooldown(result.retryAfter ?? RESEND_COOLDOWN_SECONDS);
+        setStep("otp");
+        return;
+      }
+
       const result = await startPhoneVerificationAction(phone);
       if ("error" in result) {
         setError(result.error);
@@ -85,6 +113,23 @@ export function PhoneMfaFlow({
     setSubmitting(true);
     setError(null);
     try {
+      if (verificationMode === "semaphore") {
+        const response = await fetch("/api/auth/phone-otp/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone }),
+        });
+        const result = await response.json() as { success?: boolean; message?: string; retryAfter?: number };
+        if (!response.ok || !result.success) {
+          setError(result.message ?? "Something went wrong. Please try again.");
+          if (result.retryAfter) setCooldown(result.retryAfter);
+          return;
+        }
+        setCode("");
+        setCooldown(result.retryAfter ?? RESEND_COOLDOWN_SECONDS);
+        return;
+      }
+
       const result = await resendPhoneCodeAction(factorId);
       if ("error" in result) {
         setError(result.error);
@@ -106,6 +151,21 @@ export function PhoneMfaFlow({
     setSubmitting(true);
     setError(null);
     try {
+      if (verificationMode === "semaphore") {
+        const response = await fetch("/api/auth/phone-otp/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone, code }),
+        });
+        const result = await response.json() as { success?: boolean; message?: string };
+        if (!response.ok || !result.success) {
+          setError(result.message ?? "Something went wrong. Please try again.");
+          return;
+        }
+        setStep("success");
+        return;
+      }
+
       const result = await verifyPhoneCodeAction(factorId, challengeId, code);
       if ("error" in result) {
         setError(result.error);
