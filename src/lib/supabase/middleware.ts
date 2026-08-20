@@ -19,13 +19,9 @@ const AUTH_ROUTES = ["/login", "/signup", "/forgot-password"];
 const SITE_LOCK_PUBLIC_AUTH_PATHS = ["/auth/confirm", "/auth/callback", "/reset-password", "/mfa"];
 
 /**
- * Whole-site password gate for pre-launch — a plain on-brand password page
- * (with a show/hide toggle, since a native browser Basic-Auth prompt can't
- * have one) rather than the browser's built-in login dialog. Skipped in
- * local development (`next dev`) so building isn't interrupted by a
- * password prompt on every reload; Vercel Preview and Production builds
- * both set NODE_ENV=production, so both stay locked. See src/lib/site-lock.ts
- * to turn this off or change the password.
+ * Optional whole-site password gate for private previews. It is disabled by
+ * default so the production marketing site and crawl-control files remain
+ * available to search engines. See src/lib/site-lock.ts.
  */
 function checkSiteLock(request: NextRequest): NextResponse | null {
   if (!SITE_LOCKED || process.env.NODE_ENV === "development") return null;

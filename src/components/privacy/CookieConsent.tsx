@@ -9,12 +9,6 @@ export const COOKIE_SETTINGS_EVENT = "veora:open-cookie-settings";
 
 type CookiePreference = "accepted" | "necessary";
 
-function hasSavedPreference(): boolean {
-  return document.cookie
-    .split("; ")
-    .some((cookie) => cookie.startsWith(`${COOKIE_NAME}=`));
-}
-
 function savePreference(preference: CookiePreference) {
   const secure = window.location.protocol === "https:" ? "; Secure" : "";
   document.cookie = `${COOKIE_NAME}=${preference}; Max-Age=${ONE_YEAR_SECONDS}; Path=/; SameSite=Lax${secure}`;
@@ -25,17 +19,12 @@ export function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      setVisible(!hasSavedPreference());
-    });
-
     function openSettings() {
       setVisible(true);
     }
 
     window.addEventListener(COOKIE_SETTINGS_EVENT, openSettings);
     return () => {
-      window.cancelAnimationFrame(frame);
       window.removeEventListener(COOKIE_SETTINGS_EVENT, openSettings);
     };
   }, []);
@@ -61,9 +50,9 @@ export function CookieConsent() {
           <h2 id="cookie-consent-heading" className="font-display text-xl text-charcoal">
             Your privacy matters.
           </h2>
-          <p id="cookie-consent-description" className="mt-2 text-base leading-[1.65] text-charcoal/75">
-            We use essential cookies for secure sign-in, bookings, and site functionality. You can accept
-            optional cookies or continue with necessary cookies only. Read our{" "}
+          <p id="cookie-consent-description" className="mt-2 text-sm leading-[1.55] text-charcoal/75">
+            We use essential cookies for sign-in, bookings, and core site features. Optional cookies stay
+            off unless you accept them. Read our{" "}
             <Link href="/policies#privacy-cookies" className="underline underline-offset-2 hover:text-clay">
               Privacy &amp; Cookie Notice
             </Link>
@@ -71,7 +60,7 @@ export function CookieConsent() {
           </p>
         </div>
 
-        <div className="flex shrink-0 flex-col gap-2 sm:items-end">
+        <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex sm:flex-col sm:items-end">
           <button
             type="button"
             onClick={() => choose("accepted")}

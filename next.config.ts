@@ -85,6 +85,7 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 604800,
     // Preserve a true 2x candidate for full-bleed photography on 1920px
     // displays, including the small overscan used by reveal animations.
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840, 4096],
@@ -101,6 +102,12 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        source: "/videos/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" },
+        ],
+      },
       {
         source: "/(.*)",
         headers: securityHeaders,

@@ -16,6 +16,7 @@ export default function robots(): MetadataRoute.Robots {
     "/mfa",
     "/auth/",
     "/site-locked",
+    "/book",
   ];
 
   return {

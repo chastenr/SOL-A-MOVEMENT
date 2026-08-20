@@ -31,7 +31,7 @@ ${classLinks}
 
 ## Booking
 
-Customers request a class through [Book a Session](${siteConfig.url}/book). Veora follows up to confirm the booking. Walk-ins depend on availability, so advance booking is recommended.
+Customers choose an available session through [Book a Session](${siteConfig.url}/book). Signing in and an eligible package or membership are required to reserve a class. Walk-ins depend on availability, so advance booking is recommended.
 
 ## Verified Business Information
 

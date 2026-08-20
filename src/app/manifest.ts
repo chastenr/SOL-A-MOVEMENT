@@ -10,7 +10,8 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#faf7f2",
     theme_color: "#4d382c",
     icons: [
-      { src: "/veora-mark.png", sizes: "608x676", type: "image/png" },
+      { src: "/favicon-mark.png", sizes: "256x256", type: "image/png", purpose: "any" },
+      { src: "/favicon-mark.png", sizes: "256x256", type: "image/png", purpose: "maskable" },
     ],
   };
 }

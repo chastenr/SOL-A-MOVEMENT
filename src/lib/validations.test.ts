@@ -16,6 +16,7 @@ const validSignUp = {
   password: "password1",
   confirmPassword: "password1",
   consent: true,
+  marketingConsent: false,
 };
 
 describe("signUpSchema", () => {

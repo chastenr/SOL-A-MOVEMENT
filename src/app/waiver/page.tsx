@@ -4,12 +4,17 @@ import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { PolicyDocumentsList } from "@/components/policies/PolicyDocumentsList";
 
-export const metadata = createPageMetadata({
+const waiverMetadata = createPageMetadata({
   title: "Waiver, Studio Policies, Terms & Privacy",
   description:
     "The Veora Wellness waiver, studio policies, booking terms and privacy notice — the same agreement accepted during signup.",
   path: "/waiver",
 });
+
+export const metadata = {
+  ...waiverMetadata,
+  robots: { index: false, follow: true },
+};
 
 export default function WaiverPage() {
   return (

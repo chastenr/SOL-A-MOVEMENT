@@ -90,7 +90,6 @@ export function Footer() {
                   href={siteConfig.social.instagram}
                   target="_blank"
                   rel="noreferrer noopener"
-                  aria-label="Follow Veora on Instagram, opens in a new tab"
                   className="group flex min-h-14 items-center gap-3 rounded-full border border-ivory/20 bg-ivory/[0.04] px-4 text-ivory transition-colors hover:border-ivory/40 hover:bg-ivory/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory focus-visible:ring-offset-2 focus-visible:ring-offset-walnut"
                 >
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ivory/10" aria-hidden>
@@ -105,12 +104,12 @@ export function Footer() {
                     strokeWidth={1.5}
                     aria-hidden
                   />
+                  <span className="sr-only">Follow Veora; opens in a new tab</span>
                 </Link>
                 <Link
                   href={siteConfig.social.facebook}
                   target="_blank"
                   rel="noreferrer noopener"
-                  aria-label="Follow Veora on Facebook, opens in a new tab"
                   className="group flex min-h-14 items-center gap-3 rounded-full border border-ivory/20 bg-ivory/[0.04] px-4 text-ivory transition-colors hover:border-ivory/40 hover:bg-ivory/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory focus-visible:ring-offset-2 focus-visible:ring-offset-walnut"
                 >
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ivory/10" aria-hidden>
@@ -125,6 +124,7 @@ export function Footer() {
                     strokeWidth={1.5}
                     aria-hidden
                   />
+                  <span className="sr-only">Follow Veora; opens in a new tab</span>
                 </Link>
               </div>
             </div>
@@ -183,13 +183,13 @@ export function Footer() {
               href="https://elevenchase.com"
               target="_blank"
               rel="noreferrer noopener"
-              aria-label="Website by ElevenChase"
               className="group inline-flex items-center gap-2 text-ivory/75 transition-colors hover:text-ivory"
             >
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-ivory/30 text-[9px] font-medium text-ivory/60 transition-colors group-hover:border-ivory/50 group-hover:text-ivory">
+              <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-ivory/30 text-[9px] font-medium text-ivory/60 transition-colors group-hover:border-ivory/50 group-hover:text-ivory">
                 C
               </span>
               <span className="text-[10px] font-medium uppercase tracking-[0.14em]">ElevenChase</span>
+              <span className="sr-only">website; opens in a new tab</span>
             </Link>
           </div>
         </div>

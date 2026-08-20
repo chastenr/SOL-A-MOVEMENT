@@ -1,14 +1,10 @@
 "use client";
 
-import { useRef } from "react";
-import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { siteConfig } from "@/data/site";
-import { images } from "@/data/images";
 import { Button } from "@/components/ui/Button";
-import { RevealHeading } from "@/components/ui/RevealHeading";
-import { StaggerContainer, StaggerItem } from "@/components/ui/AnimatedSection";
 import { EASE, usePointerCapability, usePrefersReducedMotion } from "@/lib/motion";
 
 const DEPTH_SPRING = { stiffness: 120, damping: 20, mass: 0.6 };
@@ -17,6 +13,15 @@ export function Hero() {
   const ref = useRef<HTMLElement>(null);
   const enabled = usePointerCapability();
   const reduceMotion = usePrefersReducedMotion();
+  const [playVideo, setPlayVideo] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 640px)");
+    const update = () => setPlayVideo(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
 
   const pointerX = useMotionValue(0.5);
   const pointerY = useMotionValue(0.5);
@@ -59,34 +64,21 @@ export function Hero() {
               : undefined
           }
         >
-          {reduceMotion ? (
-            <Image
-              src={images.hero.src}
-              alt={images.hero.alt}
-              fill
-              priority
-              quality={92}
-              sizes="100vw"
-              className="object-cover"
-            />
-          ) : (
-            <>
-              {/* Instant, correctly-cropped placeholder while the matching
-                  <source> below loads — a single `poster` attribute can't
-                  vary by breakpoint, so this is done as two CSS-media-gated
-                  background layers instead (resolved identically on the
-                  server and the client, unlike a JS viewport check, so
-                  there's no hydration mismatch to cause a flash). */}
-              <div
-                aria-hidden
-                className="absolute inset-0 h-full w-full bg-cover bg-center sm:hidden"
-                style={{ backgroundImage: "url(/videos/hero-poster-mobile.webp)" }}
-              />
-              <div
-                aria-hidden
-                className="absolute inset-0 hidden h-full w-full bg-cover bg-center sm:block"
-                style={{ backgroundImage: "url(/videos/hero-poster.webp)" }}
-              />
+          {/* Instant, correctly-cropped artwork is the mobile hero and the
+              desktop placeholder. The autoplay loop is enhanced in only on
+              larger screens after hydration, preventing it from competing
+              with text and fonts on mobile connections. */}
+          <div
+            aria-hidden
+            className="absolute inset-0 h-full w-full bg-cover bg-center sm:hidden"
+            style={{ backgroundImage: "url(/videos/hero-poster-mobile.webp)" }}
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 hidden h-full w-full bg-cover bg-center sm:block"
+            style={{ backgroundImage: "url(/videos/hero-poster.webp)" }}
+          />
+          {!reduceMotion && playVideo ? (
               <video
                 autoPlay
                 muted
@@ -96,17 +88,9 @@ export function Hero() {
                 aria-hidden
                 className="relative h-full w-full object-cover"
               >
-                {/* Below the sm breakpoint (640px): a version cropped
-                    in-file to a phone-friendly portrait aspect and re-encoded
-                    at a fraction of the size — object-cover on the full
-                    landscape source left mobile viewers seeing mostly the
-                    gap of window between the two women (see the crop math
-                    that led here), not a bandwidth problem CSS alone could fix. */}
-                <source src="/videos/hero-loop-mobile.mp4" media="(max-width: 639px)" type="video/mp4" />
                 <source src="/videos/hero-loop.mp4" type="video/mp4" />
               </video>
-            </>
-          )}
+          ) : null}
         </motion.div>
         <div className="absolute inset-0 bg-gradient-to-t from-walnut via-walnut/30 to-charcoal/10" />
         <div className="absolute inset-0 bg-gradient-to-r from-walnut/55 via-transparent to-transparent" />
@@ -116,44 +100,36 @@ export function Hero() {
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-charcoal/55 to-transparent sm:h-56" />
       </motion.div>
 
-      <StaggerContainer className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-14 sm:px-8 sm:pb-16 lg:px-12 lg:pb-20">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-14 sm:px-8 sm:pb-16 lg:px-12 lg:pb-20">
         <div className="max-w-6xl">
-          <StaggerItem>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ivory/85 sm:text-[13px]">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ivory/85 sm:text-[13px]">
             {siteConfig.name} · Bacoor, Cavite
-            </p>
-          </StaggerItem>
-          <RevealHeading
-            lines={["Move with intention.", "Feel your best."]}
-            className="font-display mt-4 max-w-6xl text-[clamp(2.75rem,5.4vw,4.75rem)] font-medium leading-[1.02] tracking-[-0.02em] text-ivory [&>span>span]:lg:whitespace-nowrap"
-          />
-          <StaggerItem>
-            <p className="mt-6 max-w-[62ch] text-base leading-[1.7] text-ivory/85 lg:text-lg">
-              Pilates, yoga and barre—thoughtfully guided in one boutique wellness studio in Bacoor, Cavite.
-            </p>
-          </StaggerItem>
-          <StaggerItem>
-            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
-              <Button href="/book" size="lg" magnetic>
-                {siteConfig.bookingCtaLabel}
-              </Button>
-              <Button
-                href="/services"
-                variant="ghost"
-                className="text-ivory/80 hover:text-ivory"
-              >
-                Explore Classes
-              </Button>
-            </div>
-          </StaggerItem>
-          <StaggerItem>
-            <div className="mt-7 flex items-center gap-2 text-ivory/80">
-              <MapPin size={14} aria-hidden />
-              <p className="text-xs font-medium uppercase tracking-[0.14em]">Opening soon</p>
-            </div>
-          </StaggerItem>
+          </p>
+          <h1 className="font-display mt-4 max-w-6xl text-[clamp(2.75rem,5.4vw,4.75rem)] font-medium leading-[1.02] tracking-[-0.02em] text-ivory">
+            <span className="block lg:whitespace-nowrap">Move with intention.</span>
+            <span className="block lg:whitespace-nowrap">Feel your best.</span>
+          </h1>
+          <p className="mt-6 max-w-[62ch] text-base leading-[1.7] text-ivory/85 lg:text-lg">
+            Pilates, yoga and barre—thoughtfully guided in one boutique wellness studio in Bacoor, Cavite.
+          </p>
+          <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <Button href="/book" size="lg" magnetic>
+              {siteConfig.bookingCtaLabel}
+            </Button>
+            <Button
+              href="/services"
+              variant="ghost"
+              className="text-ivory/80 hover:text-ivory"
+            >
+              Explore Classes
+            </Button>
+          </div>
+          <div className="mt-7 flex items-center gap-2 text-ivory/80">
+            <MapPin size={14} aria-hidden />
+            <p className="text-xs font-medium uppercase tracking-[0.14em]">Opening soon</p>
+          </div>
         </div>
-      </StaggerContainer>
+      </div>
     </section>
   );
 }

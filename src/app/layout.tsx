@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/data/site";
@@ -12,13 +12,13 @@ const cormorantGaramond = Cormorant_Garamond({
   subsets: ["latin"],
   weight: "variable",
   style: ["normal", "italic"],
-  display: "swap",
+  display: "optional",
 });
 
 const manrope = Manrope({
   variable: "--font-body",
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
   fallback: ["Arial", "sans-serif"],
 });
 
@@ -50,15 +50,32 @@ export const metadata: Metadata = {
     locale: "en_PH",
     title: `Pilates & Wellness Studio in Bacoor, Cavite | ${siteConfig.name}`,
     description: siteConfig.description,
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: `${siteConfig.name} — Pilates and wellness studio in Bacoor, Cavite`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: `Pilates & Wellness Studio in Bacoor, Cavite | ${siteConfig.name}`,
     description: siteConfig.description,
+    images: ["/opengraph-image"],
   },
   alternates: {
     canonical: "/",
   },
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : undefined,
+};
+
+export const viewport: Viewport = {
+  themeColor: "#4d382c",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

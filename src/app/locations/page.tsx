@@ -54,7 +54,18 @@ export default function LocationsPage() {
                 </div>
                 <div className="flex gap-3">
                   <Clock size={18} className="mt-0.5 shrink-0 text-clay" aria-hidden />
-                  <p>{location.hoursNote}</p>
+                  {location.hours.length > 0 ? (
+                    <dl className="space-y-1">
+                      {location.hours.map((entry) => (
+                        <div key={entry.day}>
+                          <dt className="sr-only">{entry.day}</dt>
+                          <dd>{entry.day}: {entry.hours}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  ) : (
+                    <p>{location.hoursNote}</p>
+                  )}
                 </div>
               </div>
 
