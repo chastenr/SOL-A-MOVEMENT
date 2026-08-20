@@ -5,7 +5,6 @@ import { ROLE_LABEL } from "@/lib/admin/role-labels";
 import { cn } from "@/lib/utils";
 import { getAdminNotifications } from "@/lib/admin/notifications";
 import { AdminNotificationBell } from "@/components/admin/AdminNotificationBell";
-import { Sparkles } from "lucide-react";
 
 // Kept short on purpose — the owner using this day to day shouldn't have to
 // scan a dozen tabs. Anything edited rarely (catalog, payment methods,
@@ -51,8 +50,11 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
     <div className="min-h-screen bg-plaster lg:flex">
       <aside className="border-b border-ivory/10 bg-walnut text-ivory lg:min-h-screen lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
         <div className="flex items-center gap-3 px-5 py-5 lg:py-6">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ivory/10 bg-ivory/[0.06] text-clay">
-            <Sparkles size={18} strokeWidth={1.7} aria-hidden />
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-ivory/10 bg-ivory/[0.06] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            <span
+              aria-hidden
+              className="h-8 w-7 bg-clay [mask-image:url('/veora-mark.png')] [mask-position:center] [mask-repeat:no-repeat] [mask-size:contain]"
+            />
           </span>
           <div>
             <p className="font-display text-lg leading-tight tracking-[0.02em]">Veora Admin</p>
