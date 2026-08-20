@@ -6,6 +6,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CookieConsent } from "@/components/privacy/CookieConsent";
 import { OrganizationSchema } from "@/components/seo/OrganizationSchema";
+import { GoogleTagManager } from "@/components/analytics/GoogleTagManager";
+import { GOOGLE_TAG_MANAGER_ID } from "@/lib/analytics";
 
 const cormorantGaramond = Cormorant_Garamond({
   variable: "--font-editorial",
@@ -86,6 +88,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${cormorantGaramond.variable} ${manrope.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ivory pb-[calc(7rem+env(safe-area-inset-bottom))] text-charcoal xl:pb-0">
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${GOOGLE_TAG_MANAGER_ID}`}
+            height="0"
+            width="0"
+            title="Google Tag Manager"
+            className="hidden invisible"
+          />
+        </noscript>
+        <GoogleTagManager />
         <OrganizationSchema />
         <Navbar />
         <main className="flex-1">{children}</main>

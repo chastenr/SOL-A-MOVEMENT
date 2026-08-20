@@ -1,0 +1,2 @@
+export const GOOGLE_TAG_MANAGER_ID = "GTM-K6KT74C5";
+export const GOOGLE_ANALYTICS_ID = "G-V4M8JCBSP4";

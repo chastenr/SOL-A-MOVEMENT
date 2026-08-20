@@ -51,15 +51,15 @@ const supabaseImagePattern = (() => {
 // stays out of the production policy.
 const cspDirectives = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   // Supabase Storage host included so admin-uploaded images (coach photos,
   // payment QR codes, receipts) render. CSP is a separate gate from the
   // next/image remotePatterns configuration below.
-  `img-src 'self' data: https://images.pexels.com https://ik.imagekit.io https://images.unsplash.com https://upload.wikimedia.org${supabaseUrl ? ` ${supabaseUrl}` : ""}`,
+  `img-src 'self' data: https://images.pexels.com https://ik.imagekit.io https://images.unsplash.com https://upload.wikimedia.org https://www.google-analytics.com https://www.googletagmanager.com https://stats.g.doubleclick.net${supabaseUrl ? ` ${supabaseUrl}` : ""}`,
   "font-src 'self'",
-  `connect-src 'self'${supabaseUrl ? ` ${supabaseUrl}` : ""}`,
-  "frame-src 'none'",
+  `connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com${supabaseUrl ? ` ${supabaseUrl}` : ""}`,
+  "frame-src https://www.googletagmanager.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
