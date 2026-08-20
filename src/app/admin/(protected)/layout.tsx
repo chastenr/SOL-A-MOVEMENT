@@ -3,6 +3,8 @@ import { logoutAction } from "@/lib/auth/actions";
 import { AdminSidebarNav } from "@/components/admin/AdminSidebarNav";
 import { ROLE_LABEL } from "@/lib/admin/role-labels";
 import { cn } from "@/lib/utils";
+import { getAdminNotifications } from "@/lib/admin/notifications";
+import { AdminNotificationBell } from "@/components/admin/AdminNotificationBell";
 
 // Kept short on purpose — the owner using this day to day shouldn't have to
 // scan a dozen tabs. Anything edited rarely (catalog, payment methods,
@@ -10,6 +12,7 @@ import { cn } from "@/lib/utils";
 // instead of getting its own row here.
 const NAV = [
   { href: "/admin", label: "Dashboard" },
+  { href: "/admin/notifications", label: "Notifications" },
   { href: "/admin/calendar", label: "Calendar" },
   { href: "/admin/bookings", label: "Bookings" },
   { href: "/admin/customers", label: "Customers" },
@@ -34,6 +37,7 @@ const ROLE_BADGE: Record<string, string> = {
 // (defense in depth — see src/lib/auth/require-role.ts).
 export default async function AdminProtectedLayout({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
+  const notificationFeed = await getAdminNotifications(admin.id, 100);
 
   return (
     <div className="min-h-screen bg-plaster lg:flex">
@@ -50,6 +54,11 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
         <header className="flex items-center justify-end border-b border-charcoal/10 bg-ivory px-4 py-4 sm:justify-between sm:px-8">
           <p className="hidden text-sm text-charcoal/45 sm:block">Signed in</p>
           <div className="flex min-w-0 items-center gap-2 text-sm text-charcoal/60 sm:gap-4">
+            <AdminNotificationBell
+              adminId={admin.id}
+              initialNotifications={notificationFeed.notifications.slice(0, 20)}
+              initialUnreadCount={notificationFeed.unreadCount}
+            />
             <span className="flex min-w-0 items-center gap-2">
               <span className="max-w-32 truncate sm:max-w-none">{admin.email}</span>
               <span
