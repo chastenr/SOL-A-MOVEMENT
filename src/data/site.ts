@@ -2,13 +2,18 @@ import { getPrimaryLocation } from "@/data/locations";
 
 const primaryLocation = getPrimaryLocation();
 
+// This is the one canonical public origin. Keep it code-owned so a stale
+// deployment variable cannot point metadata, sitemaps, schema, or emails at
+// a domain Veora does not own.
+export const CANONICAL_SITE_URL = "https://www.veora.ph";
+
 export const siteConfig = {
   name: "Veora Wellness",
   shortName: "Veora",
   tagline: "Move intentionally. Live fully.",
   description:
     "A premium boutique movement and wellness studio in Bacoor, Cavite offering Pilates, yoga, barre, ballet and specialty heated and infrared recovery classes. Explore our services and book your session online.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.veora.ph",
+  url: CANONICAL_SITE_URL,
 
   // Veora is a new studio preparing to open — avoid language that implies
   // years of history, an established client base, or existing reviews.

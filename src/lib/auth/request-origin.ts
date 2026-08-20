@@ -1,5 +1,6 @@
 import "server-only";
 import { headers } from "next/headers";
+import { CANONICAL_SITE_URL } from "@/data/site";
 
 /** Resolve the public origin from the current request instead of relying on
  * a deployment environment variable that may be missing or stale. */
@@ -16,5 +17,5 @@ export async function getAuthRedirectOrigin(): Promise<string> {
     return `${protocol}://${forwardedHost}`;
   }
 
-  return process.env.NEXT_PUBLIC_SITE_URL || "https://www.veora.ph";
+  return CANONICAL_SITE_URL;
 }

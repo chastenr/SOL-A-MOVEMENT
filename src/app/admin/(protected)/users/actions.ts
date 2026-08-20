@@ -8,6 +8,7 @@ import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase/admin";
 import { isRateLimited, getActionClientKey } from "@/lib/rate-limit";
 import { inviteStaffSchema, type InviteStaffFormValues } from "@/lib/validations";
 import type { AdminUserRole } from "@/lib/admin/users";
+import { CANONICAL_SITE_URL } from "@/data/site";
 
 type InviteResult = { error: string } | { success: true };
 
@@ -149,7 +150,7 @@ export async function inviteStaffAction(values: InviteStaffFormValues): Promise<
     // choose a password, instead of landing an already-authenticated session
     // straight on /admin. The nested `next` is where /reset-password sends
     // them once that's done.
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.veora.ph"}/auth/callback?next=${encodeURIComponent("/reset-password?next=/admin")}`,
+    redirectTo: `${CANONICAL_SITE_URL}/auth/callback?next=${encodeURIComponent("/reset-password?next=/admin")}`,
   });
   if (error || !data.user) {
     return { error: error?.message || "Something went wrong sending the invite." };
