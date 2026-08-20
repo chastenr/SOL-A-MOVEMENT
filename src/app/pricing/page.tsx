@@ -103,7 +103,7 @@ export default async function PricingPage() {
             as="h1"
             eyebrow="Pricing"
             heading="Move in a way that works for you."
-            body="Start with our pre-opening Intro Pass, or preview the class packages and unlimited memberships being prepared for launch."
+            body="Start with our Intro Pass, choose a class package, or explore Veora Signature and Veora Prestige memberships."
           />
         </AnimatedSection>
       </section>
@@ -127,7 +127,7 @@ export default async function PricingPage() {
       <PricingSection
         eyebrow="Unlimited Memberships"
         heading="Make Veora part of your routine."
-        body="Six- and twelve-month unlimited memberships are prepared in the system. Final prices and membership policies will be published once confirmed."
+        body="Save 10% on Signature and Prestige monthly membership rates during September. Memberships are personal, non-transferable and limited to one class per day. Enrollment opens when monthly auto-payment is available."
         options={pricing.memberships}
         ctaType="book"
       />

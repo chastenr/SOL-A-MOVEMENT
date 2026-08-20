@@ -12,6 +12,7 @@ type PackageRow = {
   service_slug: string | null;
   price_centavos: number;
   original_price_centavos: number | null;
+  sale_ends_at: string | null;
   credit_count: number | null;
   validity_description: string;
   description: string;
@@ -32,11 +33,16 @@ const GROUP_TO_KEY = {
 } as const;
 
 function mapRow(row: PackageRow): PricingOption {
+  const monthlySuffix = row.package_group === "membership" ? "/month" : "";
   return {
     slug: row.slug,
     name: row.name,
-    price: row.price_centavos > 0 ? centavosToPeso(row.price_centavos) : "To be confirmed",
-    originalPrice: row.original_price_centavos != null ? centavosToPeso(row.original_price_centavos) : undefined,
+    price: row.price_centavos > 0 ? `${centavosToPeso(row.price_centavos)}${monthlySuffix}` : "To be confirmed",
+    originalPrice:
+      row.original_price_centavos != null
+        ? `${centavosToPeso(row.original_price_centavos)}${monthlySuffix}`
+        : undefined,
+    promotionEndsAt: row.sale_ends_at ?? undefined,
     sessions: row.credit_count ?? undefined,
     validity: row.validity_description,
     description: row.description,
@@ -60,7 +66,7 @@ export async function getPricingGroups(): Promise<PricingGroups> {
     const { data, error } = await supabase
       .from("packages")
       .select(
-        "slug, name, package_group, service_slug, price_centavos, original_price_centavos, credit_count, validity_description, description, included_services, conditions, is_recommended, recommended_label, is_active"
+        "slug, name, package_group, service_slug, price_centavos, original_price_centavos, sale_ends_at, credit_count, validity_description, description, included_services, conditions, is_recommended, recommended_label, is_active"
       )
       .in("slug", ["founding-classic-intro", "3-class-package", "6-class-package", "6-month-unlimited", "12-month-unlimited"])
       .order("sort_order");

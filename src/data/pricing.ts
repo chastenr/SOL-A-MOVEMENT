@@ -3,6 +3,8 @@ export type PricingOption = {
   name: string;
   price: string;
   originalPrice?: string;
+  /** Promo price stops displaying at this instant; the original price becomes current. */
+  promotionEndsAt?: string;
   sessions?: number;
   validity: string;
   description: string;
@@ -15,6 +17,8 @@ export type PricingOption = {
   serviceSlug?: string;
   /** False for configured products that are awaiting final client pricing/policies. */
   available?: boolean;
+  /** Optional customer-facing label when checkout is intentionally unavailable. */
+  unavailableLabel?: string;
 };
 
 export const launchPricing: typeof pricing = {
@@ -60,21 +64,31 @@ export const launchPricing: typeof pricing = {
   memberships: [
     {
       slug: "6-month-unlimited",
-      name: "6-Month Unlimited",
-      price: "To be confirmed",
-      validity: "6 months from activation",
-      description: "Unlimited class booking entitlement for six months. Final pricing and policies are pending.",
-      includedServices: ["Unlimited bookings while active", "Normal capacity rules apply"],
+      name: "Veora Signature",
+      price: "₱7,200/month",
+      originalPrice: "₱8,000/month",
+      promotionEndsAt: "2026-10-01T00:00:00+08:00",
+      validity: "6-month contract",
+      description: "A six-month Classics membership with one class available each day.",
+      includedServices: ["Maximum 1 class per day", "Monthly auto-payment", "6-month membership term"],
+      conditions: ["September pre-opening rate ends September 30, 2026", "Non-transferable"],
+      recommended: true,
+      recommendedLabel: "September offer",
       available: false,
+      unavailableLabel: "Enrollment opens with auto-pay",
     },
     {
       slug: "12-month-unlimited",
-      name: "12-Month Unlimited",
-      price: "To be confirmed",
-      validity: "12 months from activation",
-      description: "Unlimited class booking entitlement for twelve months. Final pricing and policies are pending.",
-      includedServices: ["Unlimited bookings while active", "Normal capacity rules apply"],
+      name: "Veora Prestige",
+      price: "₱5,400/month",
+      originalPrice: "₱6,000/month",
+      promotionEndsAt: "2026-10-01T00:00:00+08:00",
+      validity: "12-month contract",
+      description: "A twelve-month Classics membership with one class available each day.",
+      includedServices: ["Maximum 1 class per day", "Monthly auto-payment", "12-month membership term"],
+      conditions: ["September pre-opening rate ends September 30, 2026", "Non-transferable"],
       available: false,
+      unavailableLabel: "Enrollment opens with auto-pay",
     },
   ],
   privateSessions: [],

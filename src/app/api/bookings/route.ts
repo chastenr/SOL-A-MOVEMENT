@@ -26,6 +26,7 @@ const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0013: { status: 409, message: "This membership is not active." },
   P0014: { status: 409, message: "This membership has not started yet." },
   P0015: { status: 409, message: "This membership has expired." },
+  P0016: { status: 409, message: "Your membership allows one class per day." },
   // book_class_session() takes row locks on the package and session (see
   // migration 0013) so two overlapping requests for the same booking
   // normally just serialize and the second gets a proper P0005 above — but

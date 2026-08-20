@@ -7,10 +7,6 @@
     {
       "path": "/api/cron/generate-sessions",
       "schedule": "10 16 * * *"
-    },
-    {
-      "path": "/api/cron/booking-reminders",
-      "schedule": "*/10 * * * *"
     }
   ]
 }
