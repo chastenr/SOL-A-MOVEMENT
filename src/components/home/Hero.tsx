@@ -101,7 +101,7 @@ export function Hero() {
       </motion.div>
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-14 sm:px-8 sm:pb-16 lg:px-12 lg:pb-20">
-        <div className="max-w-6xl">
+        <div className="max-w-6xl sm:mx-auto sm:text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ivory/85 sm:text-[13px]">
             {siteConfig.name} · Bacoor, Cavite
           </p>
@@ -109,10 +109,10 @@ export function Hero() {
             <span className="block lg:whitespace-nowrap">Move with intention.</span>
             <span className="block lg:whitespace-nowrap">Feel your best.</span>
           </h1>
-          <p className="mt-6 max-w-[62ch] text-base leading-[1.7] text-ivory/85 lg:text-lg">
+          <p className="mt-6 max-w-[62ch] text-base leading-[1.7] text-ivory/85 sm:mx-auto lg:text-lg">
             Pilates, yoga and barre—thoughtfully guided in one boutique wellness studio in Bacoor, Cavite.
           </p>
-          <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3 sm:justify-center">
             <Button href="/book" size="lg" magnetic>
               {siteConfig.bookingCtaLabel}
             </Button>
@@ -124,7 +124,7 @@ export function Hero() {
               Explore Classes
             </Button>
           </div>
-          <div className="mt-7 flex items-center gap-2 text-ivory/80">
+          <div className="mt-7 flex items-center gap-2 text-ivory/80 sm:justify-center">
             <MapPin size={14} aria-hidden />
             <p className="text-xs font-medium uppercase tracking-[0.14em]">Opening soon</p>
           </div>
