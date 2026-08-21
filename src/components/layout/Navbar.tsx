@@ -122,7 +122,10 @@ export function Navbar() {
           </div>
 
           <motion.div variants={leftMotion} className="hidden min-w-0 xl:block">
-            <Link href="/" aria-label="Veora Wellness home" className="flex shrink-0 items-center gap-2 text-ivory">
+            <Link
+              href="/"
+              className="flex shrink-0 items-center gap-2 text-ivory"
+            >
               <Image
                 src="/veora-mark.png"
                 alt=""
@@ -154,6 +157,7 @@ export function Navbar() {
                   Where Movement Becomes Ritual
                 </p>
               </div>
+              <span className="sr-only">home</span>
             </Link>
           </motion.div>
 
