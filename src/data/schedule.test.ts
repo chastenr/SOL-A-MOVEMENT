@@ -17,4 +17,12 @@ describe("class catalog", () => {
     expect(restoreClasses.filter((classType) => classType.name.startsWith("Heated "))).toHaveLength(14);
     expect(restoreClasses.filter((classType) => classType.name.startsWith("Red Light + "))).toHaveLength(14);
   });
+
+  it("uses the confirmed one-hour duration without inventing Ballet timing", () => {
+    const confirmedClasses = classDirectory.filter((classType) => classType.serviceSlug !== "ballet");
+    const balletService = services.find((service) => service.slug === "ballet");
+
+    expect(confirmedClasses.every((classType) => classType.duration === "60 min")).toBe(true);
+    expect(balletService?.duration).toBe("To be confirmed");
+  });
 });

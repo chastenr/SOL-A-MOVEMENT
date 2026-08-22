@@ -28,7 +28,7 @@ export const services: Service[] = [
       "Strengthen your core, improve balance and enhance flexibility on the mat.",
     description:
       "Move with intention in our Mat Pilates classes, where you'll strengthen your core, improve balance and enhance flexibility. Every session is led by experienced instructors and designed to help you build strength with confidence, precision and personalized guidance.",
-    duration: "50 min",
+    duration: "1 hour",
     level: "Open to all",
     benefits: [
       "Build deep core strength and stability",
@@ -46,7 +46,7 @@ export const services: Service[] = [
       "Breath-led movement, from energizing flows to gentle, restorative practice.",
     description:
       "From energizing Vinyasa and Power Yoga to gentle Hatha, Restorative, Gentle Flow, Stretch Yoga and Yogalates, our yoga classes build flexibility, balance and mindful breath at whatever pace suits you.",
-    duration: "50 min",
+    duration: "1 hour",
     level: "Open to all",
     benefits: [
       "Improve flexibility and everyday mobility",
@@ -73,7 +73,7 @@ export const services: Service[] = [
     shortDescription: "Low-impact, ballet-inspired movement for posture and endurance.",
     description:
       "Improve posture, balance and muscle endurance through low-impact movements inspired by ballet — a full-body sculpting class suited to every level.",
-    duration: "50 min",
+    duration: "1 hour",
     level: "Open to all",
     benefits: [
       "Strengthen and tone the full body with low impact",
@@ -90,7 +90,7 @@ export const services: Service[] = [
     shortDescription: "Functional strength, sculpt and cardio conditioning classes.",
     description:
       "Build functional strength, tone and cardiovascular fitness through Mat Strength, Mat Sculpt, Functional Group Exercise and HIIT — guided, full-body sessions for every fitness level.",
-    duration: "50 min",
+    duration: "1 hour",
     level: "Open to all",
     benefits: [
       "Build practical, full-body strength",
@@ -108,7 +108,7 @@ export const services: Service[] = [
     shortDescription: "Twenty-eight heated and red light therapy class options.",
     description:
       "Our Restore collection includes heated and red light therapy versions of every Classics format, from Pilates and yoga to barre, strength and HIIT. Choose the movement you enjoy with an environment designed to support warmth, circulation and recovery.",
-    duration: "50 min",
+    duration: "1 hour",
     level: "Open to all",
     benefits: [
       "Explore familiar movements in a warm, immersive setting",
@@ -155,7 +155,7 @@ export const services: Service[] = [
     shortDescription: "Classical ballet training for every age, from 3 through adult.",
     description:
       "Structured ballet training for every age — from playful, play-based first steps at 3–5 years old through disciplined technique for teens and adults — building posture, coordination, artistry and confidence.",
-    duration: "60–90 min, varies by age group",
+    duration: "To be confirmed",
     level: "Beginner-friendly, all ages",
     benefits: [
       "Develop posture, coordination and musicality",

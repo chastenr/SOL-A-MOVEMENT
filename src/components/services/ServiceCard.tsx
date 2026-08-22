@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUpRight, Check, ChevronDown, Clock3, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Clock3, Sparkles } from "lucide-react";
 import { ImageReveal } from "@/components/ui/ImageReveal";
 import { TiltCard } from "@/components/ui/TiltCard";
 import { Button } from "@/components/ui/Button";
@@ -14,17 +14,8 @@ type ServiceCardProps = {
 };
 
 export function ServiceCard({ service, variant = "compact", className, priority = false }: ServiceCardProps) {
-  const variantGroups = service.classVariants
-    ? service.category === "Recovery & Restore"
-      ? [
-          { label: "Heated Classes", items: service.classVariants.filter((name) => name.startsWith("Heated ")) },
-          { label: "Red Light Therapy", items: service.classVariants.filter((name) => name.startsWith("Red Light + ")) },
-        ]
-      : [{ label: "Classes Offered", items: service.classVariants }]
-    : [];
-
   if (variant === "detailed") {
-    const optionCount = service.classVariants?.length ?? 0;
+    const isBalletPending = service.slug === "ballet";
 
     return (
       <article
@@ -51,14 +42,14 @@ export function ServiceCard({ service, variant = "compact", className, priority 
           </p>
         </div>
 
-        <div className="flex flex-1 flex-col p-6 sm:p-7">
+        <div className="flex flex-1 flex-col p-6 text-center sm:p-7">
           <h3 className="font-display text-[2rem] leading-none text-charcoal sm:text-4xl">{service.name}</h3>
           <ExpandableDescription
             shortDescription={service.shortDescription}
             description={service.description}
           />
 
-          <dl className="mt-5 grid grid-cols-2 gap-2 text-sm">
+          <dl className="mt-5 grid grid-cols-2 gap-2 text-left text-sm">
             <div className="rounded-xl bg-cream/65 px-3.5 py-3">
               <dt className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal/70">
                 <Clock3 size={13} aria-hidden /> Duration
@@ -74,7 +65,7 @@ export function ServiceCard({ service, variant = "compact", className, priority 
           </dl>
 
           {service.benefits && service.benefits.length > 0 && (
-            <div className="mt-4 rounded-2xl border border-clay/15 bg-clay/[0.06] p-4">
+            <div className="mt-4 rounded-2xl border border-clay/15 bg-clay/[0.06] p-4 text-left">
               <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-clay">
                 <Sparkles size={13} aria-hidden /> Benefits
               </p>
@@ -89,48 +80,16 @@ export function ServiceCard({ service, variant = "compact", className, priority 
             </div>
           )}
 
-          {variantGroups.length > 0 && (
-            <details className="group/options mt-4 border-y border-charcoal/10 py-1">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3 text-xs font-medium uppercase tracking-[0.13em] text-charcoal/65 marker:content-none">
-                <span>{optionCount} class {optionCount === 1 ? "option" : "options"}</span>
-                <ChevronDown
-                  size={16}
-                  className="shrink-0 text-clay transition-transform duration-300 group-open/options:rotate-180"
-                  aria-hidden
-                />
-              </summary>
-              <div className="space-y-4 pb-4">
-                {variantGroups.map((group) => (
-                  <div key={group.label}>
-                    {variantGroups.length > 1 && (
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-charcoal/70">
-                        {group.label}
-                      </p>
-                    )}
-                    <ul className="flex flex-wrap gap-1.5" aria-label={`${service.name} — ${group.label}`}>
-                      {group.items.map((name) => (
-                        <li key={name} className="rounded-full border border-charcoal/10 bg-cream/45 px-2.5 py-1.5 text-[11px] leading-tight text-charcoal/65">
-                          {name}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </details>
-          )}
-
           <div className="mt-auto pt-6">
-            {service.startingPrice && (
-              <p className="mb-3 text-xs text-charcoal/55">
-                <span className="font-medium text-charcoal">{service.startingPrice}</span>
-              </p>
-            )}
             <a href={`/services/${service.slug}`} className="mb-4 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.13em] text-clay transition-colors hover:text-walnut">
               Class details <ArrowUpRight size={14} aria-hidden />
             </a>
-            <Button href={`/book?service=${service.slug}`} className="w-full justify-between px-6 py-3.5">
-              Book this class
+            <Button
+              href={isBalletPending ? "/contact?topic=Ballet" : `/book?service=${service.slug}`}
+              variant={isBalletPending ? "secondary" : "primary"}
+              className="w-full justify-between px-6 py-3.5"
+            >
+              {isBalletPending ? "Ballet details to follow" : "Book this class"}
               <ArrowRight size={16} aria-hidden />
             </Button>
           </div>

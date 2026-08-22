@@ -22,7 +22,7 @@ export function PricingCard({ option, ctaType, className }: PricingCardProps) {
   );
   const displayedPrice = promotionActive ? option.price : option.originalPrice ?? option.price;
   const displayedOriginalPrice = promotionActive ? option.originalPrice : undefined;
-  const showRecommendation = option.recommended && (option.recommendedLabel !== "September offer" || promotionActive);
+  const showRecommendation = option.recommended;
 
   return (
     <TiltCard
@@ -49,7 +49,7 @@ export function PricingCard({ option, ctaType, className }: PricingCardProps) {
         </div>
         {promotionActive && (
           <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-clay">
-            September Pre-Opening Price
+            Limited Opening Offer
           </p>
         )}
         <p className="mt-1 text-xs uppercase tracking-[0.1em] text-charcoal/45">{option.validity}</p>

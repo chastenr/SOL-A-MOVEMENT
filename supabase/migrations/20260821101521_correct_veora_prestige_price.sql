@@ -1,11 +1,11 @@
--- Correct the confirmed Veora Prestige standard monthly rate and apply the
--- nine percent September pre-opening promotion.
+-- Apply the confirmed Veora Prestige monthly rate without renaming it.
 update public.packages
 set
-  price_centavos = 637000,
-  original_price_centavos = 700000,
+  price_centavos = 700000,
+  original_price_centavos = 1000000,
   conditions = array[
-    'September pre-opening price: ₱6,370/month',
+    'Limited opening price: ₱7,000/month',
+    'Save ₱3,000 every month',
     'Monthly payment',
     'Non-transferable'
   ],

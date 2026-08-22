@@ -1,5 +1,5 @@
 -- Aug 20 pre-opening meeting implementation:
--- 20-person defaults, configurable sub-10% September promotion, recurring
+-- 20-person defaults, configurable opening promotion, recurring
 -- membership payment state/history, and strict proof-before-approval.
 
 update public.locations
@@ -69,7 +69,7 @@ create trigger class_time_slots_max_twenty_capacity
 
 -- ---------------------------------------------------------------------------
 -- Promotion configuration. A package is promotional only when it has a
--- regular price, a positive discount below 10%, and an active time window.
+-- regular price, a positive discount no greater than 50%, and an active time window.
 -- ---------------------------------------------------------------------------
 alter table public.packages
   add column if not exists promotion_discount_bps integer;
@@ -85,7 +85,7 @@ begin
       add constraint packages_promotion_configuration_check check (
         promotion_discount_bps is null
         or (
-          promotion_discount_bps between 1 and 999
+          promotion_discount_bps between 1 and 5000
           and original_price_centavos is not null
           and sale_starts_at is not null
           and sale_ends_at is not null
@@ -98,54 +98,77 @@ begin
   end if;
 end $$;
 
--- Nine percent is deliberately below the meeting's 10% ceiling. Intro and
--- Infratone rows remain regular-price products with no campaign fields.
+-- Keep standard prices on regular packages. Only Signature and Prestige use
+-- crossed-out reference prices for the client-confirmed limited opening offer.
 update public.packages
 set
   original_price_centavos = case slug
+    when '6-month-unlimited' then 800000
+    when '12-month-unlimited' then 1000000
+    else null
+  end,
+  price_centavos = case slug
+    when 'founding-classic-intro' then 99900
     when '3-class-package' then 300000
     when '6-class-package' then 540000
     when 'veora-unlimited' then 900000
-    when '6-month-unlimited' then 800000
+    when '6-month-unlimited' then 700000
     when '12-month-unlimited' then 700000
+    when 'infratone-intro-class' then 139900
+    when 'infratone-unlimited' then 1549900
   end,
-  price_centavos = case slug
-    when '3-class-package' then 273000
-    when '6-class-package' then 491400
-    when 'veora-unlimited' then 819000
-    when '6-month-unlimited' then 728000
-    when '12-month-unlimited' then 637000
+  promotion_discount_bps = case slug
+    when '6-month-unlimited' then 1250
+    when '12-month-unlimited' then 3000
+    else null
   end,
-  promotion_discount_bps = 900,
-  sale_starts_at = '2026-09-01 00:00:00+08'::timestamptz,
-  sale_ends_at = '2026-10-01 00:00:00+08'::timestamptz,
-  is_active = true,
+  sale_starts_at = case when slug in ('6-month-unlimited', '12-month-unlimited')
+    then '2026-08-22 00:00:00+08'::timestamptz else null end,
+  sale_ends_at = case when slug in ('6-month-unlimited', '12-month-unlimited')
+    then '2026-10-01 00:00:00+08'::timestamptz else null end,
+  is_active = case when slug = 'infratone-unlimited' then is_active else true end,
+  credit_count = case slug
+    when 'founding-classic-intro' then 1
+    when '3-class-package' then 6
+    when '6-class-package' then 3
+    when 'infratone-intro-class' then 1
+    else credit_count
+  end,
+  recommended_label = case when slug = '6-month-unlimited'
+    then 'Save ₱1,000/mo' else recommended_label end,
   conditions = case slug
-    when '3-class-package' then array['September pre-opening price: ₱2,730', 'Non-transferable']
-    when '6-class-package' then array['September pre-opening price: ₱4,914', 'Non-transferable']
-    when 'veora-unlimited' then array['September pre-opening price: ₱8,190/month', 'Maximum 1 class per day', 'Non-transferable']
-    when '6-month-unlimited' then array['September pre-opening price: ₱7,280/month', 'Monthly payment', 'Non-transferable']
-    when '12-month-unlimited' then array['September pre-opening price: ₱6,370/month', 'Monthly payment', 'Non-transferable']
+    when 'founding-classic-intro' then array['Valid for 5 days']
+    when '3-class-package' then array['Valid for 15 days', 'Non-transferable']
+    when '6-class-package' then array['Valid for 10 days', 'Non-transferable']
+    when 'veora-unlimited' then array['Maximum 1 class per day', 'Non-transferable']
+    when '6-month-unlimited' then array['Limited opening price: ₱7,000/month', 'Save ₱1,000 every month', 'Monthly payment', 'Non-transferable']
+    when '12-month-unlimited' then array['Limited opening price: ₱7,000/month', 'Save ₱3,000 every month', 'Monthly payment', 'Non-transferable']
+    when 'infratone-intro-class' then array[]::text[]
+    when 'infratone-unlimited' then array['Non-transferable']
+  end,
+  validity_description = case slug
+    when '3-class-package' then '15 days from purchase'
+    when '6-class-package' then '10 days from purchase'
+    else validity_description
+  end,
+  validity_days = case slug
+    when '3-class-package' then 15
+    when '6-class-package' then 10
+    else validity_days
   end,
   included_services = case slug
+    when '3-class-package' then array['6 class credits']
+    when '6-class-package' then array['3 class credits']
     when '6-month-unlimited' then array['Maximum 1 class per day', 'Monthly payment', '6-month membership term']
     when '12-month-unlimited' then array['Maximum 1 class per day', 'Monthly payment', '12-month membership term']
     else included_services
   end,
   updated_at = now()
 where slug in (
-  '3-class-package', '6-class-package', 'veora-unlimited',
-  '6-month-unlimited', '12-month-unlimited'
+  'founding-classic-intro', '3-class-package', '6-class-package',
+  'veora-unlimited', '6-month-unlimited', '12-month-unlimited',
+  'infratone-intro-class', 'infratone-unlimited'
 );
-
-update public.packages
-set
-  promotion_discount_bps = null,
-  sale_starts_at = null,
-  sale_ends_at = null,
-  original_price_centavos = null,
-  updated_at = now()
-where slug in ('founding-classic-intro', 'infratone-intro-class', 'infratone-unlimited');
 
 alter table public.packages validate constraint packages_promotion_configuration_check;
 

@@ -74,7 +74,7 @@ export function ServiceForm({
         <input {...register("category")} className={fieldInputClasses} />
       </Field>
       <Field label="Duration" required error={errors.duration?.message}>
-        <input {...register("duration")} className={fieldInputClasses} placeholder="50 min" />
+        <input {...register("duration")} className={fieldInputClasses} placeholder="1 hour" />
       </Field>
 
       <Field label="Level" required error={errors.level?.message}>

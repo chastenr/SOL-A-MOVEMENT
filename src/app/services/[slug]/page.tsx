@@ -22,7 +22,9 @@ export async function generateMetadata({ params }: ServicePageProps): Promise<Me
   if (!service) return {};
 
   const title = `${service.name} Classes in Bacoor, Cavite`;
-  const description = `${service.shortDescription} Join a ${service.duration} ${service.name} class at Veora Wellness in Bacoor, Cavite. ${service.level}.`;
+  const description = service.slug === "ballet"
+    ? `${service.shortDescription} Ballet coach and class timing details will be published once confirmed.`
+    : `${service.shortDescription} Join a ${service.duration} ${service.name} class at Veora Wellness in Bacoor, Cavite. ${service.level}.`;
 
   return {
     title,
@@ -43,6 +45,7 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
   const { slug } = await params;
   const service = await getServiceBySlug(slug);
   if (!service) notFound();
+  const isBalletPending = service.slug === "ballet";
 
   const otherServices = staticServices.filter((item) => item.slug !== slug).slice(0, 3);
   const pagePath = `/services/${service.slug}`;
@@ -53,7 +56,9 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
     },
     {
       question: `How long is a ${service.name} class?`,
-      answer: `The published duration is ${service.duration}. Please arrive 15–20 minutes early for your first Veora visit.`,
+      answer: isBalletPending
+        ? "Ballet timing will be published once the coach and class schedule are confirmed."
+        : `The published duration is ${service.duration}. Please arrive 15–20 minutes early for your first Veora visit.`,
     },
     {
       question: "What should I bring?",
@@ -121,8 +126,8 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-ivory/78">{service.description}</p>
               <div className="mt-7 flex flex-wrap gap-3">
-                <Button href={`/book?service=${service.slug}`} size="lg" className="bg-ivory text-charcoal hover:bg-cream">
-                  Book {service.name}
+                <Button href={isBalletPending ? "/contact?topic=Ballet" : `/book?service=${service.slug}`} size="lg" className="bg-ivory text-charcoal hover:bg-cream">
+                  {isBalletPending ? "Ask about Ballet" : `Book ${service.name}`}
                 </Button>
                 <Button href="/schedule" size="lg" variant="secondary" className="border-ivory/35 text-ivory hover:border-ivory">
                   View schedule
@@ -160,20 +165,9 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
                 <div className="flex gap-3"><Sparkles className="h-5 w-5 shrink-0 text-clay" aria-hidden /><div><dt className="text-charcoal/45">Experience level</dt><dd className="mt-1 text-charcoal">{service.level}</dd></div></div>
                 <div className="flex gap-3"><MapPin className="h-5 w-5 shrink-0 text-clay" aria-hidden /><div><dt className="text-charcoal/45">Studio</dt><dd className="mt-1 text-charcoal">Veora Wellness, Molino IV, Bacoor, Cavite</dd></div></div>
               </dl>
-              {service.startingPrice ? <p className="mt-6 border-t border-charcoal/10 pt-5 text-sm"><span className="text-charcoal/45">Published price</span><br /><span className="mt-1 inline-block text-charcoal">{service.startingPrice}</span></p> : null}
               <Link href="/pricing" className="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.12em] text-clay hover:text-walnut">View all packages <ArrowRight size={14} aria-hidden /></Link>
             </aside>
           </section>
-
-          {service.classVariants?.length ? (
-            <section className="rounded-[2rem] bg-sand/25 px-6 py-10 sm:px-10" aria-labelledby="formats-heading">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">Available formats</p>
-              <h2 id="formats-heading" className="font-display mt-3 text-3xl text-charcoal">Choose your {service.name} practice.</h2>
-              <ul className="mt-6 flex flex-wrap gap-2">
-                {service.classVariants.map((variant) => <li key={variant} className="rounded-full border border-charcoal/10 bg-ivory px-4 py-2 text-sm text-charcoal/70">{variant}</li>)}
-              </ul>
-            </section>
-          ) : null}
 
           {service.slug === "recovery-restore" && (
             <section className="rounded-[2rem] border border-clay/25 bg-clay/[0.07] px-6 py-10 sm:px-10" aria-labelledby="infratone-safety-heading">

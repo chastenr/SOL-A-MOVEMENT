@@ -22,7 +22,7 @@ type SupabaseServerClient = Awaited<ReturnType<typeof createSupabaseServerClient
 const BALLET_SERVICE_SLUG = "ballet";
 
 /**
- * Every class type except Ballet is locked to the 50-minute, on-the-hour
+ * Every class type except Ballet is locked to the 60-minute, on-the-hour
  * schedule managed in the Class Times section on this page — the client already
  * enforces this in the form, but neither create nor update can trust that
  * payload (same reasoning as the studio-hours/booking-cutoff checks

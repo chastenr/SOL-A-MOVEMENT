@@ -118,7 +118,7 @@ export default async function PricingPage() {
       <PricingSection
         eyebrow="Discovery Pass"
         heading="Your first Veora class for ₱999."
-        body="The Discovery Pass keeps its existing introductory price and is not included in the September pre-opening promotion."
+        body="Start with one introductory Veora class, valid for five days from purchase."
         options={pricing.introOffers}
         ctaType="book"
       />
@@ -126,7 +126,7 @@ export default async function PricingPage() {
       <PricingSection
         eyebrow="Class Packages"
         heading="Choose the rhythm that works for you."
-        body="Veora Essence includes 3 classes and Veora Flow includes 6. The 9% pre-opening prices apply during September only."
+        body="Veora Essence includes 6 classes valid for 15 days, while Veora Flow includes 3 classes valid for 10 days."
         options={pricing.packages}
         ctaType="book"
       />
@@ -134,7 +134,7 @@ export default async function PricingPage() {
       <PricingSection
         eyebrow="Unlimited Memberships"
         heading="Make Veora part of your routine."
-        body="Veora Unlimited, Signature and Prestige receive 9% off during September. Memberships are paid monthly, personal, non-transferable and limited to one class per calendar day."
+        body="Save ₱1,000 monthly with Veora Signature or ₱3,000 monthly with Veora Prestige during the limited opening offer. Memberships are personal, non-transferable and limited to one class per calendar day."
         options={veoraMemberships}
         ctaType="book"
       />
@@ -142,7 +142,7 @@ export default async function PricingPage() {
       <PricingSection
         eyebrow="Infratone"
         heading="Dedicated Infratone options."
-        body="Choose an introductory session or unlimited access. Infratone packages keep their regular prices and are not included in the September promotion."
+        body="Choose an introductory session or unlimited access."
         options={infratoneOptions}
         ctaType="book"
       />

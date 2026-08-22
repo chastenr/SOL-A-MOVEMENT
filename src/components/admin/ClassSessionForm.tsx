@@ -61,8 +61,8 @@ export function ClassSessionForm({
   const selectedClassTypeId = useWatch({ control, name: "classTypeId" });
   const selectedLocationId = useWatch({ control, name: "locationId" });
   const selectedClassType = classTypes.find((option) => option.id === selectedClassTypeId);
-  // Ballet keeps a free-typed start time + duration (60/90 min); every other
-  // class type is fixed at 50 minutes, on the hour — see studio-hours.ts.
+  // Ballet keeps a free-typed start time + duration until its schedule is
+  // confirmed; every other class type is fixed at one hour.
   const isFixedSchedule = selectedClassType?.serviceSlug !== BALLET_SERVICE_SLUG;
 
   const selectedWeekday = getWeekdayFromDateInput(date);
@@ -186,11 +186,11 @@ export function ClassSessionForm({
                 ? "Select a date first to see that day's available hours."
                 : openHours.length === 0
                 ? "No hours are open for this location yet — enable some under Class Times."
-                : "Fixed at 50 minutes, back-to-back on the hour — customers should arrive 10 minutes early."}
+                : "Fixed at 60 minutes, back-to-back on the hour — customers should arrive 10 minutes early."}
             </p>
           </Field>
           <Field label="Duration">
-            <p className={`${fieldInputClasses} bg-charcoal/5 text-charcoal/60`}>50 minutes (fixed)</p>
+            <p className={`${fieldInputClasses} bg-charcoal/5 text-charcoal/60`}>60 minutes (fixed)</p>
           </Field>
         </>
       ) : (
