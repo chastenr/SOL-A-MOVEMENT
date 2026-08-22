@@ -40,7 +40,7 @@ export function Footer() {
           "radial-gradient(circle at 72% 18%, rgba(250,247,242,0.04), transparent 34%), var(--color-walnut)",
       }}
     >
-      <div className="relative z-10 mx-auto max-w-[1600px] px-6 pt-28 sm:px-8 sm:pt-32 lg:px-[clamp(3rem,5vw,6rem)] lg:pt-36">
+      <div className="relative z-10 mx-auto max-w-[1600px] px-6 pt-20 sm:px-8 sm:pt-24 lg:px-[clamp(3rem,5vw,6rem)]">
         <motion.section
           aria-labelledby="footer-ritual-heading"
           initial={reduceMotion ? false : { opacity: 0, y: 36 }}
@@ -53,22 +53,22 @@ export function Footer() {
           </p>
           <h2
             id="footer-ritual-heading"
-            className="font-display mt-7 max-w-[11ch] text-[clamp(3.25rem,7vw,7.375rem)] leading-[0.95] tracking-[-0.035em] text-ivory"
+            className="font-display mt-5 max-w-[11ch] text-[clamp(3.25rem,6vw,6.25rem)] leading-[0.95] tracking-[-0.035em] text-ivory"
           >
             Your ritual continues.
           </h2>
-          <p className="mt-8 text-sm tracking-[0.03em] text-ivory/65 sm:ml-[clamp(3rem,16vw,15rem)] sm:text-base">
+          <p className="mt-6 text-sm tracking-[0.03em] text-ivory/65 sm:ml-[clamp(3rem,13vw,12rem)] sm:text-base">
             Move intentionally. Live fully.
           </p>
         </motion.section>
 
-        <nav aria-label="Footer navigation" className="mt-24 sm:mt-28 lg:mt-32">
+        <nav aria-label="Footer navigation" className="mt-16 sm:mt-20">
           <ol className="grid border-t border-ivory/15 lg:grid-cols-5">
             {ritualNavigation.map((item, index) => (
               <li key={item.href} className="relative lg:border-l lg:border-ivory/10 lg:first:border-l-0">
                 <Link
                   href={item.href}
-                  className="group flex min-h-20 items-center gap-5 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ivory lg:min-h-36 lg:items-start lg:px-5 lg:py-7 xl:px-7"
+                  className="group flex min-h-16 items-center gap-5 py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ivory lg:min-h-28 lg:items-start lg:px-5 lg:py-6 xl:px-7"
                 >
                   <span className="w-5 shrink-0 pt-0.5 text-[9px] font-medium tracking-[0.16em] text-ivory/40">
                     {item.number}
@@ -104,7 +104,7 @@ export function Footer() {
 
         <motion.section
           aria-label="Studio information"
-          className="relative z-10 mt-24 grid gap-12 text-sm sm:mt-28 sm:grid-cols-2 lg:mt-32 lg:grid-cols-3 lg:gap-16"
+          className="relative z-10 mt-16 grid gap-9 text-sm sm:mt-20 sm:grid-cols-2 lg:grid-cols-3 lg:gap-14"
           initial={reduceMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-8% 0px" }}
@@ -146,7 +146,7 @@ export function Footer() {
               </a>
             </div>
 
-            <div className="mt-8 flex flex-col items-start gap-3">
+            <div className="mt-6 flex flex-col items-start gap-3">
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
@@ -166,7 +166,7 @@ export function Footer() {
           </div>
         </motion.section>
 
-        <div className="relative mt-24 h-[clamp(6.5rem,19vw,19rem)] sm:mt-20" aria-hidden>
+        <div className="relative mt-10 h-[clamp(6rem,14vw,14rem)] sm:mt-8" aria-hidden>
           <motion.p
             className="font-display absolute inset-x-1/2 bottom-[-0.1em] w-max -translate-x-1/2 select-none whitespace-nowrap text-[25vw] leading-[0.72] tracking-[0.04em] text-ivory/[0.075] sm:text-[clamp(8rem,18vw,20rem)]"
             initial={reduceMotion ? false : { clipPath: "inset(0 100% 0 0)" }}
@@ -180,7 +180,7 @@ export function Footer() {
       </div>
 
       <div className="relative z-10 border-t border-ivory/15 bg-walnut/95">
-        <div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-6 py-6 text-[9px] font-medium uppercase tracking-[0.16em] text-ivory/40 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-[clamp(3rem,5vw,6rem)]">
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-6 py-5 text-[9px] font-medium uppercase tracking-[0.16em] text-ivory/40 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-[clamp(3rem,5vw,6rem)]">
           <p>© 2026 Veora Wellness</p>
           <nav aria-label="Legal" className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link href="/policies#privacy-cookies" className="transition-colors hover:text-ivory focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory">
