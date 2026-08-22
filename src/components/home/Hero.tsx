@@ -103,7 +103,7 @@ export function Hero() {
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-14 sm:px-8 sm:pb-16 lg:px-12 lg:pb-20">
         <div className="max-w-6xl sm:mx-auto sm:text-center">
           <motion.p
-            className="text-xs font-semibold uppercase tracking-[0.18em] text-ivory/85 sm:text-[13px]"
+            className="text-xs font-semibold uppercase tracking-[0.18em] text-ivory/85 sm:mx-auto sm:text-[13px]"
             initial={reduceMotion ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.7, delay: reduceMotion ? 0 : 0.25, ease: EASE }}

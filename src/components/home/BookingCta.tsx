@@ -21,7 +21,7 @@ export function BookingCta() {
       <div className="absolute inset-0 bg-gradient-to-b from-walnut/90 via-walnut/60 to-walnut/90" />
 
       <AnimatedSection className="relative z-10 mx-auto max-w-3xl px-6 text-center sm:px-8">
-        <p className="text-xs font-medium uppercase tracking-[0.3em] text-clay">
+        <p className="mx-auto text-xs font-medium uppercase tracking-[0.3em] text-cream/85">
           Ready to move?
         </p>
         <h2 className="font-display balance mt-5 text-[clamp(2rem,5vw,3.5rem)] leading-[1.1] text-ivory">

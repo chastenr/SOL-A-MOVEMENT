@@ -31,6 +31,7 @@ export function SectionHeading({
         <p
           className={cn(
             "mb-4 text-xs font-semibold uppercase tracking-[0.2em]",
+            align === "center" && "mx-auto",
             tone === "dark" ? "text-clay" : "text-cream"
           )}
         >
@@ -52,6 +53,7 @@ export function SectionHeading({
         <p
           className={cn(
             "mt-5 text-base leading-[1.7] sm:text-[1.0625rem]",
+            align === "center" && "mx-auto",
             tone === "dark" ? "text-charcoal/70" : "text-ivory/80"
           )}
         >

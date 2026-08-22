@@ -218,7 +218,7 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
           </section>
 
           <section className="py-14 text-center" aria-labelledby="more-classes-heading">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">Keep exploring</p>
+            <p className="mx-auto text-xs font-semibold uppercase tracking-[0.16em] text-clay">Keep exploring</p>
             <h2 id="more-classes-heading" className="font-display mt-3 text-3xl text-charcoal">More ways to move at Veora</h2>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
               {otherServices.map((item) => <Button key={item.slug} href={`/services/${item.slug}`} variant="secondary">{item.name}</Button>)}

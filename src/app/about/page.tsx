@@ -42,7 +42,7 @@ export default function AboutPage() {
 
       <section className="mx-auto max-w-3xl px-6 py-14 text-center sm:px-8 sm:py-16">
         <AnimatedSection>
-          <p className="font-display balance text-2xl leading-relaxed text-charcoal sm:text-3xl">
+          <p className="font-display balance mx-auto text-2xl leading-relaxed text-charcoal sm:text-3xl">
             Veora was created for anyone who wants movement to feel less like a task and more
             like a return to themselves — strength built with care, mobility restored with
             patience, and a studio that feels like it was designed just for you.
@@ -123,7 +123,7 @@ export default function AboutPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em]">Our Mission</p>
             <span className="h-px w-8 bg-current opacity-35" aria-hidden />
           </div>
-          <p className="font-display balance mt-6 text-3xl leading-tight text-charcoal sm:text-4xl">
+          <p className="font-display balance mx-auto mt-6 text-3xl leading-tight text-charcoal sm:text-4xl">
             We believe movement should be accessible, intentional and enjoyable for every body —
             and that belief guides every class we teach.
           </p>

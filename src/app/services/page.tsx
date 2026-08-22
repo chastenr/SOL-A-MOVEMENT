@@ -129,7 +129,7 @@ export default async function ServicesPage() {
       <section className="bg-sand/25 py-14 sm:py-16">
         <div className="mx-auto max-w-3xl px-6 text-center sm:px-8">
           <AnimatedSection>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Studio Rentals</p>
+            <p className="mx-auto text-xs font-semibold uppercase tracking-[0.18em] text-clay">Studio Rentals</p>
             <h2 className="font-display balance mt-3 text-3xl text-charcoal sm:text-4xl md:text-5xl">Host your next event at Veora.</h2>
             <p className="mx-auto mt-5 max-w-[62ch] text-base leading-[1.7] text-charcoal/75 sm:text-[1.0625rem]">Our studio is also available for private rentals — perfect for wellness events, workshops and intimate gatherings, with or without an instructor.</p>
             <div className="mt-6 flex flex-wrap justify-center gap-4">

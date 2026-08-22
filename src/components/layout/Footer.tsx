@@ -53,7 +53,7 @@ export function Footer() {
           </p>
           <h2
             id="footer-ritual-heading"
-            className="font-display mt-5 max-w-[11ch] text-[clamp(3.25rem,6vw,6.25rem)] leading-[0.95] tracking-[-0.035em] text-ivory"
+            className="font-display mt-5 max-w-[11ch] text-[clamp(3.25rem,6vw,6.25rem)] leading-[0.95] tracking-[-0.035em] text-ivory sm:max-w-none sm:whitespace-nowrap"
           >
             Your ritual continues.
           </h2>

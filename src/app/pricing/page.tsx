@@ -151,7 +151,7 @@ export default async function PricingPage() {
 
       <section className="mx-auto max-w-3xl px-6 pb-14 text-center sm:px-8 sm:pb-16">
         <AnimatedSection>
-          <p className="text-sm text-charcoal/55">
+          <p className="mx-auto text-sm text-charcoal/55">
             Class credits are personal and non-transferable. Please cancel or reschedule at least
             12 hours before your class. Full terms are available on our{" "}
             <Link href="/policies" className="underline underline-offset-2 hover:text-charcoal">
