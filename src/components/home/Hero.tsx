@@ -102,9 +102,14 @@ export function Hero() {
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-14 sm:px-8 sm:pb-16 lg:px-12 lg:pb-20">
         <div className="max-w-6xl sm:mx-auto sm:text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ivory/85 sm:text-[13px]">
+          <motion.p
+            className="text-xs font-semibold uppercase tracking-[0.18em] text-ivory/85 sm:text-[13px]"
+            initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.7, delay: reduceMotion ? 0 : 0.25, ease: EASE }}
+          >
             {siteConfig.name} · Bacoor, Cavite
-          </p>
+          </motion.p>
           <h1 className="font-display mt-4 max-w-6xl text-[clamp(2.75rem,5.4vw,4.75rem)] font-medium leading-[1.02] tracking-[-0.02em] text-ivory">
             <span className="block lg:whitespace-nowrap">Move with intention.</span>
             <span className="block lg:whitespace-nowrap">Feel your best.</span>

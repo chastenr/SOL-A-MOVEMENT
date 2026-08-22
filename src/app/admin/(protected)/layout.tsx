@@ -19,6 +19,7 @@ const NAV = [
   { href: "/admin/customers", label: "Customers", icon: "customers", section: "People" },
   { href: "/admin/coaches", label: "Coaches", icon: "coaches", section: "People" },
   { href: "/admin/payments", label: "Payments", icon: "payments", section: "Management" },
+  { href: "/admin/memberships", label: "Memberships", icon: "memberships", section: "Management" },
   {
     href: "/admin/settings",
     label: "Settings",
@@ -41,7 +42,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
   const admin = await requireAdmin();
   const notificationFeed = await getAdminNotifications(admin.id, 100);
   const navItems = NAV
-    .filter((item) => admin.role === "super_admin" || (item.href !== "/admin/payments" && item.href !== "/admin/settings"))
+    .filter((item) => admin.role === "super_admin" || (!["/admin/payments", "/admin/memberships", "/admin/settings"].includes(item.href)))
     .map((item) => item.href === "/admin/notifications"
       ? { ...item, badge: notificationFeed.unreadCount }
       : item);

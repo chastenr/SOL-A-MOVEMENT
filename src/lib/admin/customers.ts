@@ -134,12 +134,16 @@ export async function getCustomerPackagesForAdmin(userId: string): Promise<Admin
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
+  const now = Date.now();
   return (data ?? []).map((row) => ({
     id: row.id,
     packageName: row.package_name_snapshot,
     creditCount: row.credit_count,
     remainingCredits: row.remaining_credits,
-    status: row.status,
+    status:
+      row.status === "active" && row.expires_at && new Date(row.expires_at).getTime() <= now
+        ? "expired"
+        : row.status,
     activatedAt: row.activated_at,
     expiresAt: row.expires_at,
   }));

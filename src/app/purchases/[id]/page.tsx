@@ -131,7 +131,7 @@ export default async function PurchaseDetailPage({ params }: { params: Promise<{
           <div className="mt-6 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4">
             <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-600" aria-hidden />
             <div>
-              <p className="text-emerald-800">Payment approved — your credits are active.</p>
+              <p className="text-emerald-800">Payment approved — your booking access is active.</p>
               <Button href="/account" size="md" className="mt-3">
                 Go to My Account
               </Button>

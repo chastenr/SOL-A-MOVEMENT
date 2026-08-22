@@ -1,194 +1,213 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, Sparkle } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { siteConfig } from "@/data/site";
 import { COOKIE_SETTINGS_EVENT } from "@/components/privacy/CookieConsent";
+import { EASE } from "@/lib/motion";
 
-function InstagramIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      aria-hidden
-    >
-      <rect x="3" y="3" width="18" height="18" rx="5" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
+const ritualNavigation = [
+  { number: "01", title: "Studio", description: "Discover Veora", href: "/about" },
+  { number: "02", title: "Classes", description: "Find your movement", href: "/services" },
+  { number: "03", title: "Packages", description: "Choose your ritual", href: "/pricing" },
+  { number: "04", title: "Schedule", description: "Plan your week", href: "/schedule" },
+  { number: "05", title: "Visit", description: "Come see us", href: "/locations" },
+] as const;
 
-function FacebookIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden>
-      <path d="M15 8h2V5h-2c-1.657 0-3 1.343-3 3v2H9v3h3v7h3v-7h2.5l.5-3H15V8z" />
-    </svg>
-  );
-}
+const socialLinks = [
+  { label: "Instagram", detail: "@veora.ph", href: siteConfig.social.instagram },
+  { label: "Facebook", detail: "Veora PH", href: siteConfig.social.facebook },
+] as const;
 
 export function Footer() {
   const pathname = usePathname();
-  // The admin dashboard is its own product surface with its own chrome
-  // (see admin/(protected)/layout.tsx) — it doesn't share the public footer.
+  const reduceMotion = useReducedMotion();
+
+  // The admin dashboard is its own product surface with its own chrome.
   if (pathname.startsWith("/admin") || pathname === "/site-locked") return null;
 
+  const phoneDisplay = siteConfig.contact.phone.replace(/^0/, "+63 ").replaceAll("-", " ");
+  const phoneHref = siteConfig.contact.phone.replace(/\D/g, "").replace(/^0/, "+63");
+  const studioHours = siteConfig.hours[0];
+
   return (
-    <footer className="texture-plaster bg-walnut text-ivory">
-      <div className="relative z-10 mx-auto max-w-7xl px-6 py-16 sm:px-8 sm:py-20 lg:px-12">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="lg:col-span-2">
-            <div className="flex w-fit items-center gap-4 sm:gap-6">
-              <Image
-                src="/veora-mark.png"
-                alt=""
-                width={608}
-                height={676}
-                quality={100}
-                className="h-20 w-auto shrink-0 brightness-0 invert sm:h-24"
-              />
+    <footer
+      className="texture-plaster relative overflow-hidden bg-walnut text-ivory"
+      style={{
+        background:
+          "radial-gradient(circle at 72% 18%, rgba(250,247,242,0.04), transparent 34%), var(--color-walnut)",
+      }}
+    >
+      <div className="relative z-10 mx-auto max-w-[1600px] px-6 pt-28 sm:px-8 sm:pt-32 lg:px-[clamp(3rem,5vw,6rem)] lg:pt-36">
+        <motion.section
+          aria-labelledby="footer-ritual-heading"
+          initial={reduceMotion ? false : { opacity: 0, y: 36 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-10% 0px" }}
+          transition={{ duration: reduceMotion ? 0 : 0.9, ease: EASE }}
+        >
+          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-ivory/55 sm:text-[11px]">
+            Move · Flow · Dance
+          </p>
+          <h2
+            id="footer-ritual-heading"
+            className="font-display mt-7 max-w-[11ch] text-[clamp(3.25rem,7vw,7.375rem)] leading-[0.95] tracking-[-0.035em] text-ivory"
+          >
+            Your ritual continues.
+          </h2>
+          <p className="mt-8 text-sm tracking-[0.03em] text-ivory/65 sm:ml-[clamp(3rem,16vw,15rem)] sm:text-base">
+            Move intentionally. Live fully.
+          </p>
+        </motion.section>
 
-              <div className="flex min-w-0 flex-col items-center">
-                <Image
-                  src="/veora-wordmark.png"
-                  alt={siteConfig.shortName}
-                  width={1218}
-                  height={189}
-                  quality={100}
-                  className="h-auto w-48 brightness-0 invert sm:w-56"
+        <nav aria-label="Footer navigation" className="mt-24 sm:mt-28 lg:mt-32">
+          <ol className="grid border-t border-ivory/15 lg:grid-cols-5">
+            {ritualNavigation.map((item, index) => (
+              <li key={item.href} className="relative lg:border-l lg:border-ivory/10 lg:first:border-l-0">
+                <Link
+                  href={item.href}
+                  className="group flex min-h-20 items-center gap-5 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ivory lg:min-h-36 lg:items-start lg:px-5 lg:py-7 xl:px-7"
+                >
+                  <span className="w-5 shrink-0 pt-0.5 text-[9px] font-medium tracking-[0.16em] text-ivory/40">
+                    {item.number}
+                  </span>
+                  <span className="min-w-0 flex-1 transition-transform duration-300 ease-[var(--ease-veora)] group-hover:translate-x-1.5 group-focus-visible:translate-x-1.5">
+                    <span className="flex items-center justify-between gap-3">
+                      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-ivory/85">
+                        {item.title}
+                      </span>
+                      <ArrowUpRight
+                        className="h-3.5 w-3.5 -translate-x-1 text-ivory/60 opacity-0 transition-all duration-300 ease-[var(--ease-veora)] group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100"
+                        strokeWidth={1.4}
+                        aria-hidden
+                      />
+                    </span>
+                    <span className="mt-3 hidden text-xs tracking-[0.02em] text-ivory/45 lg:block">
+                      {item.description}
+                    </span>
+                  </span>
+                </Link>
+                <motion.span
+                  aria-hidden
+                  className="absolute inset-x-0 bottom-0 h-px origin-left bg-ivory/20"
+                  initial={reduceMotion ? false : { scaleX: 0 }}
+                  whileInView={{ scaleX: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: reduceMotion ? 0 : 0.8, delay: reduceMotion ? 0 : index * 0.08, ease: EASE }}
                 />
+              </li>
+            ))}
+          </ol>
+        </nav>
 
-                <div className="mt-3 flex items-center gap-3" aria-hidden>
-                  <span className="h-px w-9 bg-ivory/40" />
-                  <Sparkle className="h-3.5 w-3.5 shrink-0 text-ivory/75" strokeWidth={1.35} />
-                  <span className="h-px w-9 bg-ivory/40" />
-                </div>
-                <p className="mt-3 whitespace-nowrap text-xs font-semibold uppercase tracking-[0.18em] text-ivory/85">
-                  Move. Flow. Dance.
-                </p>
-                <p className="mt-2 whitespace-nowrap text-[11px] font-medium uppercase tracking-[0.14em] text-ivory/75">
-                  Where Movement Becomes Ritual
-                </p>
-              </div>
-            </div>
+        <motion.section
+          aria-label="Studio information"
+          className="relative z-10 mt-24 grid gap-12 text-sm sm:mt-28 sm:grid-cols-2 lg:mt-32 lg:grid-cols-3 lg:gap-16"
+          initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-8% 0px" }}
+          transition={{ duration: reduceMotion ? 0 : 0.9, delay: reduceMotion ? 0 : 0.18, ease: EASE }}
+        >
+          <div>
+            <h3 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/75">
+              Veora Wellness Studio
+            </h3>
+            <address className="mt-5 max-w-xs not-italic leading-[1.8] text-ivory/55">
+              <span className="block">{siteConfig.contact.address.line1}</span>
+              <span className="block">{siteConfig.contact.address.line2}</span>
+            </address>
+          </div>
 
-            <p className="font-display mt-6 max-w-xs text-xl italic leading-snug text-ivory/80">
-              {siteConfig.tagline}
+          <div>
+            <h3 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/75">
+              {studioHours?.day ?? "Studio hours"}
+            </h3>
+            <p className="mt-5 text-base tracking-[0.04em] text-ivory/65">
+              {studioHours?.hours ?? siteConfig.hoursNote}
             </p>
-            <div className="mt-7">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ivory/65">
-                Follow Veora
-              </p>
-              <div className="mt-3 grid w-full max-w-sm grid-cols-1 gap-3 min-[390px]:grid-cols-2">
-                <Link
-                  href={siteConfig.social.instagram}
+          </div>
+
+          <div className="sm:col-span-2 lg:col-span-1">
+            <h3 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/75">Bookings</h3>
+            <div className="mt-5 flex flex-col items-start gap-2 text-ivory/60">
+              <a
+                href={`tel:${phoneHref}`}
+                className="transition-colors hover:text-ivory focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory"
+              >
+                {phoneDisplay}
+              </a>
+              <a
+                href={`mailto:${siteConfig.contact.email}`}
+                className="transition-colors hover:text-ivory focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory"
+              >
+                {siteConfig.contact.email}
+              </a>
+            </div>
+
+            <div className="mt-8 flex flex-col items-start gap-3">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="group flex min-h-14 items-center gap-3 rounded-full border border-ivory/20 bg-ivory/[0.04] px-4 text-ivory transition-colors hover:border-ivory/40 hover:bg-ivory/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory focus-visible:ring-offset-2 focus-visible:ring-offset-walnut"
+                  className="group inline-flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.16em] text-ivory/55 transition-colors hover:text-ivory focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory"
                 >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ivory/10" aria-hidden>
-                    <InstagramIcon size={17} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-xs font-semibold uppercase tracking-[0.12em]">Instagram</span>
-                    <span className="mt-0.5 block truncate text-xs text-ivory/65">@veora.ph</span>
-                  </span>
-                  <ArrowUpRight
-                    className="h-3.5 w-3.5 shrink-0 text-ivory/50 transition-colors group-hover:text-ivory"
-                    strokeWidth={1.5}
-                    aria-hidden
-                  />
-                  <span className="sr-only">Follow Veora; opens in a new tab</span>
-                </Link>
-                <Link
-                  href={siteConfig.social.facebook}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="group flex min-h-14 items-center gap-3 rounded-full border border-ivory/20 bg-ivory/[0.04] px-4 text-ivory transition-colors hover:border-ivory/40 hover:bg-ivory/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory focus-visible:ring-offset-2 focus-visible:ring-offset-walnut"
-                >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ivory/10" aria-hidden>
-                    <FacebookIcon size={17} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-xs font-semibold uppercase tracking-[0.12em]">Facebook</span>
-                    <span className="mt-0.5 block truncate text-xs text-ivory/65">Veora PH</span>
-                  </span>
-                  <ArrowUpRight
-                    className="h-3.5 w-3.5 shrink-0 text-ivory/50 transition-colors group-hover:text-ivory"
-                    strokeWidth={1.5}
-                    aria-hidden
-                  />
-                  <span className="sr-only">Follow Veora; opens in a new tab</span>
-                </Link>
-              </div>
+                  <span>{social.label}</span>
+                  <span className="hidden normal-case tracking-normal text-ivory/35 sm:inline">{social.detail}</span>
+                  <span className="h-px w-0 bg-ivory/55 transition-[width] duration-300 ease-[var(--ease-veora)] group-hover:w-8 group-focus-visible:w-8" aria-hidden />
+                  <ArrowUpRight className="h-3 w-3" strokeWidth={1.4} aria-hidden />
+                  <span className="sr-only">; opens in a new tab</span>
+                </a>
+              ))}
             </div>
           </div>
+        </motion.section>
 
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ivory/80">Explore</p>
-            <ul className="mt-4 space-y-2.5">
-              {siteConfig.footerNav.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm leading-relaxed text-ivory/85 transition-colors hover:text-ivory"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ivory/80">Studio</p>
-            <ul className="mt-4 space-y-2.5 text-sm leading-relaxed text-ivory/85">
-              <li>{siteConfig.contact.address.line1}</li>
-              <li>{siteConfig.contact.address.line2}</li>
-              <li>{siteConfig.contact.phone}</li>
-              <li>{siteConfig.contact.email}</li>
-            </ul>
-          </div>
+        <div className="relative mt-24 h-[clamp(6.5rem,19vw,19rem)] sm:mt-20" aria-hidden>
+          <motion.p
+            className="font-display absolute inset-x-1/2 bottom-[-0.1em] w-max -translate-x-1/2 select-none whitespace-nowrap text-[25vw] leading-[0.72] tracking-[0.04em] text-ivory/[0.075] sm:text-[clamp(8rem,18vw,20rem)]"
+            initial={reduceMotion ? false : { clipPath: "inset(0 100% 0 0)" }}
+            whileInView={{ clipPath: "inset(0 0% 0 0)" }}
+            viewport={{ once: true, margin: "-5% 0px" }}
+            transition={{ duration: reduceMotion ? 0 : 1.15, ease: EASE }}
+          >
+            VEORA
+          </motion.p>
         </div>
+      </div>
 
-        <div className="mt-10 grid gap-3 border-t border-ivory/15 pt-6 text-xs leading-relaxed text-ivory/75 sm:grid-cols-2">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <p>© 2026 {siteConfig.name}. All rights reserved.</p>
+      <div className="relative z-10 border-t border-ivory/15 bg-walnut/95">
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-6 py-6 text-[9px] font-medium uppercase tracking-[0.16em] text-ivory/40 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-[clamp(3rem,5vw,6rem)]">
+          <p>© 2026 Veora Wellness</p>
+          <nav aria-label="Legal" className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Link href="/policies#privacy-cookies" className="transition-colors hover:text-ivory focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory">
+              Privacy
+            </Link>
+            <Link href="/policies#general-terms" className="transition-colors hover:text-ivory focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory">
+              Terms
+            </Link>
+            <Link href="/policies" className="transition-colors hover:text-ivory focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory">
+              Policies
+            </Link>
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event(COOKIE_SETTINGS_EVENT))}
-              className="underline decoration-ivory/20 underline-offset-4 transition-colors hover:text-ivory/75"
+              className="transition-colors hover:text-ivory focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory"
             >
               Cookie settings
             </button>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:justify-end sm:text-right">
-            {siteConfig.hours.length > 0 ? (
-              siteConfig.hours.map((entry, index) => (
-                <span key={entry.day}>
-                  {entry.day} {entry.hours}
-                  {index < siteConfig.hours.length - 1 && <span className="mx-2">·</span>}
-                </span>
-              ))
-            ) : (
-              <span>{siteConfig.hoursNote}</span>
-            )}
-            <Link
-              href="https://elevenchase.com"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex items-center text-ivory/75 transition-colors hover:text-ivory"
-            >
-              <span className="text-[10px] font-medium uppercase tracking-[0.14em]">Powered by ElevenChase</span>
-              <span className="sr-only">website; opens in a new tab</span>
-            </Link>
-          </div>
+          </nav>
+          <a
+            href="https://elevenchase.com"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="transition-colors hover:text-ivory/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory"
+          >
+            Powered by ElevenChase<span className="sr-only">; opens in a new tab</span>
+          </a>
         </div>
       </div>
     </footer>

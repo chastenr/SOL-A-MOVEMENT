@@ -86,9 +86,18 @@ export default async function AccountPage() {
           {activeMembership ? (
             <>
               <p className="mt-3 text-charcoal">{activeMembership.membershipName}</p>
-              <p className="mt-1 text-sm text-charcoal/60">Unlimited class bookings while active</p>
+              <p className="mt-1 text-sm text-charcoal/60">Active · 1 class per calendar day</p>
               <p className="text-sm text-charcoal/60">
-                Expires {formatManilaLongDate(activeMembership.expiresAt)}
+                {centavosToPeso(activeMembership.monthlyFeeCentavos)}/month
+              </p>
+              <p className="text-sm text-charcoal/60">
+                Commitment ends {formatManilaLongDate(activeMembership.commitmentEndsAt)}
+              </p>
+              {activeMembership.nextPaymentDue && (
+                <p className="text-sm text-charcoal/60">Next payment {formatManilaLongDate(activeMembership.nextPaymentDue)}</p>
+              )}
+              <p className="mt-2 text-sm font-medium text-charcoal">
+                Today: {activeMembership.todayBookingAvailable ? "1 class available" : "daily booking used"}
               </p>
               <Button href="/account/book" variant="secondary" size="md" className="mt-4">
                 Book with Membership
@@ -96,7 +105,11 @@ export default async function AccountPage() {
             </>
           ) : (
             <>
-              <p className="mt-3 text-charcoal/70">No active unlimited membership.</p>
+              <p className="mt-3 text-charcoal/70">
+                {memberships[0]
+                  ? `${memberships[0].membershipName}: ${memberships[0].status.replaceAll("_", " ")}`
+                  : "No active unlimited membership."}
+              </p>
               <Button href="/pricing" variant="secondary" size="md" className="mt-4">
                 View Memberships
               </Button>

@@ -5,6 +5,7 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
   changePasswordSchema,
+  classSessionFormSchema,
 } from "@/lib/validations";
 
 const validSignUp = {
@@ -118,5 +119,25 @@ describe("changePasswordSchema", () => {
         confirmPassword: "password2",
       }).success
     ).toBe(false);
+  });
+});
+
+describe("classSessionFormSchema", () => {
+  const session = {
+    classTypeId: "11111111-1111-4111-8111-111111111111",
+    locationId: "22222222-2222-4222-8222-222222222222",
+    instructorId: "",
+    startAt: "2026-09-15T09:00",
+    durationMinutes: 50,
+    capacity: 20,
+    minimumParticipants: "",
+  };
+
+  it("accepts the 20-person studio maximum", () => {
+    expect(classSessionFormSchema.safeParse(session).success).toBe(true);
+  });
+
+  it("rejects a 21-person group class", () => {
+    expect(classSessionFormSchema.safeParse({ ...session, capacity: 21 }).success).toBe(false);
   });
 });

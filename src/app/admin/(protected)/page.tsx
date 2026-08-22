@@ -80,6 +80,7 @@ async function getTodayStats(includePaymentStats: boolean) {
     customerCountResult,
     newCustomerCountResult,
     pendingPaymentResult,
+    membershipAttentionResult,
     unverifiedPhoneResult,
   ] = await Promise.all([
     sessionIds.length
@@ -94,6 +95,12 @@ async function getTodayStats(includePaymentStats: boolean) {
           .select("id", { count: "exact", head: true })
           .in("purchase_status", ["pending_payment", "proof_submitted"])
       : Promise.resolve({ count: 0, error: null }),
+    includePaymentStats
+      ? supabase
+          .from("customer_memberships")
+          .select("id", { count: "exact", head: true })
+          .in("status", ["pending_payment", "payment_verification", "past_due", "suspended"])
+      : Promise.resolve({ count: 0, error: null }),
     supabase
       .from("profiles")
       .select("id", { count: "exact", head: true })
@@ -105,6 +112,7 @@ async function getTodayStats(includePaymentStats: boolean) {
   if (customerCountResult.error) console.error("[getTodayStats] customer count query failed", customerCountResult.error);
   if (newCustomerCountResult.error) console.error("[getTodayStats] new customer count query failed", newCustomerCountResult.error);
   if (pendingPaymentResult.error) console.error("[getTodayStats] pending payment count query failed", pendingPaymentResult.error);
+  if (membershipAttentionResult.error) console.error("[getTodayStats] membership attention query failed", membershipAttentionResult.error);
   if (unverifiedPhoneResult.error) console.error("[getTodayStats] unverified phone count query failed", unverifiedPhoneResult.error);
 
   const rows = bookings ?? [];
@@ -138,6 +146,7 @@ async function getTodayStats(includePaymentStats: boolean) {
         session.booked_count < session.minimum_participants
     ).length,
     pendingPayments: pendingPaymentResult.count ?? 0,
+    membershipsRequiringAttention: membershipAttentionResult.count ?? 0,
     unverifiedPhones: unverifiedPhoneResult.count ?? 0,
     totalCustomers: customerCountResult.count ?? 0,
     newCustomersToday: newCustomerCountResult.count ?? 0,
@@ -174,7 +183,10 @@ export default async function AdminDashboardPage() {
   const actionItems = [
     { label: "Pending bookings", count: today.pendingBookings, href: "/admin/bookings?status=pending" },
     ...(isOwner
-      ? [{ label: "Payments awaiting review", count: today.pendingPayments, href: "/admin/payments" }]
+      ? [
+          { label: "Payments awaiting review", count: today.pendingPayments, href: "/admin/payments" },
+          { label: "Memberships requiring attention", count: today.membershipsRequiringAttention, href: "/admin/memberships" },
+        ]
       : []),
     { label: "Classes below minimum", count: today.belowMinimum, href: "/admin/classes" },
     { label: "Clients without verified phone", count: today.unverifiedPhones, href: "/admin/customers" },
@@ -245,7 +257,7 @@ export default async function AdminDashboardPage() {
                   <p className="mt-1 text-sm text-charcoal/55">Coach {today.nextSession.instructor?.name ?? "TBA"}</p>
                 </div>
                 <p className="text-sm font-medium text-charcoal">
-                  {today.nextSession.booked_count}/{today.nextSession.capacity} spots
+                  {Math.max(today.nextSession.capacity - today.nextSession.booked_count, 0)} / {today.nextSession.capacity} spots available
                 </p>
               </div>
               <div className="mt-4 h-2 overflow-hidden rounded-full bg-charcoal/[0.07]" aria-hidden>

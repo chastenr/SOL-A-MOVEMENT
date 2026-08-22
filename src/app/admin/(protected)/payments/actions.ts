@@ -20,6 +20,9 @@ function friendlyPurchaseActionError(message: string): string {
   if (message.includes("not found")) {
     return "This payment could not be found — it may have been removed.";
   }
+  if (message.includes("payment proof is required")) {
+    return "Payment proof must be uploaded and submitted before approval.";
+  }
   return message || "Something went wrong. Please try again.";
 }
 
@@ -38,7 +41,12 @@ export async function approvePurchaseAction(purchaseId: string): Promise<ActionR
   const { data, error } = await supabase.rpc("approve_purchase", { p_purchase_id: purchaseId }).single();
   if (error) return { error: friendlyPurchaseActionError(error.message) };
 
-  const result = data as { purchase_id: string; customer_package_id: string; already_processed: boolean };
+  const result = data as {
+    purchase_id: string;
+    customer_package_id: string | null;
+    customer_membership_id: string | null;
+    already_processed: boolean;
+  };
 
   revalidatePath("/admin/payments");
   revalidatePath(`/admin/payments/${purchaseId}`);

@@ -33,16 +33,6 @@ export function StudioExperience() {
               containerClassName="mask-arch-deep aspect-[4/5] shadow-glow-warm sm:aspect-[5/4] lg:aspect-auto lg:h-full lg:min-h-[460px]"
               sizes="(min-width: 1024px) 45vw, 100vw"
             />
-            <div className="absolute -bottom-6 -right-4 hidden w-[38%] sm:block lg:-right-8">
-              <ImageReveal
-                src={images.studioExperienceTwo.src}
-                alt={images.studioExperienceTwo.alt}
-                width={400}
-                height={400}
-                containerClassName="mask-arch aspect-square border-4 border-cream shadow-[0_16px_40px_-16px_rgba(34,31,28,0.45)]"
-                sizes="(min-width: 1024px) 18vw, 38vw"
-              />
-            </div>
           </div>
 
           <div className="flex flex-col justify-center">

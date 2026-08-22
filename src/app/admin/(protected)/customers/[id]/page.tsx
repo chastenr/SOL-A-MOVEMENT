@@ -222,9 +222,18 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
           <div className="mt-4 space-y-3">
             {memberships.map((membership) => (
               <div key={membership.id} className="rounded-xl border border-charcoal/10 bg-ivory p-4">
-                <p className="text-charcoal">{membership.membershipName}</p>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-charcoal">{membership.membershipName}</p>
+                  {admin.role === "super_admin" && (
+                    <a href={`/admin/memberships#${membership.id}`} className="text-xs underline underline-offset-2">Manage</a>
+                  )}
+                </div>
                 <p className="mt-1 text-sm text-charcoal/60">
-                  <span className="capitalize">{membership.status}</span> · {formatManilaDate(membership.startsAt)}–{formatManilaDate(membership.expiresAt)}
+                  <span className="capitalize">{membership.status.replaceAll("_", " ")}</span> · {formatManilaDate(membership.startsAt)}–{formatManilaDate(membership.commitmentEndsAt)}
+                </p>
+                <p className="mt-1 text-sm text-charcoal/60">
+                  {centavosToPeso(membership.monthlyFeeCentavos)}/month · Payment: {membership.paymentStatus.replaceAll("_", " ")}
+                  {membership.nextPaymentDue ? ` · Next due ${formatManilaDate(membership.nextPaymentDue)}` : ""}
                 </p>
               </div>
             ))}

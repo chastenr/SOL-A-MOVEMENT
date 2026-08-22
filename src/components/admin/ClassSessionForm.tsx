@@ -53,7 +53,7 @@ export function ClassSessionForm({
       instructorId: "",
       startAt: "",
       durationMinutes: CLASS_DURATION_MINUTES,
-      capacity: 10,
+      capacity: 20,
       minimumParticipants: "",
     },
   });
@@ -208,13 +208,14 @@ export function ClassSessionForm({
       )}
 
       <Field label="Capacity" required error={errors.capacity?.message}>
-        <input type="number" step="1" {...register("capacity")} className={fieldInputClasses} />
+        <input type="number" min="1" max="20" step="1" {...register("capacity")} className={fieldInputClasses} />
+        <p className="mt-1 text-xs text-charcoal/40">Studio maximum: 20 attendees.</p>
       </Field>
       <Field
         label="Minimum Participants (optional)"
         error={errors.minimumParticipants?.message}
       >
-        <input type="number" step="1" placeholder="No minimum" {...register("minimumParticipants")} className={fieldInputClasses} />
+        <input type="number" min="1" max="20" step="1" placeholder="No minimum" {...register("minimumParticipants")} className={fieldInputClasses} />
       </Field>
 
       {serverError && <p className="text-sm text-red-600 sm:col-span-2">{serverError}</p>}

@@ -129,6 +129,7 @@ export function ClassTimeSlotRow({
         <input
           type="number"
           min={1}
+          max={20}
           value={capacity}
           onChange={(event) => setCapacity(event.target.value)}
           className={`${fieldInputClasses} py-1.5 text-sm`}

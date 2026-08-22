@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/generate-sessions",
       "schedule": "10 16 * * *"
+    },
+    {
+      "path": "/api/cron/membership-dues",
+      "schedule": "15 16 * * *"
     }
   ]
 }

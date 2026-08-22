@@ -18,7 +18,7 @@ export default function PoliciesPage() {
           as="h1"
           eyebrow="Studio Policies"
           heading="Terms & conditions."
-          body="The policies below govern bookings, classes, studio rentals, privacy and website cookies at Veora."
+          body="The policies below govern bookings, classes, memberships, privacy and website cookies at Veora."
         />
       </AnimatedSection>
 

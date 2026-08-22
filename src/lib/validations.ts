@@ -196,9 +196,9 @@ export const classSessionFormSchema = z
     instructorId: z.string().uuid("Invalid instructor.").optional().or(z.literal("")),
     startAt: z.string().min(1, "Start time is required."),
     durationMinutes: z.coerce.number().int().min(15).max(240),
-    capacity: z.coerce.number().int().min(1).max(100),
+    capacity: z.coerce.number().int().min(1).max(20, "Group classes can have at most 20 attendees."),
     // Optional — no minimum enforced (studio decides per session whether one applies).
-    minimumParticipants: z.coerce.number().int().min(1).max(100).optional().or(z.literal("")),
+    minimumParticipants: z.coerce.number().int().min(1).max(20).optional().or(z.literal("")),
   })
   .superRefine((data, ctx) => {
     if (data.startAt && !isWithinStudioHours(data.startAt, data.durationMinutes)) {

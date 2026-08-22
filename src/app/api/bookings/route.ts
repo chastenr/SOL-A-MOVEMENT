@@ -18,7 +18,7 @@ const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0003: { status: 409, message: "This package has no remaining credits." },
   P0004: { status: 404, message: "That class could not be found." },
   P0005: { status: 409, message: "You already have a booking for this class." },
-  P0006: { status: 409, message: "Sorry, this class just filled up." },
+  P0006: { status: 409, message: "Sorry, this class just became full. Please choose another schedule." },
   P0009: { status: 409, message: "Bookings close at 10:00 PM the evening before class." },
   P0010: { status: 409, message: "Bookings are currently closed for this class." },
   P0011: { status: 409, message: "This class is not included with the selected package." },
@@ -26,7 +26,8 @@ const ERROR_MAP: Record<string, { status: number; message: string }> = {
   P0013: { status: 409, message: "This membership is not active." },
   P0014: { status: 409, message: "This membership has not started yet." },
   P0015: { status: 409, message: "This membership has expired." },
-  P0016: { status: 409, message: "Your membership allows one class per day." },
+  P0016: { status: 409, message: "Your membership allows one class per day. You already have a booking for this date." },
+  P0017: { status: 409, message: "Your membership payment is past due. Please contact Veora before booking." },
   // book_class_session() takes row locks on the package and session (see
   // migration 0013) so two overlapping requests for the same booking
   // normally just serialize and the second gets a proper P0005 above — but

@@ -52,6 +52,20 @@ export default async function AccountBookPage({
     (membership) =>
       membership.isCurrentlyActive
   );
+  const latestMembership = allMemberships[0];
+  const membershipAccessMessage = latestMembership
+    ? latestMembership.status === "past_due" || latestMembership.paymentStatus === "past_due"
+      ? "Your membership payment is past due. Booking access will return after payment is approved."
+      : latestMembership.status === "suspended" || latestMembership.paymentStatus === "failed"
+        ? "Your membership is suspended because its payment needs attention. Please contact Veora."
+        : latestMembership.status === "cancelled"
+          ? "Your membership has been cancelled."
+          : latestMembership.status === "expired"
+            ? "Your membership has expired."
+            : latestMembership.paymentStatus === "pending_verification"
+              ? "Your membership payment is pending verification."
+              : "Your membership is not currently eligible for booking."
+    : null;
   const requestedPackage = requestedService
     ? activePackages.find((pkg) => packageSupportsService(pkg.serviceSlug, requestedService))
     : undefined;
@@ -97,7 +111,9 @@ export default async function AccountBookPage({
 
       {activePackages.length === 0 && !activeMembership ? (
         <div className="mt-8 rounded-2xl border border-charcoal/10 bg-ivory p-8 text-center">
-          <p className="text-charcoal/60">You don&rsquo;t have an active package with credits available.</p>
+          <p className="text-charcoal/60">
+            {membershipAccessMessage ?? "You don’t have an active package with credits available."}
+          </p>
           <Button href="/pricing" className="mt-4">
             View Packages
           </Button>
@@ -131,7 +147,7 @@ export default async function AccountBookPage({
               <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-clay">Active unlimited membership</p>
               <p className="font-display mt-2 text-3xl text-charcoal">{activeMembership.membershipName}</p>
               <p className="mt-2 text-sm text-charcoal/65">
-                No class credits are deducted. Normal capacity, duplicate-booking, and booking-cutoff rules still apply.
+                1 class per calendar day. No class credits are deducted; normal capacity and booking-cutoff rules still apply.
               </p>
             </div>
           )}

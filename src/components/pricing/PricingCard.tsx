@@ -42,11 +42,16 @@ export function PricingCard({ option, ctaType, className }: PricingCardProps) {
         <p className="font-display text-xl text-charcoal">{option.name}</p>
 
         <div className="mt-4 flex items-baseline gap-2">
-          <span className="font-display text-4xl text-charcoal">{displayedPrice}</span>
           {displayedOriginalPrice && (
             <span className="text-sm text-charcoal/40 line-through">{displayedOriginalPrice}</span>
           )}
+          <span className="font-display text-4xl text-charcoal">{displayedPrice}</span>
         </div>
+        {promotionActive && (
+          <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-clay">
+            September Pre-Opening Price
+          </p>
+        )}
         <p className="mt-1 text-xs uppercase tracking-[0.1em] text-charcoal/45">{option.validity}</p>
 
         <p className="mt-5 text-base leading-[1.7] text-charcoal/75">{option.description}</p>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, Check, Clock3, MapPin, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Clock3, Droplets, MapPin, ShieldAlert, Sparkles } from "lucide-react";
 import { services as staticServices } from "@/data/services";
 import { siteConfig } from "@/data/site";
 import { getServiceBySlug } from "@/lib/catalog/services";
@@ -174,6 +174,32 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
               </ul>
             </section>
           ) : null}
+
+          {service.slug === "recovery-restore" && (
+            <section className="rounded-[2rem] border border-clay/25 bg-clay/[0.07] px-6 py-10 sm:px-10" aria-labelledby="infratone-safety-heading">
+              <div className="flex items-start gap-4">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-clay/15 text-clay">
+                  <ShieldAlert size={21} aria-hidden />
+                </span>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">Infratone Safety</p>
+                  <h2 id="infratone-safety-heading" className="font-display mt-2 text-3xl text-charcoal">Please check before a heated or infrared session.</h2>
+                  <p className="mt-4 max-w-4xl text-base leading-[1.75] text-charcoal/75">
+                    Heated and infrared sessions may not be suitable for everyone. If you have a medical condition, are pregnant, take medication that affects heat regulation, or are unsure whether Infratone is appropriate for you, please consult your physician before participating.
+                  </p>
+                </div>
+              </div>
+              <ul className="mt-7 grid gap-3 text-sm text-charcoal/70 sm:grid-cols-2 lg:grid-cols-3">
+                {["Pregnancy", "Heart or cardiovascular conditions", "Blood pressure concerns", "Heat sensitivity", "Dehydration risk", "Medication affecting heat regulation", "Recent surgery or injury", "Other conditions where heat exposure may be inappropriate"].map((item) => (
+                  <li key={item} className="flex gap-2 rounded-xl bg-ivory/70 p-3"><Check size={15} className="mt-0.5 shrink-0 text-clay" aria-hidden />{item}</li>
+                ))}
+              </ul>
+              <div className="mt-6 flex gap-3 rounded-xl bg-ivory p-4 text-sm leading-relaxed text-charcoal/70">
+                <Droplets size={19} className="mt-0.5 shrink-0 text-clay" aria-hidden />
+                <p>Hydrate before, during and after your session. Stop immediately if you feel dizzy, faint, nauseated or unwell, and inform the instructor before class when appropriate. This guidance is general safety information, not medical diagnosis or individualized medical advice.</p>
+              </div>
+            </section>
+          )}
 
           <section className="py-14" aria-labelledby="prepare-heading">
             <div className="grid gap-8 md:grid-cols-3">

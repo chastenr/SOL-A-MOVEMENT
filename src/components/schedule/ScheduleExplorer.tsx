@@ -75,10 +75,10 @@ function sessionState(session: ScheduleExplorerSession, alreadyBooked = false) {
       : !session.bookingEnabled
     ? "Unavailable"
     : isFull
-      ? "Full"
+      ? "FULL"
       : cutoffPassed
         ? "Closed"
-        : `${spotsLeft}/${session.capacity} spots`;
+        : `${spotsLeft} / ${session.capacity} spots available`;
 
   return { canBook, spotsLeft, label };
 }

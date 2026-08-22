@@ -318,8 +318,8 @@ export async function setClassTimeSlotTemplateAction(
   values: ClassTimeSlotTemplateValues
 ): Promise<ActionResult> {
   await requireAdmin();
-  if (!Number.isInteger(values.capacity) || values.capacity < 1) {
-    return { error: "Capacity must be at least 1." };
+  if (!Number.isInteger(values.capacity) || values.capacity < 1 || values.capacity > 20) {
+    return { error: "Capacity must be a whole number from 1 to 20." };
   }
   if (values.minimumParticipants !== null && values.minimumParticipants > values.capacity) {
     return { error: "Minimum can't be greater than capacity." };

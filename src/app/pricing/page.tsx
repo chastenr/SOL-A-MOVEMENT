@@ -118,7 +118,7 @@ export default async function PricingPage() {
       <PricingSection
         eyebrow="Discovery Pass"
         heading="Your first Veora class for ₱999."
-        body="The Discovery Pass keeps its existing introductory price and is not included in the September 10% promotion."
+        body="The Discovery Pass keeps its existing introductory price and is not included in the September pre-opening promotion."
         options={pricing.introOffers}
         ctaType="book"
       />
@@ -126,7 +126,7 @@ export default async function PricingPage() {
       <PricingSection
         eyebrow="Class Packages"
         heading="Choose the rhythm that works for you."
-        body="Veora Essence includes 3 classes and Veora Flow includes 6. The 10% promotional rates apply during September only."
+        body="Veora Essence includes 3 classes and Veora Flow includes 6. The 9% pre-opening prices apply during September only."
         options={pricing.packages}
         ctaType="book"
       />
@@ -134,7 +134,7 @@ export default async function PricingPage() {
       <PricingSection
         eyebrow="Unlimited Memberships"
         heading="Make Veora part of your routine."
-        body="Veora Unlimited, Signature and Prestige receive 10% off during September. Memberships are personal, non-transferable and limited to one class per day. Contract enrollment opens when monthly auto-payment is available."
+        body="Veora Unlimited, Signature and Prestige receive 9% off during September. Memberships are paid monthly, personal, non-transferable and limited to one class per calendar day."
         options={veoraMemberships}
         ctaType="book"
       />
