@@ -118,7 +118,11 @@ export default function AboutPage() {
 
       <section className="mx-auto max-w-4xl px-6 py-14 text-center sm:px-8 sm:py-16">
         <AnimatedSection>
-          <p className="text-xs font-medium uppercase tracking-[0.22em] text-clay">Our Mission</p>
+          <div className="flex items-center justify-center gap-3 text-charcoal/65">
+            <span className="h-px w-8 bg-current opacity-35" aria-hidden />
+            <p className="text-xs font-semibold uppercase tracking-[0.22em]">Our Mission</p>
+            <span className="h-px w-8 bg-current opacity-35" aria-hidden />
+          </div>
           <p className="font-display balance mt-6 text-3xl leading-tight text-charcoal sm:text-4xl">
             We believe movement should be accessible, intentional and enjoyable for every body —
             and that belief guides every class we teach.
@@ -128,9 +132,13 @@ export default function AboutPage() {
 
       <section className="mx-auto max-w-7xl px-6 pb-14 sm:px-8 sm:pb-16 lg:px-12">
         <AnimatedSection className="texture-plaster rounded-3xl bg-walnut px-8 py-12 text-center sm:px-16 sm:py-16">
+          <div className="mb-4 flex items-center justify-center gap-3 text-ivory/75">
+            <span className="h-px w-8 bg-current opacity-35" aria-hidden />
+            <p className="text-xs font-semibold uppercase tracking-[0.22em]">Community</p>
+            <span className="h-px w-8 bg-current opacity-35" aria-hidden />
+          </div>
           <SectionHeading
             align="center"
-            eyebrow="Community"
             heading="A studio, and a community."
             body="Veora welcomes everyone, regardless of age, gender or fitness level — a place to be seen, supported and encouraged as you build a practice that's your own."
             tone="light"
