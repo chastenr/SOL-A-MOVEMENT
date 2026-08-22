@@ -100,6 +100,16 @@ const nextConfig: NextConfig = {
       ...(supabaseImagePattern ? [supabaseImagePattern] : []),
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "veora.ph" }],
+        destination: "https://www.veora.ph/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

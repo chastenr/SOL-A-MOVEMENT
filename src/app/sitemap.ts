@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { siteConfig } from "@/data/site";
 import { getServices } from "@/lib/catalog/services";
 import { images } from "@/data/images";
+import { articles } from "@/data/articles";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const services = await getServices();
@@ -14,6 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/locations",
     "/contact",
     "/faq",
+    "/articles",
     "/policies",
   ];
 
@@ -37,5 +39,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     images: [service.image.src],
   }));
 
-  return [...pages, ...classPages];
+  const articlePages: MetadataRoute.Sitemap = articles.map((article) => ({
+    url: `${siteConfig.url}/articles/${article.slug}`,
+    lastModified: article.publishedAt,
+    changeFrequency: "monthly",
+    priority: 0.7,
+    images: [article.image.src],
+  }));
+
+  return [...pages, ...classPages, ...articlePages];
 }

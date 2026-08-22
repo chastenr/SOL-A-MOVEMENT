@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { differenceInMinutes } from "date-fns";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CalendarDays, ChevronLeft, ChevronRight, Clock3, MapPin, UserRound, Users, X } from "lucide-react";
 import { isPastBookingCutoff } from "@/lib/booking-cutoff";
 import { getArrivalTime } from "@/lib/studio-hours";
@@ -153,6 +154,10 @@ export function ScheduleExplorer({
   const [requestedMonth, setRequestedMonth] = useState(availableMonths[0] ?? "");
   const [selectedSession, setSelectedSession] = useState<ScheduleExplorerSession | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const dailyScheduleRef = useRef<HTMLElement>(null);
+  const lastTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const reduceMotion = useReducedMotion();
   const selectedDate = sessionsByDate.some(([key]) => key === requestedDate)
     ? requestedDate
     : (sessionsByDate[0]?.[0] ?? "");
@@ -170,20 +175,56 @@ export function ScheduleExplorer({
     setSelectedSession(null);
   }
 
+  function selectDate(key: string, scrollToSchedule = false) {
+    setRequestedDate(key);
+    setSelectedSession(null);
+    if (scrollToSchedule) {
+      window.requestAnimationFrame(() => {
+        dailyScheduleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  }
+
+  function openSession(session: ScheduleExplorerSession, trigger: HTMLButtonElement) {
+    lastTriggerRef.current = trigger;
+    setRequestedDate(dateKeyFormatter.format(new Date(session.startAt)));
+    setSelectedSession(session);
+  }
+
   useEffect(() => {
     if (!selectedSession) return;
     const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    document.body.style.setProperty("overflow", "hidden");
     closeButtonRef.current?.focus();
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setSelectedSession(null);
+      if (event.key === "Escape") {
+        setSelectedSession(null);
+        return;
+      }
+
+      if (event.key !== "Tab" || !dialogRef.current) return;
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousOverflow;
+      if (previousOverflow) document.body.style.setProperty("overflow", previousOverflow);
+      else document.body.style.removeProperty("overflow");
+      window.requestAnimationFrame(() => lastTriggerRef.current?.focus());
     };
   }, [selectedSession]);
 
@@ -211,10 +252,7 @@ export function ScheduleExplorer({
                 role="tab"
                 aria-selected={active}
                 aria-controls="daily-schedule"
-                onClick={() => {
-                  setRequestedDate(key);
-                  setSelectedSession(null);
-                }}
+                onClick={() => selectDate(key, true)}
                 className={cn(
                   "min-w-[5.25rem] shrink-0 rounded-2xl border px-4 py-3 text-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay",
                   active
@@ -247,6 +285,7 @@ export function ScheduleExplorer({
                 new Date(Date.UTC(Number(visibleMonth.slice(0, 4)), Number(visibleMonth.slice(5, 7)) - 1, 1))
               )}
             </h2>
+            <p className="mt-1.5 text-sm text-charcoal/60">Choose a date, or click a class to view details and book.</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -285,41 +324,47 @@ export function ScheduleExplorer({
             const hasSessions = daySessions.length > 0;
 
             return (
-              <button
+              <div
                 key={cell.key}
-                type="button"
-                disabled={!hasSessions}
-                aria-pressed={isSelected}
-                aria-label={`${cell.key}, ${daySessions.length} class${daySessions.length === 1 ? "" : "es"}`}
-                onClick={() => {
-                  setRequestedDate(cell.key);
-                  setSelectedSession(null);
-                }}
                 className={cn(
-                  "min-h-44 border-b border-r border-charcoal/10 p-2.5 text-left align-top transition-colors focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-clay",
+                  "min-h-44 border-b border-r border-charcoal/10 p-2.5 text-left align-top transition-colors",
                   index % 7 === 6 && "border-r-0",
                   index >= 35 && "border-b-0",
                   !cell.inMonth && "bg-cream/20 text-charcoal/30",
                   cell.inMonth && !hasSessions && "cursor-default bg-ivory text-charcoal/45",
-                  hasSessions && "hover:bg-cream/40",
                   isSelected && "bg-sand/35 ring-2 ring-inset ring-clay/55"
                 )}
               >
-                <span className={cn("flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold", isSelected && "bg-charcoal text-ivory")}>
-                  {cell.day}
-                </span>
+                {hasSessions ? (
+                  <button
+                    type="button"
+                    aria-pressed={isSelected}
+                    aria-controls="daily-schedule"
+                    aria-label={`${cell.key}, show ${daySessions.length} class${daySessions.length === 1 ? "" : "es"} in the day list`}
+                    onClick={() => selectDate(cell.key, true)}
+                    className="group flex w-full items-center justify-between rounded-lg text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay"
+                  >
+                    <span className={cn("flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold", isSelected && "bg-charcoal text-ivory")}>{cell.day}</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-charcoal/0 transition-colors group-hover:text-charcoal/45">View day</span>
+                  </button>
+                ) : (
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold">{cell.day}</span>
+                )}
                 {daySessions.length > 0 && (
-                  <span className="mt-2 block space-y-1.5">
+                  <div className="mt-2 space-y-1.5">
                     <span className="block px-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-charcoal/55">
                       {daySessions.length} {daySessions.length === 1 ? "class" : "classes"}
                     </span>
                     {daySessions.slice(0, MAX_CALENDAR_SESSIONS).map((session) => {
                       const state = sessionState(session, bookedSessionIds.includes(session.id));
                       return (
-                        <span
+                        <button
                           key={session.id}
+                          type="button"
                           title={`${timeFormatter.format(new Date(session.startAt))} · ${session.className} · ${state.label}`}
-                          className="block rounded-lg border border-clay/20 bg-clay/8 px-2 py-1.5"
+                          aria-label={`View ${session.className} at ${timeFormatter.format(new Date(session.startAt))}. ${state.label}`}
+                          onClick={(event) => openSession(session, event.currentTarget)}
+                          className="group/session block w-full rounded-lg border border-clay/20 bg-clay/8 px-2 py-1.5 text-left transition-[border-color,background-color,transform] hover:-translate-y-px hover:border-clay/50 hover:bg-clay/12 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-clay"
                         >
                           <span className="block text-[10px] font-semibold uppercase tracking-[0.04em] text-clay">
                             {timeFormatter.format(new Date(session.startAt))}
@@ -330,7 +375,8 @@ export function ScheduleExplorer({
                           <span className={cn("mt-1 block text-[10px] font-medium uppercase tracking-[0.04em]", state.canBook ? "text-clay" : "text-charcoal/50")}>
                             {state.label}
                           </span>
-                        </span>
+                          <span className="mt-1 block text-[9px] font-semibold uppercase tracking-[0.06em] text-charcoal/45 opacity-0 transition-opacity group-hover/session:opacity-100 group-focus-visible/session:opacity-100">View details →</span>
+                        </button>
                       );
                     })}
                     {daySessions.length > MAX_CALENDAR_SESSIONS && (
@@ -338,15 +384,15 @@ export function ScheduleExplorer({
                         +{daySessions.length - MAX_CALENDAR_SESSIONS} more in the day list
                       </span>
                     )}
-                  </span>
+                  </div>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
       </section>
 
-      <section id="daily-schedule" role="tabpanel" className="mt-7" aria-labelledby="daily-schedule-heading">
+      <section ref={dailyScheduleRef} id="daily-schedule" role="tabpanel" className="mt-7 scroll-mt-32" aria-labelledby="daily-schedule-heading">
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-clay">Step 2</p>
@@ -357,54 +403,67 @@ export function ScheduleExplorer({
           <p className="text-sm text-charcoal/70">Select a time to see class and coach details</p>
         </div>
 
-        <div className="overflow-hidden rounded-[1.5rem] border border-charcoal/10 bg-ivory">
-          {selectedDay.map((session, index) => {
-            const state = sessionState(session, bookedSessionIds.includes(session.id));
-            return (
-              <button
-                key={session.id}
-                type="button"
-                onClick={() => setSelectedSession(session)}
-                className={cn(
-                  "group grid w-full grid-cols-[5.75rem_1fr_auto] items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-cream/45 focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-clay sm:grid-cols-[8rem_1fr_9rem_auto] sm:px-6 sm:py-5",
-                  index > 0 && "border-t border-charcoal/10"
-                )}
-                aria-label={`${timeFormatter.format(new Date(session.startAt))}, ${session.className}, ${state.label}`}
-              >
-                <p className="font-display text-xl text-charcoal sm:text-2xl">
-                  {timeFormatter.format(new Date(session.startAt))}
-                </p>
-                <div className="min-w-0">
-                  <p className="line-clamp-2 text-base leading-snug text-charcoal sm:text-lg">{session.className}</p>
-                  <p className="mt-1 truncate text-sm text-charcoal/70">
-                    {session.instructor ? `with ${session.instructor}` : "Coach to be announced"}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={selectedDate}
+            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -5 }}
+            transition={{ duration: reduceMotion ? 0 : 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden rounded-[1.5rem] border border-charcoal/10 bg-ivory"
+          >
+            {selectedDay.map((session, index) => {
+              const state = sessionState(session, bookedSessionIds.includes(session.id));
+              return (
+                <button
+                  key={session.id}
+                  type="button"
+                  onClick={(event) => openSession(session, event.currentTarget)}
+                  className={cn(
+                    "group grid w-full grid-cols-[5.75rem_1fr_auto] items-center gap-3 px-4 py-4 text-left transition-[background-color,transform] duration-300 ease-[var(--ease-veora)] hover:bg-cream/45 focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-clay sm:grid-cols-[8rem_1fr_9rem_auto] sm:px-6 sm:py-5",
+                    index > 0 && "border-t border-charcoal/10"
+                  )}
+                  aria-label={`${timeFormatter.format(new Date(session.startAt))}, ${session.className}, ${state.label}`}
+                >
+                  <p className="font-display text-xl text-charcoal sm:text-2xl">
+                    {timeFormatter.format(new Date(session.startAt))}
                   </p>
-                </div>
-                <div className="hidden sm:block">
-                  <span className={cn(
-                    "rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em]",
-                    state.canBook ? "bg-clay/10 text-clay" : "bg-charcoal/8 text-charcoal/45"
-                  )}>
-                    {state.label}
-                  </span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-charcoal/35 transition-transform group-hover:translate-x-0.5 group-hover:text-clay" aria-hidden />
-              </button>
-            );
-          })}
-        </div>
+                  <div className="min-w-0">
+                    <p className="line-clamp-2 text-base leading-snug text-charcoal sm:text-lg">{session.className}</p>
+                    <p className="mt-1 truncate text-sm text-charcoal/70">
+                      {session.instructor ? `with ${session.instructor}` : "Coach to be announced"}
+                    </p>
+                  </div>
+                  <div className="hidden sm:block">
+                    <span className={cn(
+                      "rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em]",
+                      state.canBook ? "bg-clay/10 text-clay" : "bg-charcoal/8 text-charcoal/45"
+                    )}>
+                      {state.label}
+                    </span>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-charcoal/35 transition-all duration-300 ease-[var(--ease-veora)] group-hover:translate-x-1 group-hover:text-clay" aria-hidden />
+                </button>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
       </section>
 
-      {selectedSession && (
-        <SessionDetailDialog
-          session={selectedSession}
-          memberPackage={memberPackagesBySessionId?.[selectedSession.id] ?? memberPackage}
-          uncoveredSessionHref={uncoveredSessionHref}
-          alreadyBooked={bookedSessionIds.includes(selectedSession.id)}
-          closeButtonRef={closeButtonRef}
-          onClose={() => setSelectedSession(null)}
-        />
-      )}
+      <AnimatePresence>
+        {selectedSession && (
+          <SessionDetailDialog
+            key={selectedSession.id}
+            session={selectedSession}
+            memberPackage={memberPackagesBySessionId?.[selectedSession.id] ?? memberPackage}
+            uncoveredSessionHref={uncoveredSessionHref}
+            alreadyBooked={bookedSessionIds.includes(selectedSession.id)}
+            closeButtonRef={closeButtonRef}
+            dialogRef={dialogRef}
+            onClose={() => setSelectedSession(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -415,6 +474,7 @@ function SessionDetailDialog({
   uncoveredSessionHref,
   alreadyBooked,
   closeButtonRef,
+  dialogRef,
   onClose,
 }: {
   session: ScheduleExplorerSession;
@@ -422,6 +482,7 @@ function SessionDetailDialog({
   uncoveredSessionHref?: string;
   alreadyBooked: boolean;
   closeButtonRef: React.RefObject<HTMLButtonElement | null>;
+  dialogRef: React.RefObject<HTMLDivElement | null>;
   onClose: () => void;
 }) {
   const startAt = new Date(session.startAt);
@@ -430,14 +491,29 @@ function SessionDetailDialog({
   const arrivalTime = timeFormatter.format(getArrivalTime(startAt));
   const bookingHref = `/book?${new URLSearchParams({ session: session.id, service: session.serviceSlug }).toString()}`;
   const coachInitial = session.instructor?.trim().charAt(0).toUpperCase() || "V";
+  const reduceMotion = useReducedMotion();
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-end justify-center bg-charcoal/55 sm:items-center sm:px-5" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <div
+    <motion.div
+      className="fixed inset-0 z-[90] flex items-end justify-center bg-charcoal/55 backdrop-blur-[2px] sm:justify-end"
+      role="presentation"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.25, ease: "easeOut" }}
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    >
+      <motion.div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="session-detail-title"
-        className="max-h-[92vh] w-full overflow-y-auto rounded-t-[2rem] bg-ivory shadow-2xl sm:max-w-2xl sm:rounded-[2rem]"
+        aria-describedby="session-detail-description"
+        className="max-h-[92vh] w-full overflow-y-auto rounded-t-[2rem] bg-ivory shadow-2xl sm:h-full sm:max-h-none sm:max-w-xl sm:rounded-none sm:rounded-l-[2rem]"
+        initial={reduceMotion ? false : { opacity: 0, x: 32, y: 18, scale: 0.99 }}
+        animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+        exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: 24, y: 12, scale: 0.995 }}
+        transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 360, damping: 36, mass: 0.85 }}
       >
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-charcoal/10 bg-ivory/95 px-5 py-4 backdrop-blur sm:px-7">
           <div>
@@ -468,7 +544,9 @@ function SessionDetailDialog({
             </span>
           </div>
 
-          {session.classDescription && <p className="mt-4 text-base leading-[1.7] text-charcoal/75">{session.classDescription}</p>}
+          <p id="session-detail-description" className="mt-4 text-base leading-[1.7] text-charcoal/75">
+            {session.classDescription || "Review the schedule, coach and availability before continuing to book."}
+          </p>
 
           <dl className="mt-6 grid gap-3 rounded-2xl bg-cream/55 p-4 text-base leading-relaxed sm:grid-cols-2 sm:p-5">
             <div className="flex gap-3"><CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-clay" aria-hidden /><div><dt className="text-charcoal/40">Date</dt><dd className="mt-0.5 text-charcoal">{fullDateFormatter.format(startAt)}</dd></div></div>
@@ -523,7 +601,7 @@ function SessionDetailDialog({
             <p className="mt-3 text-center text-sm leading-relaxed text-charcoal/70">Bookings close at 10:00 PM PHT the evening before class. The 12-hour cancellation policy applies.</p>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

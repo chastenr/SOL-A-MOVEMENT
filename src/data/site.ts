@@ -60,6 +60,7 @@ export const siteConfig = {
     { label: "Classes", href: "/services" },
     { label: "Packages", href: "/pricing" },
     { label: "Schedule", href: "/schedule" },
+    { label: "Articles", href: "/articles" },
     { label: "Contact", href: "/contact" },
   ],
 
@@ -71,6 +72,7 @@ export const siteConfig = {
     { label: "Locations", href: "/locations" },
     { label: "Contact", href: "/contact" },
     { label: "FAQ", href: "/faq" },
+    { label: "Articles", href: "/articles" },
     { label: "Policies", href: "/policies" },
   ],
 

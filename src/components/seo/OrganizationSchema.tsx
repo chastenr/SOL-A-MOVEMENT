@@ -43,8 +43,18 @@ export function OrganizationSchema() {
         logo: `${siteConfig.url}/veora-logo-full.png`,
         telephone: siteConfig.contact.phone,
         email: siteConfig.contact.email,
-        priceRange: "₱850–₱1,500",
         parentOrganization: { "@id": organizationId },
+        areaServed: [
+          { "@type": "City", name: "Bacoor" },
+          { "@type": "AdministrativeArea", name: "Cavite" },
+        ],
+        contactPoint: {
+          "@type": "ContactPoint",
+          contactType: "customer service",
+          telephone: siteConfig.contact.phone,
+          email: siteConfig.contact.email,
+          availableLanguage: ["English", "Filipino"],
+        },
         address: {
           "@type": "PostalAddress",
           streetAddress: siteConfig.contact.address.streetAddress,
